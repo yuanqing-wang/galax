@@ -526,3 +526,160 @@ class GraphIndex(NamedTuple):
             dat = jnp.concatenate([x, y], axis=0)
             inc = BCOO(data=dat, indices=idx, shape=(n, m))
         return inc
+
+    def to_networkx(self):
+        """Convert to networkx graph.
+
+        The edge id will be saved as the 'id' edge attribute.
+
+        Returns
+        -------
+        networkx.DiGraph
+            The nx graph
+        """
+        src, dst, eid = self.edges()
+        # xiangsx: Always treat graph as multigraph
+        ret = nx.MultiDiGraph()
+        ret.add_nodes_from(range(self.number_of_nodes()))
+        for u, v, e in zip(src, dst, eid):
+            ret.add_edge(u, v, id=e)
+        return ret
+
+def from_coo(num_nodes, src, dst):
+    """Convert from coo arrays.
+
+    Parameters
+    ----------
+    num_nodes : int
+        Number of nodes.
+    src : Tensor
+        Src end nodes of the edges.
+    dst : Tensor
+        Dst end nodes of the edges.
+
+    Returns
+    -------
+    GraphIndex
+        The graph index.
+    """
+    return GraphIndex(
+        n_nodes=num_nodes,
+        src=src,
+        dst=dst,
+    )
+
+from networkx(nx_graph):
+    """Convert from networkx graph.
+
+    If 'id' edge attribute exists, the edge will be added follows
+    the edge id order. Otherwise, order is undefined.
+
+    Parameters
+    ----------
+    nx_graph : networkx.DiGraph
+        The nx graph or any graph that can be converted to nx.DiGraph
+
+    Returns
+    -------
+    GraphIndex
+        The graph index.
+    """
+    if not isinstance(nx_graph, nx.Graph):
+        nx_graph = nx.DiGraph(nx_graph)
+    else:
+        if not nx_graph.is_directed():
+            # to_directed creates a deep copy of the networkx graph even if
+            # the original graph is already directed and we do not want to do it.
+            nx_graph = nx_graph.to_directed()
+    num_nodes = nx_graph.number_of_nodes()
+
+    # nx_graph.edges(data=True) returns src, dst, attr_dict
+    if nx_graph.number_of_edges() > 0:
+        has_edge_id = 'id' in next(iter(nx_graph.edges(data=True)))[-1]
+    else:
+        has_edge_id = False
+
+    if has_edge_id:
+        num_edges = nx_graph.number_of_edges()
+        src = np.zeros((num_edges,), dtype=np.int64)
+        dst = np.zeros((num_edges,), dtype=np.int64)
+        for u, v, attr in nx_graph.edges(data=True):
+            eid = attr['id']
+            src[eid] = u
+            dst[eid] = v
+    else:
+        src = []
+        dst = []
+        for e in nx_graph.edges:
+            src.append(e[0])
+            dst.append(e[1])
+    num_nodes = nx_graph.number_of_nodes()
+    # We store edge Ids as an edge attribute.
+    src = jnp.array(src)
+    dst = jnp.array(dst)
+    return from_coo(num_nodes, src, dst)
+
+def from_scipy_sparse_matrix(adj):
+    """Convert from scipy sparse matrix.
+
+    Parameters
+    ----------
+    adj : scipy sparse matrix
+
+    Returns
+    -------
+    GraphIndex
+        The graph index.
+    """
+    num_nodes = max(adj.shape[0], adj.shape[1])
+    adj_coo = adj.tocoo()
+    return from_coo(num_nodes, adj_coo.row, adj_coo.col)
+
+def from_edge_list(elist, readonly):
+    """Convert from an edge list.
+
+    Parameters
+    ---------
+    elist : list, tuple
+        List of (u, v) edge tuple, or a tuple of src/dst lists
+
+    """
+    if isinstance(elist, tuple):
+        src, dst = elist
+    else:
+        src, dst = zip(*elist)
+    src_ids = jnp.asarray(src)
+    dst_ids = jnp.asarray(dst)
+    num_nodes = max(src.max(), dst.max()) + 1
+    return from_coo(num_nodes, src_ids, dst_ids)
+
+def create_graph_index(graph_data):
+    """Create a graph index object.
+
+    Parameters
+    ----------
+    graph_data : graph data
+        Data to initialize graph. Same as networkx's semantics.
+
+    """
+    if isinstance(graph_data, GraphIndex):
+        # FIXME(minjie): this return is not correct for mutable graph index
+        return graph_data
+
+    if graph_data is None:
+        return GraphIndex()
+    elif isinstance(graph_data, (list, tuple)):
+        # edge list
+        return from_edge_list(graph_data, readonly)
+    elif isinstance(graph_data, scipy.sparse.spmatrix):
+        # scipy format
+        return from_scipy_sparse_matrix(graph_data, readonly)
+    else:
+        try:
+            gidx = from_networkx(graph_data, readonly)
+        except Exception:
+            raise RuntimeError(
+                "'Error while creating graph from input of type "%s".'
+                % type(graph_data)"
+            )
+        return gidx

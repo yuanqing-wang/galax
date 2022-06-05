@@ -2,6 +2,7 @@
 from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional
 import jax.numpy as jnp
 import numpy as onp
+from jax.experimental.sparse import BCOO
 
 class GraphIndex(NamedTuple):
     """Graph index object.
@@ -450,7 +451,6 @@ class GraphIndex(NamedTuple):
             A index for data shuffling due to sparse format change. Return None
             if shuffle is not required.
         """
-        from jax.experimental.sparse import BCOO
         m = self.number_of_edges()
         n = self.number_of_nodes()
         if transpose:
@@ -461,4 +461,68 @@ class GraphIndex(NamedTuple):
         data = jnp.ones((m,))
         shape = (n, n)
         spmat = BCOO(data=data, indices=idx, shape=shape)
-        return spmat, None
+        return spmat
+
+    def incidence_matrix(self, typestr):
+        """Return the incidence matrix representation of this graph.
+
+        An incidence matrix is an n x m sparse matrix, where n is
+        the number of nodes and m is the number of edges. Each nnz
+        value indicating whether the edge is incident to the node
+        or not.
+
+        There are three types of an incidence matrix `I`:
+        * "in":
+          - I[v, e] = 1 if e is the in-edge of v (or v is the dst node of e);
+          - I[v, e] = 0 otherwise.
+        * "out":
+          - I[v, e] = 1 if e is the out-edge of v (or v is the src node of e);
+          - I[v, e] = 0 otherwise.
+        * "both":
+          - I[v, e] = 1 if e is the in-edge of v;
+          - I[v, e] = -1 if e is the out-edge of v;
+          - I[v, e] = 0 otherwise (including self-loop).
+
+        Parameters
+        ----------
+        typestr : str
+            Can be either "in", "out" or "both"
+
+        Returns
+        -------
+        SparseTensor
+            The incidence matrix.
+        jnp.ndarray
+            A index for data shuffling due to sparse format change. Return None
+            if shuffle is not required.
+        """
+        src, dst, eid = self.edges()
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+        if typestr == 'in':
+            row, col = dst, eid
+            idx = jnp.stack([row, col], axis=0)
+            dat = jnp.ones((m,))
+            inc = BCOO(data=dat, indices=idx, shape=(n, m))
+        elif typestr == 'out':
+            row, col = src, eid
+            idx = jnp.stack([row, col], axis=0)
+            dat = jnp.ones((m,))
+            inc = BCOO(data=dat, indices=idx, shape=(n, m))
+        elif typestr == 'both':
+            # first remove entries for self loops
+            mask = (src != dst)
+            src = src[mask]
+            dst = dst[mask]
+            eid = eid[mask]
+            n_entries = src.shape[0]
+            # create index
+            row = jnp.concatenate([src, dst], axis=0)
+            col = jnp.concatenate([eid, eid], axis=0)
+            idx = jnp.stack([row, col], axis=0)
+            # FIXME(minjie): data type
+            x = -jnp.ones((n_entries,))
+            y = jnp.ones((n_entries,))
+            dat = jnp.concatenate([x, y], axis=0)
+            inc = BCOO(data=dat, indices=idx, shape=(n, m))
+        return inc

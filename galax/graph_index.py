@@ -1,8 +1,9 @@
 """Module for graph index class definition."""
-from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional
+from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple
 import jax.numpy as jnp
 import numpy as onp
 from jax.experimental.sparse import BCOO
+from dataclasses import field
 
 class GraphIndex(NamedTuple):
     """Graph index object.
@@ -21,18 +22,39 @@ class GraphIndex(NamedTuple):
     All transformations returns new GraphIndex object rather than modify it
     in-place.
 
-    """
-    n_nodes: int
-    src: Optional[jnp.ndarray]
-    dst: Optional[jnp.ndarray]
+    Examples
+    --------
+    >>> g = GraphIndex()
+    >>> assert g.n_nodes == 0
+    >>> assert len(g.src) == 0
+    >>> assert len(g.dst) == 0
 
-    def add_nodes(self, num):
+    >>> g = GraphIndex(n_nodes=2, src=jnp.array([0]), dst=jnp.array([1]))
+    >>> assert g.n_nodes == 2
+
+    """
+    n_nodes: int = 0
+    src: Optional[jnp.ndarray] = None
+    dst: Optional[jnp.ndarray] = None
+
+    if src is None: src = jnp.array([], dtype=jnp.int32)
+    if dst is None: dst = jnp.array([], dtype=jnp.int32)
+
+    def add_nodes(self, num: int):
         """Add nodes.
 
         Parameters
         ----------
         num : int
             Number of nodes to be added.
+
+        Examples
+        --------
+        >>> g = GraphIndex()
+        >>> g_new = g.add_nodes(num=1)
+        >>> (g.n_nodes, g_new.n_nodes)
+        (0, 1)
+
         """
         return self.__class__(
             n_nodes=self.n_nodes+num,
@@ -40,7 +62,7 @@ class GraphIndex(NamedTuple):
             dst=self.dst,
         )
 
-    def add_edge(self, u, v):
+    def add_edge(self, u: int, v: int):
         """Add one edge.
         Parameters
         ----------
@@ -48,45 +70,82 @@ class GraphIndex(NamedTuple):
             The src node.
         v : int
             The dst node.
+
+        Examples
+        --------
+        >>> g = GraphIndex()
+        >>> g = g.add_nodes(2)
+        >>> g = g.add_edge(0, 1)
+        >>> g.src.tolist()
+        [0]
+        >>> g.dst.tolist()
+        [1]
+
         """
         return self.__class__(
             n_nodes=self.n_nodes,
-            src=jnp.concatenate([src, jnp.array([u])]),
-            dst=jnp.concatenate([dst, jnp.array([v])]),
+            src=jnp.concatenate([self.src, jnp.array([u])]),
+            dst=jnp.concatenate([self.dst, jnp.array([v])]),
         )
 
-    def is_multigraph(self):
+    def is_multigraph(self) -> bool:
         """Return whether the graph is a multigraph
 
         Returns
         -------
         bool
             True if it is a multigraph, False otherwise.
+
+        Examples
+        --------
+        >>> GraphIndex(
+        ...     n_nodes=2, src=jnp.array([0]), dst=jnp.array([1])
+        ... ).is_multigraph()
+        False
+
+        >>> GraphIndex(
+        ...     n_nodes=2, src=jnp.array([0, 0]), dst=jnp.array([1, 1])
+        ... ).is_multigraph()
+        True
+
         """
         src_and_dst = jnp.stack([self.src, self.dst], axis=-1)
-        return jnp.unique(src_and_dst, axis=0).shape[0] == src_and_dst.shape[0]
+        return jnp.unique(src_and_dst, axis=0).shape[0] != src_and_dst.shape[0]
 
-    def number_of_nodes(self):
+    def number_of_nodes(self) -> int:
         """Return the number of nodes.
 
         Returns
         -------
         int
             The number of nodes
+
+        Examples
+        --------
+        >>> GraphIndex(2666).number_of_nodes()
+        2666
+
         """
         return self.n_nodes
 
-    def number_of_edges(self):
+    def number_of_edges(self) -> int:
         """Return the number of edges.
 
         Returns
         -------
         int
             The number of edges
+
+        Examples
+        --------
+        >>> g = GraphIndex(2)
+        >>> g = g.add_edge(0, 1)
+        >>> g.number_of_edges()
+        1
         """
         return self.src.shape[0]
 
-    def has_node(self, vid):
+    def has_node(self, vid: int) -> bool:
         """Return true if the node exists.
 
         Parameters
@@ -98,10 +157,19 @@ class GraphIndex(NamedTuple):
         -------
         bool
             True if the node exists, False otherwise.
+
+        Examples
+        --------
+        >>> GraphIndex(5).has_node(5)
+        False
+
+        >>> GraphIndex(4).has_node(3)
+        True
+
         """
         return vid < self.number_of_nodes()
 
-    def has_nodes(self, vids):
+    def has_nodes(self, vids: jnp.ndarray) -> jnp.array:
         """Return true if the nodes exist.
 
         Parameters
@@ -113,10 +181,18 @@ class GraphIndex(NamedTuple):
         -------
         jnp.ndarray
             0-1 array indicating existence
-        """
-        return 1 * (vid < self.number_of_nodes)
 
-    def has_edge_between(self, u, v):
+        Examples
+        --------
+        >>> g = GraphIndex(2)
+        >>> vids = jnp.array([0, 1, 2])
+        >>> g.has_nodes(vids).tolist()
+        [1, 1, 0]
+
+        """
+        return 1 * (vids < self.number_of_nodes())
+
+    def has_edge_between(self, u: int, v: int) -> bool:
         """Return true if the edge exists.
 
         Parameters
@@ -130,12 +206,19 @@ class GraphIndex(NamedTuple):
         -------
         bool
             True if the edge exists, False otherwise
+
+        Examples
+        --------
+        >>> g = GraphIndex(2, src=jnp.array([0]), dst=jnp.array([1]))
+        >>> assert g.has_edge_between(0, 1)
+        >>> assert ~g.has_edge_between(0, 0)
+
         """
         u_in_src = (u == self.src)
         v_in_dst = (v == self.dst)
         return (u_in_src * v_in_dst).any()
 
-    def has_edges_between(self, u, v):
+    def has_edges_between(self, u: int, v: int) -> jnp.array:
         """Return true if the edge exists.
 
         Parameters
@@ -149,13 +232,29 @@ class GraphIndex(NamedTuple):
         -------
         jnp.ndarray
             0-1 array indicating existence
-        """
-        result = []
-        for _u, _v in zip(u, v):
-            result.append(int(self.has_edge_between(_u, _v)))
-        return jnp.array(result)
 
-    def eid(self, u, v):
+        Examples
+        --------
+        >>> g = GraphIndex(
+        ...     n_nodes=5, src=jnp.array([0, 1]), dst=jnp.array([1, 2])
+        ... )
+        >>> g.has_edges_between(
+        ...     jnp.array([0, 1, 2]), jnp.array([1, 2, 3]),
+        ... ).tolist()
+        [1, 1, 0]
+
+        """
+        u = jnp.expand_dims(u, -1)
+        v = jnp.expand_dims(v, -1)
+        src = jnp.expand_dims(self.src, 0)
+        dst = jnp.expand_dims(self.dst, 0)
+
+        u_is_src = (u == src)
+        v_is_dst = (v == dst)
+
+        return 1 * (u_is_src * v_is_dst).any(axis=-1)
+
+    def eid(self, u: int, v: int) -> jnp.array:
         """Return the id array of all edges between u and v.
 
         Parameters
@@ -169,37 +268,20 @@ class GraphIndex(NamedTuple):
         -------
         jnp.ndarray
             The edge id array.
+
+        Examples
+        --------
+        >>> g = GraphIndex(
+        ...     5, src=jnp.array([0, 0, 3]), dst=jnp.array([1, 1, 2])
+        ... )
+        >>> g.eid(0, 1).tolist()
+        [0, 1]
         """
         u_in_src = (u == self.src)
         v_in_dst = (v == self.dst)
-        return jnp.where(u_in_src * v_in_dst)
+        return jnp.where(u_in_src * v_in_dst)[0]
 
-    def eids(self, u, v):
-        """Return a triplet of arrays that contains the edge IDs.
-
-        Parameters
-        ----------
-        u : jnp.ndarray
-            The src nodes.
-        v : jnp.ndarray
-            The dst nodes.
-
-        Returns
-        -------
-        jnp.ndarray
-            The src nodes.
-        jnp.ndarray
-            The dst nodes.
-        jnp.ndarray
-            The edge ids.
-        """
-        eid = self.eid(u, v)
-        n_edges = len(eid)
-        src = jnp.array([u for _ in range(n_edges)])
-        dst = jnp.array([v for _ in range(n_edges)])
-        return src, dst, eid
-
-    def find_edge(self, eid):
+    def find_edge(self, eid: int) -> Tuple[int]:
         """Return the edge tuple of the given id.
 
         Parameters
@@ -213,11 +295,18 @@ class GraphIndex(NamedTuple):
             src node id
         int
             dst node id
-        """
-        return self.src[eid], self.dst[eid]
 
-    def find_edges(self, eid):
-        """Return a triplet of arrays that contains the edge IDs.
+        >>> g = GraphIndex(
+        ...     5, src=jnp.array([0, 0, 3]), dst=jnp.array([1, 1, 2])
+        ... )
+        >>> g.find_edge(0)
+        (0, 1)
+
+        """
+        return self.src[eid].item(), self.dst[eid].item()
+
+    def find_edges(self, eid:jnp.ndarray) -> Tuple[jnp.array]:
+        """Return the source and destination nodes that contain the eids.
 
         Parameters
         ----------
@@ -230,69 +319,21 @@ class GraphIndex(NamedTuple):
             The src nodes.
         jnp.ndarray
             The dst nodes.
-        jnp.ndarray
-            The edge ids.
+
+        Examples
+        --------
+        >>> g = GraphIndex(
+        ...     10, jnp.array([2, 3]), jnp.array([3, 4]),
+        ... )
+        >>> src, dst = g.find_edges(jnp.array([0, 1]))
+        >>> src.tolist(), dst.tolist()
+        ([2, 3], [3, 4])
+
         """
-        src = []
-        dst = []
-        for _eid in eid:
-            _src, _dst = self.find_edge(_eid)
-            src.append(_src)
-            dst.append(_dst)
-        src = jnp.array(src)
-        dst = jnp.array(dst)
-        return src, dst, eid
+        return self.src[eid], self.dst[eid]
 
-    def in_edges(self, v):
-        """Return the in edges of the node(s).
-
-        Parameters
-        ----------
-        v : jnp.ndarray
-            The node(s).
-
-        Returns
-        -------
-        jnp.ndarray
-            The src nodes.
-        jnp.ndarray
-            The dst nodes.
-        jnp.ndarray
-            The edge ids.
-        """
-        v = jnp.expand_dims(v, -1)
-        dst = jnp.expand_dims(self.dst, 0)
-
-        # (len(v), len(dst))
-        v_is_dst = (v == dst)
-        return jnp.where(v_is_dst, axis=-1)
-
-    def out_edges(self, v):
-        """Return the out edges of the node(s).
-
-        Parameters
-        ----------
-        v : jnp.ndarray
-            The node(s).
-
-        Returns
-        -------
-        jnp.ndarray
-            The src nodes.
-        jnp.ndarray
-            The dst nodes.
-        jnp.ndarray
-            The edge ids.
-        """
-        v = jnp.expand_dims(v, -1)
-        src = jnp.expand_dims(self.src, 0)
-
-        # (len(v), len(src))
-        v_is_src = (v == src)
-        return jnp.where(v_is_src, axis=-1)
-
-    def edges(self, order=None):
-       """Return all the edges.
+    def edges(self, order: Optional[str]=None) -> Tuple[jnp.array]:
+        """Return all the edges.
 
         Parameters
         ----------
@@ -310,14 +351,22 @@ class GraphIndex(NamedTuple):
             The dst nodes.
         jnp.ndarray
             The edge ids.
+
+        Examples
+        --------
+        >>> g = GraphIndex(6, jnp.array([0, 1, 2]), jnp.array([3, 4, 5]))
+        >>> src, dst, eid = g.edges()
+        >>> src.tolist(), dst.tolist(), eid.tolist()
+        ([0, 1, 2], [3, 4, 5], [0, 1, 2])
+
         """
         src, dst, eid = self.src, self.dst, jnp.arange(len(self.src))
-        idxs = jnp.lexsort((src, dst))
         if order == "srcdst":
+            idxs = jnp.lexsort((src, dst))
             src, dst, eid = src[idxs], dst[idxs], eid[idxs]
         return src, dst, eid
 
-    def in_degree(self, v):
+    def in_degree(self, v: int) -> int:
         """Return the in degree of the node.
 
         Parameters
@@ -329,10 +378,17 @@ class GraphIndex(NamedTuple):
         -------
         int
             The in degree.
-        """
-        return (v == self.dst).sum()
 
-    def in_degrees(self, v):
+        Examples
+        --------
+        >>> g = GraphIndex(6, jnp.array([0, 1, 2]), jnp.array([3, 3, 3]))
+        >>> g.in_degree(3)
+        3
+
+        """
+        return (v == self.dst).sum().item()
+
+    def in_degrees(self, v: jnp.array) -> jnp.array:
         """Return the in degrees of the nodes.
 
         Parameters
@@ -344,6 +400,12 @@ class GraphIndex(NamedTuple):
         -------
         tensor
             The in degree array.
+
+        Examples
+        --------
+        >>> g = GraphIndex(6, jnp.array([0, 1, 2]), jnp.array([3, 3, 3]))
+        >>> g.in_degrees(jnp.array([0, 1, 2, 3])).tolist()
+        [0, 0, 0, 3]
         """
         v = jnp.expand_dims(v, -1)
         dst = jnp.expand_dims(self.dst, 0)
@@ -353,7 +415,7 @@ class GraphIndex(NamedTuple):
 
         return v_is_dst.sum(axis=-1)
 
-    def out_degree(self, v):
+    def out_degree(self, v: int) -> int:
         """Return the out degree of the node.
 
         Parameters
@@ -365,10 +427,16 @@ class GraphIndex(NamedTuple):
         -------
         int
             The out degree.
-        """
-        return (v == self.src).sum()
 
-    def out_degrees(self, v):
+        Examples
+        --------
+        >>> g = GraphIndex(6, jnp.array([0, 0, 0]), jnp.array([1, 2, 3]))
+        >>> g.out_degree(0)
+        3
+        """
+        return (v == self.src).sum().item()
+
+    def out_degrees(self, v: jnp.array) -> jnp.array:
         """Return the out degrees of the nodes.
 
         Parameters
@@ -380,6 +448,12 @@ class GraphIndex(NamedTuple):
         -------
         tensor
             The out degree array.
+
+        Examples
+        --------
+        >>> g = GraphIndex(6, jnp.array([0, 0, 0]), jnp.array([1, 2, 3]))
+        >>> g.out_degrees(jnp.array([0, 0, 1])).tolist()
+        [3, 3, 0]
         """
         v = jnp.expand_dims(v, -1)
         src = jnp.expand_dims(self.src, 0)
@@ -389,7 +463,12 @@ class GraphIndex(NamedTuple):
 
         return v_is_dst.sum(axis=-1)
 
-    def adjacency_matrix_scipy(self, transpose, fmt, return_edge_ids=None):
+    def adjacency_matrix_scipy(
+            self,
+            transpose: bool=False,
+            fmt: str="coo",
+            return_edge_ids: Optional[bool]=None,
+        ):
         """Return the scipy adjacency matrix representation of this graph.
 
         By default, a row of returned adjacency matrix represents the
@@ -400,9 +479,9 @@ class GraphIndex(NamedTuple):
 
         Parameters
         ----------
-        transpose : bool
+        transpose : bool, default=False
             A flag to transpose the returned adjacency matrix.
-        fmt : str
+        fmt : str, default="coo"
             Indicates the format of returned adjacency matrix.
         return_edge_ids : bool
             Indicates whether to return edge IDs or 1 as elements.
@@ -411,9 +490,19 @@ class GraphIndex(NamedTuple):
         -------
         scipy.sparse.spmatrix
             The scipy representation of adjacency matrix.
+
+        Examples
+        --------
+        >>> g = GraphIndex(4, jnp.array([0, 1, 2]), jnp.array([1, 2, 3]))
+        >>> adj = g.adjacency_matrix_scipy()
+        >>> adj.toarray()
+        array([[0, 0, 0, 0],
+               [1, 0, 0, 0],
+               [0, 1, 0, 0],
+               [0, 0, 1, 0]], dtype=int32)
         """
         if return_edge_ids is None:
-            return_edge_ids = True
+            return_edge_ids = False
 
         if fmt is not "coo":
             raise NotImplementedError
@@ -425,9 +514,13 @@ class GraphIndex(NamedTuple):
             else:
                 row, col = onp.array(self.dst), onp.array(self.src)
             data = onp.arange(0, m) if return_edge_ids else onp.ones_like(row)
+            import scipy
             return scipy.sparse.coo_matrix((data, (row, col)), shape=(n, n))
 
-    def adjacency_matrix(self, transpose, ctx):
+    def adjacency_matrix(
+            self,
+            transpose: bool=False,
+        ) -> BCOO:
         """Return the adjacency matrix representation of this graph.
 
         By default, a row of returned adjacency matrix represents the destination
@@ -440,8 +533,7 @@ class GraphIndex(NamedTuple):
         ----------
         transpose : bool
             A flag to transpose the returned adjacency matrix.
-        ctx : context
-            The context of the returned matrix.
+
 
         Returns
         -------
@@ -450,6 +542,16 @@ class GraphIndex(NamedTuple):
         jnp.ndarray
             A index for data shuffling due to sparse format change. Return None
             if shuffle is not required.
+
+        Examples
+        --------
+        >>> g = GraphIndex(4, jnp.array([0, 1, 2]), jnp.array([1, 2, 3]))
+        >>> adj = g.adjacency_matrix()
+        >>> onp.array(adj.todense())
+        array([[0, 0, 0, 0],
+               [1, 0, 0, 0],
+               [0, 1, 0, 0],
+               [0, 0, 1, 0]], dtype=int32)
         """
         m = self.number_of_edges()
         n = self.number_of_nodes()
@@ -458,12 +560,15 @@ class GraphIndex(NamedTuple):
         else:
             row, col = onp.array(self.dst), onp.array(self.src)
         idx = jnp.stack([row, col], axis=-1)
-        data = jnp.ones((m,))
+        data = jnp.ones((m,), dtype=jnp.int32)
         shape = (n, n)
-        spmat = BCOO(data=data, indices=idx, shape=shape)
+        spmat = BCOO((data, idx), shape=shape)
         return spmat
 
-    def incidence_matrix(self, typestr):
+    def incidence_matrix(
+            self,
+            typestr: str,
+        ) -> BCOO:
         """Return the incidence matrix representation of this graph.
 
         An incidence matrix is an n x m sparse matrix, where n is
@@ -495,20 +600,45 @@ class GraphIndex(NamedTuple):
         jnp.ndarray
             A index for data shuffling due to sparse format change. Return None
             if shuffle is not required.
+
+        Examples
+        --------
+        >>> g = GraphIndex(4, jnp.array([0, 1, 2]), jnp.array([1, 2, 3]))
+        >>> adj = g.incidence_matrix("in")
+        >>> onp.array(adj.todense())
+        array([[0, 0, 0],
+               [1, 0, 0],
+               [0, 1, 0],
+               [0, 0, 1]], dtype=int32)
+
+        >>> adj = g.incidence_matrix("out")
+        >>> onp.array(adj.todense())
+        array([[1, 0, 0],
+               [0, 1, 0],
+               [0, 0, 1],
+               [0, 0, 0]], dtype=int32)
+
+        >>> adj = g.incidence_matrix("both")
+        >>> onp.array(adj.todense())
+        array([[-1,  0,  0],
+               [ 1, -1,  0],
+               [ 0,  1, -1],
+               [ 0,  0,  1]], dtype=int32)
+
         """
         src, dst, eid = self.edges()
         n = self.number_of_nodes()
         m = self.number_of_edges()
         if typestr == 'in':
             row, col = dst, eid
-            idx = jnp.stack([row, col], axis=0)
-            dat = jnp.ones((m,))
-            inc = BCOO(data=dat, indices=idx, shape=(n, m))
+            idx = jnp.stack([row, col], axis=-1)
+            dat = jnp.ones((m,), dtype=jnp.int32)
+            inc = BCOO((dat, idx), shape=(n, m))
         elif typestr == 'out':
             row, col = src, eid
-            idx = jnp.stack([row, col], axis=0)
-            dat = jnp.ones((m,))
-            inc = BCOO(data=dat, indices=idx, shape=(n, m))
+            idx = jnp.stack([row, col], axis=-1)
+            dat = jnp.ones((m,), dtype=jnp.int32)
+            inc = BCOO((dat, idx), shape=(n, m))
         elif typestr == 'both':
             # first remove entries for self loops
             mask = (src != dst)
@@ -519,12 +649,12 @@ class GraphIndex(NamedTuple):
             # create index
             row = jnp.concatenate([src, dst], axis=0)
             col = jnp.concatenate([eid, eid], axis=0)
-            idx = jnp.stack([row, col], axis=0)
+            idx = jnp.stack([row, col], axis=-1)
             # FIXME(minjie): data type
-            x = -jnp.ones((n_entries,))
-            y = jnp.ones((n_entries,))
+            x = -jnp.ones((n_entries,), dtype=jnp.int32)
+            y = jnp.ones((n_entries,), dtype=jnp.int32)
             dat = jnp.concatenate([x, y], axis=0)
-            inc = BCOO(data=dat, indices=idx, shape=(n, m))
+            inc = BCOO((dat, idx), shape=(n, m))
         return inc
 
     def to_networkx(self):
@@ -536,16 +666,30 @@ class GraphIndex(NamedTuple):
         -------
         networkx.DiGraph
             The nx graph
+
+        Examples
+        --------
+        >>> g = GraphIndex(4, jnp.array([0, 1, 2]), jnp.array([1, 2, 3]))
+        >>> import networkx as nx
+        >>> g_nx = g.to_networkx()
+        >>> assert isinstance(g_nx, nx.DiGraph)
+        >>> g_nx.number_of_nodes()
+        4
+        >>> g_nx.number_of_edges()
+        3
+
         """
         src, dst, eid = self.edges()
         # xiangsx: Always treat graph as multigraph
+        import networkx as nx
         ret = nx.MultiDiGraph()
         ret.add_nodes_from(range(self.number_of_nodes()))
         for u, v, e in zip(src, dst, eid):
+            u, v, e = u.item(), v.item(), e.item()
             ret.add_edge(u, v, id=e)
         return ret
 
-def from_coo(num_nodes, src, dst):
+def from_coo(num_nodes: int, src: jnp.ndarray, dst: jnp.ndarray) -> GraphIndex:
     """Convert from coo arrays.
 
     Parameters
@@ -561,6 +705,15 @@ def from_coo(num_nodes, src, dst):
     -------
     GraphIndex
         The graph index.
+
+    Examples
+    --------
+    >>> g = from_coo(4, jnp.array([0, 1, 2]), jnp.array([1, 2, 3]))
+    >>> assert isinstance(g, GraphIndex)
+    >>> g.number_of_nodes()
+    4
+    >>> g.number_of_edges()
+    3
     """
     return GraphIndex(
         n_nodes=num_nodes,
@@ -568,7 +721,7 @@ def from_coo(num_nodes, src, dst):
         dst=dst,
     )
 
-from networkx(nx_graph):
+def from_networkx(nx_graph):
     """Convert from networkx graph.
 
     If 'id' edge attribute exists, the edge will be added follows
@@ -679,7 +832,7 @@ def create_graph_index(graph_data):
             gidx = from_networkx(graph_data, readonly)
         except Exception:
             raise RuntimeError(
-                "'Error while creating graph from input of type "%s".'
-                % type(graph_data)"
+                "Error while creating graph from input of type %s"
+                % type(graph_data)
             )
         return gidx

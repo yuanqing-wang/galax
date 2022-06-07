@@ -689,6 +689,20 @@ class GraphIndex(NamedTuple):
             ret.add_edge(u, v, id=e)
         return ret
 
+    def reverse(self):
+        """Reverse the heterogeneous graph adjacency.
+
+        Returns
+        -------
+        GraphIndex
+            A new graph index.
+        """
+        return self.__class__(
+            n_nodes=n_nodes,
+            src=self.dst,
+            dst=self.src,
+        )
+
 def from_coo(num_nodes: int, src: jnp.ndarray, dst: jnp.ndarray) -> GraphIndex:
     """Convert from coo arrays.
 

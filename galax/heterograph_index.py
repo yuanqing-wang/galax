@@ -1,6 +1,8 @@
 """Module for heterogeneous graph index class definition."""
-from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple
-from .graph_index import GraphIndex
+from typing import (
+    Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple, List, Dict,
+)
+from .graph_index import GraphIndex, from_coo
 
 class HeteroGraphIndex(NamedTuple):
     """HeteroGraph index object.
@@ -462,3 +464,44 @@ class HeteroGraphIndex(NamedTuple):
             n_nodes=self.n_nodes,
             edges=tuple((dst, src) for src, dst in self.edges),
         )
+
+def create_metagraph_index(
+        ntypes: Iterable[str], canonical_etypes: Iterable[Tuple[str, str, str]],
+    ) -> Tuple[GraphIndex, List[str], List[str], List[Tuple[str, str, str]]]:
+    """Return a GraphIndex instance for a metagraph given the node types and
+    canonical edge types.
+
+    This function will reorder the node types and canonical edge types.
+
+    Parameters
+    ----------
+    ntypes : Iterable[str]
+        The node types.
+    canonical_etypes : Iterable[tuple[str, str, str]]
+        The canonical edge types.
+
+    Returns
+    -------
+    GraphIndex
+        The index object for metagraph.
+    list[str]
+        The reordered node types for each node in the metagraph.
+    list[str]
+        The reordered edge types for each edge in the metagraph.
+    list[tuple[str, str, str]]
+        The reordered canonical edge types for each edge in the metagraph.
+    """
+    ntypes = list(sorted(ntypes))
+    relations = list(sorted(canonical_etypes))
+    ntype_dict = {ntype: i for i, ntype in enumerate(ntypes)}
+    meta_edges_src = []
+    meta_edges_dst = []
+    etypes = []
+    for srctype, etype, dsttype in relations:
+        meta_edges_src.append(ntype_dict[srctype])
+        meta_edges_dst.append(ntype_dict[dsttype])
+        etypes.append(etype)
+
+    # metagraph is DGLGraph, currently still using int64 as index dtype
+    metagraph = from_coo(len(ntypes), meta_edges_src, meta_edges_dst)
+    return metagraph, ntypes, etypes, relations

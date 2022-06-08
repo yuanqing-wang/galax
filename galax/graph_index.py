@@ -332,6 +332,130 @@ class GraphIndex(NamedTuple):
         """
         return self.src[eid], self.dst[eid]
 
+    def in_edges(self, v: int):
+        """Return the in edges of the node(s).
+
+        Parameters
+        ----------
+        v : int
+            The node.
+
+        Returns
+        -------
+        jnp.ndarray
+            The src nodes.
+        jnp.ndarray
+            The dst nodes.
+        jnp.ndarray
+            The edge ids.
+        """
+        v_is_dst = (v == self.dst)
+        eids = jnp.arange(self.src.shape[0])
+        src = self.src[eids]
+        dst = self.dst[eids]
+        return src, dst, eids
+
+    def out_edges(self, v: int):
+        """Return the out edges of the node(s).
+
+        Parameters
+        ----------
+        v : int
+            The node.
+
+        Returns
+        -------
+        jnp.ndarray
+            The src nodes.
+        jnp.ndarray
+            The dst nodes.
+        jnp.ndarray
+            The edge ids.
+        """
+        v_is_src = (v == self.src)
+        eids = jnp.arange(self.src.shape[0])
+        src = self.src[eids]
+        dst = self.dst[eids]
+        return src, dst, eids
+
+    @staticmethod
+    def _reindex_after_remove(
+            original_index: jnp.ndarray, removed_index: jnp.ndarray
+        ):
+        old_idxs = jnp.arange(max(original_index.max(), removed_index.max()))
+        surviving_idxs = jnp.delete(old_idxs, removed_index)
+        new_idxs = old_idxs.at[removed_index].set(jnp.nan)
+        new_idxs = new_idxs.at[surviving_idxs].set(
+            jnp.arange(surviving_idxs.shape[0])
+        )
+        old_to_new_dict = dict(zip(old_idxs), zip(new_idxs))
+        old_to_new_fn = lambda old: old_to_new_dict[old]
+        modified_idxs = jax.lax.map(old_to_new_fn, original_index)
+        return modified_idxs
+
+    def remove_nodes(self, nids: jnp.ndarray):
+        """ Remove nodes. The edges connected to the nodes will too be removed.
+
+        Parameters
+        ----------
+        nids : jnp.ndarray
+            Nodes to remove.
+
+        Returns
+        -------
+        GraphIndex
+            A new graph with nodes removed.
+        """
+        v_is_src = (jnp.expand_dims(nids, -1) == self.src)
+        v_is_dst = (jnp.expand_dims(nids, -1) == self.dst)
+        v_is_in_edge = (v_is_src or v_in_dst).any(axis=-1)
+        eids = jnp.where(v_is_in_edge)[0]
+        src = jnp.delete(self.src, eids)
+        dst = jnp.delete(self.dst, eids)
+        src = self._reindex_after_remove(src, nids)
+        dst = self._reindex_after_remove(dst, nids)
+        n_nodes = self.n_nodes - len(nids)
+        return self.__class__(
+            n_nodes, src=src, dst=dst,
+        )
+
+    def remove_node(self, nid: int):
+        """ Remove a node.
+        The edges connected to the nodes will too be removed.
+
+        Parameters
+        ----------
+        nid : int
+            Node to remove.
+
+        Returns
+        -------
+        GraphIndex
+            A new graph with nodes removed.
+        """
+        nids = jnp.array([nid])
+        return self.remove_nodes(nids)
+
+    def remove_edges(self, eids: jnp.ndarray):
+        """ Remove edges.
+
+        Parameters
+        ----------
+        eids : jnp.ndarray
+            Edges to remove.
+
+        Returns
+        -------
+        GraphIndex
+            A new graph with edges removed.
+
+        """
+        src = jnp.delete(self.src, eids)
+        dst = jnp.delete(self.dst, eids)
+        return self.__class__(
+            n_nodes=self.n_nodes, src=src, dst=dst,
+        )
+
     def edges(self, order: Optional[str]=None) -> Tuple[jnp.array]:
         """Return all the edges.
 
@@ -462,6 +586,23 @@ class GraphIndex(NamedTuple):
         v_is_dst = (v == src)
 
         return v_is_dst.sum(axis=-1)
+
+    def edge_ids(self, u: int, v: int):
+        """ Return the edge id between two nodes.
+
+        Parameters
+        ----------
+        u : int
+            Source node.
+        v : int
+            Destination node.
+
+        Returns
+        -------
+        jnp.ndarray
+            Edge ids.
+        """
+        return jnp.where(self.src == u and self.dst == v)[0]
 
     def adjacency_matrix_scipy(
             self,

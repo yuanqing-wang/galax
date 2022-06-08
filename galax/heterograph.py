@@ -163,48 +163,6 @@ class HeteroGraph(NamedTuple):
                 node_frames=node_frames, edge_frames=edge_frames,
             )
 
-    @property
-    def canonical_etypes(self):
-        """Return all the canonical edge types in the graph.
-
-        A canonical edge type is a string triplet ``(str, str, str)``
-        for source node type, edge type and destination node type.
-
-        Returns
-        -------
-        list[(str, str, str)]
-            All the canonical edge type triplets in a list.
-
-        See Also
-        --------
-        etypes
-
-        Examples
-        --------
-        >>> import dgl
-        >>> import torch
-
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3])),
-        ...     ('user', 'plays', 'game'): (torch.tensor([1, 3]), torch.tensor([2, 3]))
-        ... })
-        >>> g.canonical_etypes
-        [('user', 'follows', 'user'),
-         ('user', 'follows', 'game'),
-         ('user', 'plays', 'game')]
-        """
-        src = self.ntypes[self.gidx.metagraph.src]
-        dst = self.gidx.metagraph.src
-
-        return list(
-            *zip(
-                [self.ntypes[idx] for idx in self.gidx.metagraph.src],
-                self.etypes,
-                [self.ntypes[idx] for idx in self.gidx.metagraph.dst],
-            )
-        )
-
     def add_edges(
             self,
             u: jnp.ndarray, v: jnp.ndarray,
@@ -255,12 +213,413 @@ class HeteroGraph(NamedTuple):
         )
 
     def remove_edges(self, eids: jnp.array, etype: Optional[str]=None):
+        etype_idx = self.get_etype_id(etype)
+
+        # handle the data corresponding to the edges
+        sub_edge_frame = self.edge_frames[etype_idx]
+        sub_edge_frame = FrozenDict(
+            {
+                key: jnp.delete(value, eids)
+                for key, value in sub_edge_frame.items()
+            }
+        )
+
+        example_key, example_value = next(sub_edge_frame.items())
+        if len(example_value) == 0:
+            edge_frames =\
+                self.edge_frames[:etype_idx] + self.edge_frames[etype_idx+1:]
+            etypes =\
+                self.etypes[:etype_idx] + self.etypes[etype_idx+1:]
+        else:
+            edge_frames = self.edge_frames[:etype_idx]\
+                + sub_edge_frame + self.edge_frames[etype_idx+1:]
+            etypes = self.etypes
+
+        gidx = self.gidx.remove_edges(etype=etype_idx, eids=eids)
+        return self.__class__(
+            gidx=gidx,
+            ntypes=self.ntypes,
+            etypes=etypes,
+            node_frames=self.node_frames,
+            edge_frames=edge_frames,
+        )
+
+    def remove_nodes(self, nids: jnp.ndarray, ntype: Optional[str]=None):
+        ntype_idx = self.get_ntype_id(ntype)
+        gidx = self.gidx.remove_nodes(ntype=ntype_idx, nids=nids)
+
+        # handle the data corresponding to the edges
+        sub_node_frame = self.edge_frames[ntype_idx]
+        sub_node_frame = FrozenDict(
+            {
+                key: jnp.delete(value, eids)
+                for key, value in sub_node_frame.items()
+            }
+        )
+
+        example_key, example_value = next(sub_node_frame.items())
+        if len(example_value) == 0:
+            node_frames =\
+                self.node_frames[:ntype_idx] + self.node_frames[ntype_idx+1:]
+            ntypes =\
+                self.ntypes[:ntype_idx] + self.ntypes[ntype_idx+1:]
+        else:
+            node_frames = self.node_frames[:ntype_idx]\
+                + sub_edge_frame + self.node_frames[ntype_idx+1:]
+            ntypes = self.ntypes
+
+        return self.__class__(
+            gidx=gidx,
+            ntypes=ntypes,
+            etypes=self.etypes,
+            node_frames=node_frames,
+            edge_frames=self.edge_frames,
+        )
+
+    def canonical_etypes(self):
+        """Return all the canonical edge types in the graph.
+
+        A canonical edge type is a string triplet ``(str, str, str)``
+        for source node type, edge type and destination node type.
+
+        Returns
+        -------
+        list[(str, str, str)]
+            All the canonical edge type triplets in a list.
+
+        Notes
+        -----
+        DGL internally assigns an integer ID for each edge type. The returned
+        edge type names are sorted according to their IDs.
+
+        See Also
+        --------
+        etypes
+
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
+        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3])),
+        ...     ('user', 'plays', 'game'): (torch.tensor([1, 3]), torch.tensor([2, 3]))
+        ... })
+        >>> g.canonical_etypes
+        [('user', 'follows', 'user'),
+         ('user', 'follows', 'game'),
+         ('user', 'plays', 'game')]
+        """
+        return [
+            (
+                self.ntypes[self.gidx.metagraph.src[etype_idx]],
+                self.etypes[etype_idx],
+                self.ntypes[self.gidx.metagraph.dst[etype_idx]],
+            )
+            for etype_idx in range(len(self.etypes))
+        ]
+
+    def to_canonincal_etype(self, etype: str) -> Tuple[str]:
+        """Convert an edge type to the corresponding canonical edge type in the graph.
+
+        A canonical edge type is a string triplet ``(str, str, str)``
+        for source node type, edge type and destination node type.
+        The function expects the given edge type name can uniquely identify
+        a canonical edge type.
+
+        Parameters
+        ----------
+        etype : str
+            If :attr:`etype` is an edge type (str), it returns the corresponding canonical edge
+            type in the graph.
+
+        Returns
+        -------
+        (str, str, str)
+            The canonical edge type corresponding to the edge type.
+
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        Create a heterograph.
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): ([0, 1], [1, 2]),
+        ...     ('user', 'plays', 'game'): ([0, 1, 1, 2], [0, 0, 1, 1]),
+        ...     ('developer', 'follows', 'game'): ([0, 1], [0, 1])
+        ... })
+        Map an edge type to its corresponding canonical edge type.
+        >>> g.to_canonical_etype('plays')
+        ('user', 'plays', 'game')
+        >>> g.to_canonical_etype(('user', 'plays', 'game'))
+        ('user', 'plays', 'game')
+        See Also
+        --------
+        canonical_etypes
+        """
+        etype_idx = self.get_etype_id(etype)
+        src, dst = self.gidx.metagraph.find_edge(etype_idx)
+        return self.ntypes[src], etype, self.ntyes[dst]
+
+    def get_ntype_id(self, ntype: Optional[str]=None) -> int:
+        """Return the ID of the given node type.
+        ntype can also be None. If so, there should be only one node type in the
+        graph.
+
+        Parameters
+        ----------
+        ntype : str
+            Node type
+
+        Returns
+        -------
+        int
+        """
+        if ntype is None:
+            assert len(self.ntypes) == 1, "Ntype needs to be specified. "
+            return 0
+        else:
+            assert ntype in self._ntype_invmap, "No such ntype. "
+            return self._ntype_invmap[ntype]
+
+    def get_etype_id(self, etype: Optional[str]=None) -> int:
+        """Return the id of the given edge type.
+        etype can also be None. If so, there should be only one edge type in the
+        graph.
+
+        Parameters
+        ----------
+        etype : str or tuple of str
+            Edge type
+
+        Returns
+        -------
+        int
+        """
         if etype is None:
             assert len(self.etypes) == 1, "Etype needs to be specified. "
-            etype = self.etypes[0]
-        etype_idx = self._etype_invmap[etype]
-        ntypes = self.ntypes
-        node_frames = self.node_frames
-        if len(eids) == len(self.gidx.edges[etype_idx]):
-            etypes = self.etypes[:etype_idx] + self.etypes[etype_idx+1:]
-            # gidx = self.gidx.
+            return 0
+        else:
+            assert ntype in self._etype_invmap, "No such etype. "
+            return self._etype_invmap[etype]
+
+    def number_of_nodes(self, ntype: Optional[str]=None):
+        return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
+
+    def number_of_edges(self, etype: Optional[str]=None):
+        return self.gidx.number_of_edges(self.get_etype_id(etype))
+
+    def is_multigraph(self):
+        """Return whether the graph is a multigraph with parallel edges.
+        A multigraph has more than one edges between the same pair of nodes, called
+        *parallel edges*.  For heterogeneous graphs, parallel edge further requires
+        the canonical edge type to be the same (see :meth:`canonical_etypes` for the
+        definition).
+
+        Returns
+        -------
+        bool
+            True if the graph is a multigraph.
+
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        Check for homogeneous graphs.
+        >>> g = dgl.graph((torch.tensor([0, 1]), torch.tensor([1, 3])))
+        >>> g.is_multigraph
+        False
+        >>> g = dgl.graph((torch.tensor([0, 1, 1]), torch.tensor([1, 3, 3])))
+        >>> g.is_multigraph
+        True
+        Check for heterogeneous graphs.
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
+        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3]))
+        ... })
+        >>> g.is_multigraph
+        False
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1, 1]), torch.tensor([1, 2, 2])),
+        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3]))
+        ... })
+        >>> g.is_multigraph
+        True
+        """
+        return self.gidx.is_multigraph()
+
+    def is_homogeneous(self):
+        """Return whether the graph is a homogeneous graph.
+        A homogeneous graph only has one node type and one edge type.
+
+        Returns
+        -------
+        bool
+            True if the graph is a homogeneous graph.
+
+        Examples
+        --------
+        >>> import dgl
+        >>> import torch
+
+        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 0, 2, 3])))
+        >>> g.is_homogeneous
+        True
+
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3]))})
+        >>> g.is_homogeneous
+        False
+        """
+        return len(self.ntypes) == 1 and len(self.etypes) == 1
+
+    def has_nodes(self, vid: jnp.ndarray, ntype: Optional[str]) -> jnp.ndarray:
+        """Return whether the graph contains the given nodes.
+
+        Parameters
+        ----------
+        vid : node ID(s)
+            The nodes IDs. The allowed nodes ID formats are:
+            * ``int``: The ID of a single node.
+            * Int Tensor: Each element is a node ID. The tensor must have the same device type
+              and ID data type as the graph's.
+            * iterable[int]: Each element is a node ID.
+        ntype : str, optional
+            The node type name. Can be omitted if there is
+            only one type of nodes in the graph.
+
+        Returns
+        -------
+        bool or bool Tensor
+            A tensor of bool flags where each element is True if the node is in the graph.
+            If the input is a single node, return one bool value.
+
+        Examples
+        --------
+        >>> import dgl
+        >>> import torch
+        Create a graph with two node types -- 'user' and 'game'.
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
+        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([0, 1]))
+        ... })
+        Query for the nodes.
+        >>> g.has_nodes(0, 'user')
+        True
+        >>> g.has_nodes(3, 'game')
+        False
+        >>> g.has_nodes(torch.tensor([3, 0, 1]), 'game')
+        tensor([False,  True,  True])
+        """
+        ntype_idx = self.get_ntype_id(ntype)
+        return self.gidx.has_nodes(vid, ntype=ntype_idx)
+
+    def has_edges_between(
+            self, u: jnp.ndarray, v: jnp.ndarray, etype: Optional[str]=None,
+        ) -> jnp.ndarray:
+        """Return whether the graph contains the given edges.
+
+        Parameters
+        ----------
+        u : node IDs
+            The source node IDs of the edges. The allowed formats are:
+            * ``int``: A single node.
+            * Int Tensor: Each element is a node ID. The tensor must have the same device type
+              and ID data type as the graph's.
+            * iterable[int]: Each element is a node ID.
+        v : node IDs
+            The destination node IDs of the edges. The allowed formats are:
+            * ``int``: A single node.
+            * Int Tensor: Each element is a node ID. The tensor must have the same device type
+              and ID data type as the graph's.
+            * iterable[int]: Each element is a node ID.
+        etype : str or (str, str, str), optional
+            The type names of the edges. The allowed type name formats are:
+            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * or one ``str`` edge type name if the name can uniquely identify a
+              triplet format in the graph.
+            Can be omitted if the graph has only one type of edges.
+        Returns
+        -------
+        bool or bool Tensor
+            A tensor of bool flags where each element is True if the node is in the graph.
+            If the input is a single node, return one bool value.
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        Create a homogeneous graph.
+        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 0, 2, 3])))
+        Query for the edges.
+        >>> g.has_edges_between(1, 2)
+        True
+        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]))
+        tensor([ True, False])
+        If the graph has multiple edge types, one need to specify the edge type.
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
+        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3])),
+        ...     ('user', 'plays', 'game'): (torch.tensor([1, 3]), torch.tensor([2, 3]))
+        ... })
+        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]), 'plays')
+        tensor([ True, False])
+        Use a canonical edge type instead when there is ambiguity for an edge type.
+        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]),
+        ...                     ('user', 'follows', 'user'))
+        tensor([ True, False])
+        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]),
+        ...                     ('user', 'follows', 'game'))
+        tensor([True, True])
+        """
+        etype_idx = self.get_etype_id(etype)
+        return self.gidx.has_edges_between(u, v, etype=etype_idx)
+
+    def find_edges(self, eid: jnp.ndarray, etype=None):
+        """Return the source and destination node ID(s) given the edge ID(s).
+        Parameters
+        ----------
+        eid : edge ID(s)
+            The edge IDs. The allowed formats are:
+            * ``int``: A single ID.
+            * Int Tensor: Each element is an ID. The tensor must have the same device type
+              and ID data type as the graph's.
+            * iterable[int]: Each element is an ID.
+        etype : str or (str, str, str), optional
+            The type names of the edges. The allowed type name formats are:
+            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * or one ``str`` edge type name if the name can uniquely identify a
+              triplet format in the graph.
+            Can be omitted if the graph has only one type of edges.
+        Returns
+        -------
+        Tensor
+            The source node IDs of the edges. The i-th element is the source node ID of
+            the i-th edge.
+        Tensor
+            The destination node IDs of the edges. The i-th element is the destination node
+            ID of the i-th edge.
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        Create a homogeneous graph.
+        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 0, 2, 3])))
+        Find edges of IDs 0 and 2.
+        >>> g.find_edges(torch.tensor([0, 2]))
+        (tensor([0, 1]), tensor([1, 2]))
+        For a graph of multiple edge types, it is required to specify the edge type in query.
+        >>> hg = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
+        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([5, 6]))
+        ... })
+        >>> hg.find_edges(torch.tensor([1, 0]), 'plays')
+        (tensor([4, 3]), tensor([6, 5]))
+        """
+        return self.gidx.find_edges(eid=eid, etype=self.get_etype_id(etype))
+
+        

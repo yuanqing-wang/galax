@@ -121,6 +121,110 @@ class HeteroGraphIndex(NamedTuple):
             etype=etype, src=src, dst=dst, src_type=srctype, dsttype=dsttype,
         )
 
+    def remove_edges(
+            self, etype: int, eids: jnp.ndarray
+    ):
+        """Removes many edges.
+
+        Parameters
+        ----------
+        etype : int
+            Edge type
+        eids : jnp.ndarray
+            Edge ids.
+        """
+
+        assert etype < len(self.edges), "Edge does not exist. "
+        original_src, original_dst = self.edges[etype]
+        src = jnp.delete(original_src, eids)
+        dst = jnp.delete(original_dst, eids)
+        if len(src) > 0:
+            edges = self.edges[:etype] + (src, dst) + self.edges[etype+1:]
+            return self.__class__(
+                n_nodes=self.n_nodes,
+                etypes=self.etypes,
+                edges=edges,
+            )
+        else:
+            edges = self.edges[:etype] + self.edges[etype+1:]
+            etypes = etypes[:-1]
+            return self.__class__(
+                n_nodes=self.n_nodes,
+                etypes=self.etypes,
+                edges=edges,
+            )
+
+    def remove_edge(self, etype: int, src: int, dst: int):
+        """Removes many edges.
+
+        Parameters
+        ----------
+        etype : int
+            Edge type
+        eid : int
+            Edge id.
+        """
+        eids = jnp.array([eid])
+        return self.remove_edges(etype=etype, eids=eids)
+
+    @staticmethod
+    def _reindex_after_remove(*args, **kwargs):
+        return GraphIndex._reindex_after_remove(*args, **kwargs)
+
+    def remove_nodes(
+            self, nids: jnp.array,
+            ntype: Optional[int]=None,
+    ):
+        """Remove multiple nodes with the specified node type
+        Edges that connect to the nodes will be removed as well.
+
+        Parameters
+        ----------
+        nids : int
+            Node to remove.
+        ntype : str, optional
+            The type of the nodes to remove. Can be omitted if there is
+            only one node type in the graph.
+        """
+        if ntype is None:
+            assert len(self.ntypes) == 1, "Ntype needs to be specified. "
+            ntype = self.ntypes[ntype]
+
+        _, __, in_edge_types = self.metagraph.in_edges(ntype)
+        _, __, out_edge_types = self.metagraph.out_edges(ntype)
+
+        if len(self.n_nodes[ntype]) == len(nids): # remove the type entirely
+            n_nodes = jnp.delete(self.n_nodes, nid)
+            edge_types_to_delete = jnp.unique(
+                jnp.concatenate([in_edge_types, out_edge_types])
+            ).tolist()
+            edges = (
+                self.edges[idx]
+                for idx in range(len(self.edges))
+                if idx not in edge_types_to_delete
+            )
+            metagraph = self.metagraph.remove_node(ntype)
+            return self.__class__(
+                metagrah=metagraph, edges=edges, n_nodes=n_nodes,
+            )
+        else:
+            n_nodes = self.n_nodes[:ntype] +\
+                (self.n_nodes[n_type] - len(nids)) +\
+                self.n_nodes[ntype+1:]
+
+            edges = []
+            for etype, (src, dst) in enumerate(self.edges):
+                if (etype == in_edge_types).any():
+                    src = self._reindex_after_remove(src, nids)
+                if (etype == out_edge_types).any():
+                    dst = self._reindex_after_remove(dst, nids)
+                edges.append((src, dst))
+            edges = tuple(edges)
+
+            return self.__class__(
+                metagraph=metagraph, edges=edges, n_nodes=n_nodes,
+            )
+
     def etype_subgraph(self, etype: int):
         """Create a unitgraph graph from given edge type.
 
@@ -191,12 +295,12 @@ class HeteroGraphIndex(NamedTuple):
         """
         return len(self.edges[etype])
 
-    def has_nodes(self, ntype: int, vids: jnp.ndarray):
+    def has_nodes(self, ntype: jnp.ndarray, vids: jnp.ndarray):
         """Return true if the nodes exist.
 
         Parameters
         ----------
-        ntype : int
+        ntype : jnp.ndarray
             Node type
         vid : jnp.ndarray
             Node IDs
@@ -341,6 +445,25 @@ class HeteroGraphIndex(NamedTuple):
         v_is_src = (v == src)
 
         return v_is_src.sum(axis=-1)
+
+    def edge_ids(self, u: int, v: int, etype: int):
+        """ Return the edge id between two nodes.
+
+        Parameters
+        ----------
+        u : int
+            Source node.
+        v : int
+            Destination node.
+        etype : int
+            Edge type.
+
+        Returns
+        -------
+        jnp.ndarray
+            Edge ids.
+        """
+        return self.etype_subgraph(etype).edge_ids(u=u, v=v)
 
     def adjacency_matrix(
             self,

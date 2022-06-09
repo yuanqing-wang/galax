@@ -49,9 +49,6 @@ class HeteroGraphIndex(NamedTuple):
     if n_nodes is None: n_nodes = jnp.array([])
     if edges is None: edges = ()
 
-    assert metagraph.number_of_edges() == len(edges)
-    assert metagraph.number_of_nodes() == len(n_nodes)
-
     def number_of_ntypes(self):
         """Return the number of node types.
 
@@ -62,6 +59,14 @@ class HeteroGraphIndex(NamedTuple):
 
         Examples
         --------
+        >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+        >>> n_nodes = jnp.array([3, 2, 1])
+        >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), (), ())
+        >>> g = HeteroGraphIndex(
+        ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        ... )
+        >>> g.number_of_ntypes()
+        3
 
         """
         return self.metagraph.number_of_nodes()
@@ -73,10 +78,21 @@ class HeteroGraphIndex(NamedTuple):
         -------
         int
             The number of edge types.
+
+        Examples
+        --------
+        >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+        >>> n_nodes = jnp.array([3, 2, 1])
+        >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), ())
+        >>> g = HeteroGraphIndex(
+        ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        ... )
+        >>> g.number_of_etypes()
+        2
         """
         return self.metagraph.number_of_edges()
 
-    def add_nodes(self, ntype: int, num: int):
+    def add_nodes(self, ntype: Optional[int], num: int):
         """Add nodes.
 
         Parameters
@@ -85,10 +101,33 @@ class HeteroGraphIndex(NamedTuple):
             Node type
         num : int
             Number of nodes to be added.
+
+        Examples
+        --------
+        >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+        >>> n_nodes = jnp.array([3, 2, 1])
+        >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), ())
+        >>> g = HeteroGraphIndex(
+        ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        ... )
+
+        >>> # Add within existing node type.
+        >>> _g = g.add_nodes(ntype=0, num=2)
+        >>> _g.n_nodes.tolist()
+        [5, 2, 1]
+
+        >>> # Add a node with new node type.
+        >>> _g = g.add_nodes(ntype=3, num=1) # has to be immediately adjacent
+        >>> _g.n_nodes.tolist()
+        [3, 2, 1, 1]
+
         """
+        if ntype is None: ntype = len(self.n_nodes)
+
         if ntype >= len(self.n_nodes):
+            assert ntype == len(self.n_nodes), "Can only add one type. "
             metagraph = self.metagraph.add_nodes(1)
-            n_nodes = jnp.concatenate([self.n_nodes, num])
+            n_nodes = jnp.concatenate([self.n_nodes, jnp.array([num])])
             edges = self.edges
 
         else:
@@ -102,7 +141,7 @@ class HeteroGraphIndex(NamedTuple):
 
     def add_edges(
             self, etype: int, src: jnp.ndarray, dst: jnp.ndarray,
-            srctype: Optional[int], dsttype: Optional[int],
+            srctype: Optional[int]=None, dsttype: Optional[int]=None,
         ):
         """And many edges.
 
@@ -119,7 +158,34 @@ class HeteroGraphIndex(NamedTuple):
         dsttype: Optional[int]
             The dst node type. Necessary if etype is new.
 
+        Examples
+        --------
+        >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+        >>> n_nodes = jnp.array([3, 2, 1])
+        >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), ())
+        >>> g = HeteroGraphIndex(
+        ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        ... )
+
+        >>> # add existing etype
+        >>> _g = g.add_edges(
+        ...     etype=0, src=jnp.array([0]), dst=jnp.array([0]),
+        ... )
+        >>> _g.edges[0].tolist()
+        [0, 1, 0]
+        >>> _g.edges[1].tolist()
+        [1, 2, 0]
+
+        >>> # add new etype
+        >>> _g = g.add_edges(
+        ...     etype=None, src=jnp.array([0]), dst=jnp.array([0]),
+        ...     srctype=2, dsttype=2,
+        ... )
+        >>> _g.edges[-1].tolist()
+        [0]
+
         """
+        if etype is None: etype = len(self.edges)
         if etype < len(self.edges):
             assert srctype is None and dsttype is None
             metagraph = self.metagraph
@@ -127,13 +193,15 @@ class HeteroGraphIndex(NamedTuple):
                 (
                     jnp.concatenate([self.edges[etype][0], src]),
                     jnp.concatenate([self.edges[etype][1], dst]),
-                ) + self.edges[(etype)+1:]
+                ) + self.edges[etype+1:]
 
         else:
             assert etype == len(self.edges), "Edges are sorted. "
             assert srctype is not None and dsttype is not None
+            assert (src < self.n_nodes[srctype]).all()
+            assert (dst < self.n_nodes[dsttype]).all()
             metagraph = self.metagraph.add_edge(srctype, dsttype)
-            edges = edges + (src, dst)
+            edges = self.edges + (src, dst)
 
         return self.__class__(
             metagraph=metagraph, n_nodes=self.n_nodes, edges=edges,

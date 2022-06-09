@@ -706,6 +706,8 @@ class GraphIndex(NamedTuple):
         spmat = BCOO((data, idx), shape=shape)
         return spmat
 
+    adj = adjacency_matrix
+
     def incidence_matrix(
             self,
             typestr: str,
@@ -797,6 +799,8 @@ class GraphIndex(NamedTuple):
             dat = jnp.concatenate([x, y], axis=0)
             inc = BCOO((dat, idx), shape=(n, m))
         return inc
+
+    inc = incidence_matrix
 
     def to_networkx(self):
         """Convert to networkx graph.

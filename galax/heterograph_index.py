@@ -418,8 +418,7 @@ class HeteroGraphIndex(NamedTuple):
 
         return v_is_dst.sum(axis=-1)
 
-
-    def out_degrees(self, etype, v):
+    def out_degrees(self, etype, u):
         """Return the out degrees of the nodes.
 
         Assume that node_type(v) == src_type(etype).
@@ -429,7 +428,7 @@ class HeteroGraphIndex(NamedTuple):
         ----------
         etype : int
             Edge type
-        v : jnp.ndarray
+        u : jnp.ndarray
             The nodes.
 
         Returns
@@ -437,14 +436,14 @@ class HeteroGraphIndex(NamedTuple):
         jnp.ndarray
             The out degree array.
         """
-        v = jnp.expand_dims(v, -1)
+        u = jnp.expand_dims(u, -1)
         src, _ = self.edges[etype]
         src = jnp.expand_dims(src, 0)
 
         # (len(v), len(dst))
-        v_is_src = (v == src)
+        u_is_src = (u == src)
 
-        return v_is_src.sum(axis=-1)
+        return u_is_src.sum(axis=-1)
 
     def edge_ids(self, u: int, v: int, etype: int):
         """ Return the edge id between two nodes.
@@ -496,6 +495,8 @@ class HeteroGraphIndex(NamedTuple):
             if shuffle is not required.
         """
         return self.etype_subgraph(etype).adjacency_matrix(transpose=transpose)
+
+    adj = adjacency_matrix
 
     def adjacency_matrix_scipy(
             self,

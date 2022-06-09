@@ -622,4 +622,248 @@ class HeteroGraph(NamedTuple):
         """
         return self.gidx.find_edges(eid=eid, etype=self.get_etype_id(etype))
 
+    def in_degrees(
+            self, v: Optional[jnp.ndarray]=None, etype: Optional[str]=None,
+        ):
+        """Return the in-degree(s) of the given nodes.
+        It computes the in-degree(s) w.r.t. to the edges of the given edge type.
+
+        Parameters
+        ----------
+        v : node IDs
+            The node IDs. The allowed formats are:
+            * ``int``: A single node.
+            * Int Tensor: Each element is a node ID. The tensor must have the same device type
+              and ID data type as the graph's.
+            * iterable[int]: Each element is a node ID.
+            If not given, return the in-degrees of all the nodes.
+        etype : str or (str, str, str), optional
+            The type name of the edges. The allowed type name formats are:
+            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * or one ``str`` edge type name if the name can uniquely identify a
+              triplet format in the graph.
+            Can be omitted if the graph has only one type of edges.
+
+        Returns
+        -------
+        int or Tensor
+            The in-degree(s) of the node(s) in a Tensor. The i-th element is the in-degree
+            of the i-th input node. If :attr:`v` is an ``int``, return an ``int`` too.
+
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        Create a homogeneous graph.
+        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 1, 2, 3])))
+        Query for all nodes.
+        >>> g.in_degrees()
+        tensor([0, 2, 1, 1])
+        Query for nodes 1 and 2.
+        >>> g.in_degrees(torch.tensor([1, 2]))
+        tensor([2, 1])
+        For a graph of multiple edge types, it is required to specify the edge type in query.
+        >>> hg = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
+        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([5, 6]))
+        ... })
+        >>> hg.in_degrees(torch.tensor([1, 0]), etype='follows')
+        tensor([1, 0])
+
+        See Also
+        --------
+        out_degrees
+        """
+        etype_idx = self.get_etype_id(etype)
+
+        if v is None:
+            v = jnp.arange(
+                self.gidx.n_nodes[self.gidx.metagraph.dst[etype_idx]]
+            )
+
+        return self.gidx.in_degrees(
+            v=v,
+            etype=etype_idx,
+        )
+
+    def out_degrees(self, u: jnp.ndarray, etype: Optional[str]=None):
+        """Return the out-degree(s) of the given nodes.
+        It computes the out-degree(s) w.r.t. to the edges of the given edge type.
+
+        Parameters
+        ----------
+        u : node IDs
+            The node IDs. The allowed formats are:
+            * ``int``: A single node.
+            * Int Tensor: Each element is a node ID. The tensor must have the same device type
+              and ID data type as the graph's.
+            * iterable[int]: Each element is a node ID.
+            If not given, return the in-degrees of all the nodes.
+        etype : str or (str, str, str), optional
+            The type names of the edges. The allowed type name formats are:
+            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * or one ``str`` edge type name if the name can uniquely identify a
+              triplet format in the graph.
+            Can be omitted if the graph has only one type of edges.
+
+        Returns
+        -------
+        int or Tensor
+            The out-degree(s) of the node(s) in a Tensor. The i-th element is the out-degree
+            of the i-th input node. If :attr:`v` is an ``int``, return an ``int`` too.
+
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        Create a homogeneous graph.
+        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 1, 2, 3])))
+        Query for all nodes.
+        >>> g.out_degrees()
+        tensor([2, 2, 0, 0])
+        Query for nodes 1 and 2.
+        >>> g.out_degrees(torch.tensor([1, 2]))
+        tensor([2, 0])
+        For a graph of multiple edge types, it is required to specify the edge type in query.
+        >>> hg = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
+        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([5, 6]))
+        ... })
+        >>> hg.out_degrees(torch.tensor([1, 0]), etype='follows')
+        tensor([1, 1])
+        See Also
+        --------
+        in_degrees
+        """
+        etype_idx = self.get_etype_id(etype)
+
+        if u is None:
+            u = jnp.arange(
+                self.gidx.n_nodes[self.gidx.metagraph.src[etype_idx]]
+            )
+
+        return self.gidx.in_degrees(
+            u=u,
+            etype=etype_idx,
+        )
+
+    def adjacency_matrix(
+            self, transpose: bool=False, etype: Optional[str]=None,
+        ):
+        """Return the adjacency matrix of edges of the given edge type.
+        By default, a row of returned adjacency matrix represents the
+        source of an edge and the column represents the destination.
+        When transpose is True, a row represents the destination and a column
+        represents the source.
+        Parameters
+        ----------
+        transpose : bool, optional
+            A flag to transpose the returned adjacency matrix. (Default: False)
+        ctx : context, optional
+            The context of returned adjacency matrix. (Default: cpu)
+        scipy_fmt : str, optional
+            If specified, return a scipy sparse matrix in the given format.
+            Otherwise, return a backend dependent sparse tensor. (Default: None)
+        etype : str or (str, str, str), optional
+            The type names of the edges. The allowed type name formats are:
+            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * or one ``str`` edge type name if the name can uniquely identify a
+              triplet format in the graph.
+            Can be omitted if the graph has only one type of edges.
+        Returns
+        -------
+        SparseTensor or scipy.sparse.spmatrix
+            Adjacency matrix.
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> import torch
+        Instantiate a heterogeneous graph.
+        >>> g = dgl.heterograph({
+        ...     ('user', 'follows', 'user'): ([0, 1], [0, 1]),
+        ...     ('developer', 'develops', 'game'): ([0, 1], [0, 2])
+        ... })
+        Get a backend dependent sparse tensor. Here we use PyTorch for example.
+        >>> g.adj(etype='develops')
+        tensor(indices=tensor([[0, 1],
+                               [0, 2]]),
+               values=tensor([1., 1.]),
+               size=(2, 3), nnz=2, layout=torch.sparse_coo)
+        Get a scipy coo sparse matrix.
+        >>> g.adj(scipy_fmt='coo', etype='develops')
+        <2x3 sparse matrix of type '<class 'numpy.int64'>'
+           with 2 stored elements in COOrdinate format>
+        """
+        return self.gidx.adjacency_matrix(
+            etype=self.get_etype_id(etype),
+            transpose=transpose,
+        )
+
+    adj = adjacency_matrix
+
+    def incidence_matrix(self, typestr: str, etype: Optional[str]=None):
+        """Return the incidence matrix representation of edges with the given
+        edge type.
+        An incidence matrix is an n-by-m sparse matrix, where n is
+        the number of nodes and m is the number of edges. Each nnz
+        value indicating whether the edge is incident to the node
+        or not.
+        There are three types of incidence matrices :math:`I`:
+        * ``in``:
+            - :math:`I[v, e] = 1` if :math:`e` is the in-edge of :math:`v`
+              (or :math:`v` is the dst node of :math:`e`);
+            - :math:`I[v, e] = 0` otherwise.
+        * ``out``:
+            - :math:`I[v, e] = 1` if :math:`e` is the out-edge of :math:`v`
+              (or :math:`v` is the src node of :math:`e`);
+            - :math:`I[v, e] = 0` otherwise.
+        * ``both`` (only if source and destination node type are the same):
+            - :math:`I[v, e] = 1` if :math:`e` is the in-edge of :math:`v`;
+            - :math:`I[v, e] = -1` if :math:`e` is the out-edge of :math:`v`;
+            - :math:`I[v, e] = 0` otherwise (including self-loop).
+        Parameters
+        ----------
+        typestr : str
+            Can be either ``in``, ``out`` or ``both``
+        ctx : context, optional
+            The context of returned incidence matrix. (Default: cpu)
+        etype : str or (str, str, str), optional
+            The type names of the edges. The allowed type name formats are:
+            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * or one ``str`` edge type name if the name can uniquely identify a
+              triplet format in the graph.
+            Can be omitted if the graph has only one type of edges.
+        Returns
+        -------
+        Framework SparseTensor
+            The incidence matrix.
+        Examples
+        --------
+        The following example uses PyTorch backend.
+        >>> import dgl
+        >>> g = dgl.graph(([0, 1], [0, 2]))
+        >>> g.inc('in')
+        tensor(indices=tensor([[0, 2],
+                               [0, 1]]),
+               values=tensor([1., 1.]),
+               size=(3, 2), nnz=2, layout=torch.sparse_coo)
+        >>> g.inc('out')
+        tensor(indices=tensor([[0, 1],
+                               [0, 1]]),
+               values=tensor([1., 1.]),
+               size=(3, 2), nnz=2, layout=torch.sparse_coo)
+        >>> g.inc('both')
+        tensor(indices=tensor([[1, 2],
+                               [1, 1]]),
+               values=tensor([-1.,  1.]),
+               size=(3, 2), nnz=2, layout=torch.sparse_coo)
+        """
+        return self.gidx.incidence_matrix(
+            typestr=typestr,
+            etype=self.get_etype_id(etype),
+        )
         
+    inc = incidence_matrix

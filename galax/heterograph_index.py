@@ -348,11 +348,13 @@ class HeteroGraphIndex(NamedTuple):
         ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
         ... )
 
-        # remove ntype entirely
+        >>> # remove ntype entirely
         >>> _g = g.remove_nodes(None, 0)
         >>> _g.n_nodes.tolist()
         [2, 1]
+        >>> _g
 
+        >>> # remove ntype partially
         """
         if ntype is None:
             assert len(self.ntypes) == 1, "Ntype needs to be specified. "
@@ -364,18 +366,21 @@ class HeteroGraphIndex(NamedTuple):
         _, __, out_edge_types = self.metagraph.out_edges(ntype)
 
         if self.n_nodes[ntype] == len(nids): # remove ntype entirely
-            n_nodes = jnp.delete(self.n_nodes, nids)
-            edge_types_to_delete = jnp.unique(
-                jnp.concatenate([in_edge_types, out_edge_types])
+            n_nodes = jnp.concatenate(
+                [self.n_nodes[:ntype], self.n_nodes[ntype+1:]],
+            )
+            edge_types_to_delete = jnp.union1d(
+                in_edge_types, out_edge_types,
             ).tolist()
-            edges = (
+            print(in_edge_types, out_edge_types)
+            edges = tuple([
                 self.edges[idx]
                 for idx in range(len(self.edges))
                 if idx not in edge_types_to_delete
-            )
+            ])
             metagraph = self.metagraph.remove_node(ntype)
             return self.__class__(
-                metagrah=metagraph, edges=edges, n_nodes=n_nodes,
+                metagraph=metagraph, edges=edges, n_nodes=n_nodes,
             )
         else:
             n_nodes = self.n_nodes[:ntype] +\

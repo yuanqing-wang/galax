@@ -1,4 +1,7 @@
-"""Module for graph index class definition."""
+"""Module for graph index class definition.
+Inspired by: dgl.graph_index.
+
+"""
 from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple
 import jax.numpy as jnp
 import numpy as onp
@@ -17,10 +20,10 @@ class GraphIndex(NamedTuple):
     dst : jnp.ndarray
         The indices of the destination nodes, for each edge.
 
-    Note
-    ----
-    All transformations returns new GraphIndex object rather than modify it
-    in-place.
+    Notes
+    -----
+    * All transformations returns new object rather than modify it in-place.
+    * Not all functions are jittable.
 
     Examples
     --------
@@ -56,6 +59,7 @@ class GraphIndex(NamedTuple):
         (0, 1)
 
         """
+        assert num >= 0, "Can only add positive number of nodes."
         return self.__class__(
             n_nodes=self.n_nodes+num,
             src=self.src,
@@ -82,6 +86,7 @@ class GraphIndex(NamedTuple):
         [1]
 
         """
+        assert self.has_node(u) and self.has_node(v)
         return self.__class__(
             n_nodes=self.n_nodes,
             src=jnp.concatenate([self.src, jnp.array([u])]),
@@ -167,6 +172,7 @@ class GraphIndex(NamedTuple):
         True
 
         """
+        assert vid >= 0, "Node does not exist. "
         return vid < self.number_of_nodes()
 
     def has_nodes(self, vids: jnp.ndarray) -> jnp.array:
@@ -190,6 +196,7 @@ class GraphIndex(NamedTuple):
         [1, 1, 0]
 
         """
+        assert (vids >= 0).all(), "Node does not exist. "
         return 1 * (vids < self.number_of_nodes())
 
     def has_edge_between(self, u: int, v: int) -> bool:
@@ -214,6 +221,7 @@ class GraphIndex(NamedTuple):
         >>> assert ~g.has_edge_between(0, 0)
 
         """
+        assert self.has_node(u) and self.has_node(v), "Node does not exist. "
         u_in_src = (u == self.src)
         v_in_dst = (v == self.dst)
         return (u_in_src * v_in_dst).any()
@@ -244,6 +252,9 @@ class GraphIndex(NamedTuple):
         [1, 1, 0]
 
         """
+        assert self.has_nodes(u).all() and self.has_nodes(v).all(), \
+            "Node does not exist. "
+
         u = jnp.expand_dims(u, -1)
         v = jnp.expand_dims(v, -1)
         src = jnp.expand_dims(self.src, 0)
@@ -277,6 +288,7 @@ class GraphIndex(NamedTuple):
         >>> g.eid(0, 1).tolist()
         [0, 1]
         """
+        assert self.has_node(u) and self.has_node(v), "Node does not exist. "
         u_in_src = (u == self.src)
         v_in_dst = (v == self.dst)
         return jnp.where(u_in_src * v_in_dst)[0]
@@ -303,6 +315,7 @@ class GraphIndex(NamedTuple):
         (0, 1)
 
         """
+        assert eid < len(self.src)
         return self.src[eid].item(), self.dst[eid].item()
 
     def find_edges(self, eid:jnp.ndarray) -> Tuple[jnp.array]:
@@ -330,6 +343,7 @@ class GraphIndex(NamedTuple):
         ([2, 3], [3, 4])
 
         """
+        assert (eid < len(self.src)).all()
         return self.src[eid], self.dst[eid]
 
     def in_edges(self, v: int):
@@ -349,6 +363,7 @@ class GraphIndex(NamedTuple):
         jnp.ndarray
             The edge ids.
         """
+        assert self.has_node(v), "Node does not exist. "
         v_is_dst = (v == self.dst)
         eids = jnp.arange(self.src.shape[0])
         src = self.src[eids]
@@ -372,6 +387,7 @@ class GraphIndex(NamedTuple):
         jnp.ndarray
             The edge ids.
         """
+        assert self.has_node(v), "Node does not exist. "
         v_is_src = (v == self.src)
         eids = jnp.arange(self.src.shape[0])
         src = self.src[eids]
@@ -406,6 +422,7 @@ class GraphIndex(NamedTuple):
         GraphIndex
             A new graph with nodes removed.
         """
+        assert self.has_nodes(vids).all(), "Node does not exist. "
         v_is_src = (jnp.expand_dims(nids, -1) == self.src)
         v_is_dst = (jnp.expand_dims(nids, -1) == self.dst)
         v_is_in_edge = (v_is_src or v_in_dst).any(axis=-1)
@@ -450,6 +467,7 @@ class GraphIndex(NamedTuple):
             A new graph with edges removed.
 
         """
+        assert (eids < len(self.src)).all(), "Edge does not exist. "
         src = jnp.delete(self.src, eids)
         dst = jnp.delete(self.dst, eids)
         return self.__class__(
@@ -510,6 +528,7 @@ class GraphIndex(NamedTuple):
         3
 
         """
+        assert self.has_node(v), "Node does not exist. "
         return (v == self.dst).sum().item()
 
     def in_degrees(self, v: jnp.array) -> jnp.array:
@@ -531,6 +550,7 @@ class GraphIndex(NamedTuple):
         >>> g.in_degrees(jnp.array([0, 1, 2, 3])).tolist()
         [0, 0, 0, 3]
         """
+        assert self.has_nodes(v).all(), "Node does not exist. "
         v = jnp.expand_dims(v, -1)
         dst = jnp.expand_dims(self.dst, 0)
 
@@ -558,6 +578,7 @@ class GraphIndex(NamedTuple):
         >>> g.out_degree(0)
         3
         """
+        assert self.has_node(v), "Node does not exist. "
         return (v == self.src).sum().item()
 
     def out_degrees(self, v: jnp.array) -> jnp.array:
@@ -579,6 +600,7 @@ class GraphIndex(NamedTuple):
         >>> g.out_degrees(jnp.array([0, 0, 1])).tolist()
         [3, 3, 0]
         """
+        assert self.has_nodes(v).all(), "Node does not exist. "
         v = jnp.expand_dims(v, -1)
         src = jnp.expand_dims(self.src, 0)
 
@@ -602,6 +624,7 @@ class GraphIndex(NamedTuple):
         jnp.ndarray
             Edge ids.
         """
+        assert self.has_node(v) and self.has_node(u), "Node does not exist. "
         return jnp.where(self.src == u and self.dst == v)[0]
 
     def adjacency_matrix_scipy(

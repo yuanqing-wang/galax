@@ -1,16 +1,56 @@
-"""Module for heterogeneous graph index class definition."""
+"""Module for heterogeneous graph index class definition.
+Inspired by dgl.heterograph_index
+"""
 from typing import (
     Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple, List, Dict,
 )
 from .graph_index import GraphIndex, from_coo
+import jax
+import jax.numpy as jnp
+from jax.experimental.sparse import BCOO
 
 class HeteroGraphIndex(NamedTuple):
     """HeteroGraph index object.
 
+    Parameters
+    ----------
+    metagraph : GraphIndex
+        GraphIndex describing the relationships between edge types and
+        node types.
+    n_nodes : jnp.ndarray
+        Number of nodes.
+    edges : Tuple[Tuple[jnp.ndarray]]
+        Tuple of (src, dst) pairs for edges.
+
+    Notes
+    -----
+    * All transformations returns new object rather than modify it in-place.
+    * Not all functions are jittable
+
+    Examples
+    --------
+    >>> g = HeteroGraphIndex()
+    >>> assert len(g.n_nodes) == 0
+    >>> assert len(g.edges) == 0
+
+    >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+    >>> n_nodes = jnp.array([3, 2, 1])
+    >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), (), ())
+    >>> g = HeteroGraphIndex(
+    ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+    ... )
+
     """
-    metagraph: GraphIndex
-    n_nodes: jnp.ndarray # (number of nodes per ntype)
-    edges: Tuple[Tuple[jnp.ndarray]] # within each edge type, src and dst
+    metagraph: Optional[GraphIndex] = None
+    n_nodes: Optional[jnp.ndarray] = None # (number of nodes per ntype)
+    edges: Optional[Tuple[Tuple[jnp.ndarray]]] = None # tupe of src and dst
+
+    if metagraph is None: metagraph = GraphIndex()
+    if n_nodes is None: n_nodes = jnp.array([])
+    if edges is None: edges = ()
+
+    assert metagraph.number_of_edges() == len(edges)
+    assert metagraph.number_of_nodes() == len(n_nodes)
 
     def number_of_ntypes(self):
         """Return the number of node types.
@@ -19,6 +59,10 @@ class HeteroGraphIndex(NamedTuple):
         -------
         int
             The number of node types.
+
+        Examples
+        --------
+
         """
         return self.metagraph.number_of_nodes()
 
@@ -362,7 +406,7 @@ class HeteroGraphIndex(NamedTuple):
         src, dst = edge
         return src[eid], dst[eid], eid
 
-    def edges(self, etype: int, order: Optional[str]=None):
+    def all_edges(self, etype: int, order: Optional[str]=None):
         """Return all the edges
 
         Parameters

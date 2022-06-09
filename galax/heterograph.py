@@ -1,4 +1,6 @@
 from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple
+import jax
+import jax.numpy as jnp
 from .heterograph_index import HeteroGraphIndex
 from flax.core import FrozenDict
 
@@ -42,8 +44,8 @@ class HeteroGraph(NamedTuple):
     def add_nodes(
             self,
             num: int,
-            data: Optional[Dict]=None,
-            ntype: Optional[Dict]=None,
+            data: Optional[dict]=None,
+            ntype: Optional[dict]=None,
         ):
         """Add new nodes of the same node type
 
@@ -149,7 +151,7 @@ class HeteroGraph(NamedTuple):
                                 original_data[key],
                                 data[key],
                             ]
-                            for key in original_data.keys(),
+                            for key in original_data.keys()
                         )
                     }
                 )
@@ -191,7 +193,7 @@ class HeteroGraph(NamedTuple):
                                 original_data[key],
                                 data[key],
                             ]
-                            for key in original_data.keys(),
+                            for key in original_data.keys()
                         )
                     }
                 )
@@ -865,5 +867,5 @@ class HeteroGraph(NamedTuple):
             typestr=typestr,
             etype=self.get_etype_id(etype),
         )
-        
+
     inc = incidence_matrix

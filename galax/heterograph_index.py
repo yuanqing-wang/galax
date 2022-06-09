@@ -1,5 +1,6 @@
 """Module for heterogeneous graph index class definition.
 Inspired by dgl.heterograph_index
+
 """
 from typing import (
     Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple, List, Dict,
@@ -122,15 +123,15 @@ class HeteroGraphIndex(NamedTuple):
         [3, 2, 1, 1]
 
         """
-        if ntype is None: ntype = len(self.n_nodes)
+        if ntype is None: ntype = len(self.n_nodes) # the new immediate ntype
 
-        if ntype >= len(self.n_nodes):
+        if ntype >= len(self.n_nodes): # new
             assert ntype == len(self.n_nodes), "Can only add one type. "
             metagraph = self.metagraph.add_nodes(1)
             n_nodes = jnp.concatenate([self.n_nodes, jnp.array([num])])
             edges = self.edges
 
-        else:
+        else: # existing
             metagraph = self.metagraph
             n_nodes = self.n_nodes.at[ntype].add(num)
             edges = self.edges
@@ -208,8 +209,8 @@ class HeteroGraphIndex(NamedTuple):
         )
 
     def add_edge(
-            self, etype: int, src: int, dst: int,
-            srctype: Optional[int], dsttype: Optional[int],
+            self, etype: Optional[int], src: int, dst: int,
+            srctype: Optional[int]=None, dsttype: Optional[int]=None,
     ):
         """And one edge.
 
@@ -225,16 +226,33 @@ class HeteroGraphIndex(NamedTuple):
             The src node type. Necessary if etype is new.
         dsttype: Optional[int]
             The dst node type. Necessary if etype is new.
+        Examples
+        --------
+        >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+        >>> n_nodes = jnp.array([3, 2, 1])
+        >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), ())
+        >>> g = HeteroGraphIndex(
+        ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        ... )
+
+        >>> # add existing etype
+        >>> _g = g.add_edge(
+        ...     etype=0, src=0, dst=0,
+        ... )
+        >>> _g.edges[0].tolist()
+        [0, 1, 0]
+        >>> _g.edges[1].tolist()
+        [1, 2, 0]
 
         """
         src = jnp.array([src])
         dst = jnp.array([dst])
         return self.add_edges(
-            etype=etype, src=src, dst=dst, src_type=srctype, dsttype=dsttype,
+            etype=etype, src=src, dst=dst, srctype=srctype, dsttype=dsttype,
         )
 
     def remove_edges(
-            self, etype: int, eids: jnp.ndarray
+            self, etype: int, eids: Optional[jnp.ndarray]=None,
     ):
         """Removes many edges.
 
@@ -244,25 +262,48 @@ class HeteroGraphIndex(NamedTuple):
             Edge type
         eids : jnp.ndarray
             Edge ids.
+
+        Examples
+        --------
+        >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+        >>> n_nodes = jnp.array([3, 2, 1])
+        >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), ())
+        >>> g = HeteroGraphIndex(
+        ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        ... )
+
+        >>> # partial remove
+        >>> _g = g.remove_edges(etype=0, eids=jnp.array([0]))
+        >>> _g.edges[0].tolist()
+        [1]
+        >>> _g.edges[1].tolist()
+        [2]
+
+        >>> # remove all
+        >>> _g = g.remove_edges(etype=0, eids=None)
+        >>> len(_g.edges)
+        1
         """
 
+        if eids is None: eids = jnp.arange(len(self.edges[etype]))
         assert etype < len(self.edges), "Edge does not exist. "
         original_src, original_dst = self.edges[etype]
         src = jnp.delete(original_src, eids)
         dst = jnp.delete(original_dst, eids)
-        if len(src) > 0:
+
+        if len(src) > 0: # partially remove
             edges = self.edges[:etype] + (src, dst) + self.edges[etype+1:]
             return self.__class__(
+                metagraph=self.metagraph,
                 n_nodes=self.n_nodes,
-                etypes=self.etypes,
                 edges=edges,
             )
-        else:
+        else: # completely remove
             edges = self.edges[:etype] + self.edges[etype+1:]
-            etypes = etypes[:-1]
+            metagraph = self.metagraph.remove_edge(etype)
             return self.__class__(
+                metagraph=metagraph,
                 n_nodes=self.n_nodes,
-                etypes=self.etypes,
                 edges=edges,
             )
 
@@ -284,7 +325,7 @@ class HeteroGraphIndex(NamedTuple):
         return GraphIndex._reindex_after_remove(*args, **kwargs)
 
     def remove_nodes(
-            self, nids: jnp.array,
+            self, nids: Optional[jnp.array],
             ntype: Optional[int]=None,
     ):
         """Remove multiple nodes with the specified node type
@@ -297,16 +338,33 @@ class HeteroGraphIndex(NamedTuple):
         ntype : str, optional
             The type of the nodes to remove. Can be omitted if there is
             only one node type in the graph.
+
+        Examples
+        --------
+        >>> metagraph = GraphIndex(3, jnp.array([0, 1]), jnp.array([1, 2]))
+        >>> n_nodes = jnp.array([3, 2, 1])
+        >>> edges = ((jnp.array([0, 1]), jnp.array([1, 2])), ())
+        >>> g = HeteroGraphIndex(
+        ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        ... )
+
+        # remove ntype entirely
+        >>> _g = g.remove_nodes(None, 0)
+        >>> _g.n_nodes.tolist()
+        [2, 1]
+
         """
         if ntype is None:
             assert len(self.ntypes) == 1, "Ntype needs to be specified. "
             ntype = self.ntypes[ntype]
 
+        if nids is None: nids = jnp.arange(self.n_nodes[ntype])
+
         _, __, in_edge_types = self.metagraph.in_edges(ntype)
         _, __, out_edge_types = self.metagraph.out_edges(ntype)
 
-        if len(self.n_nodes[ntype]) == len(nids): # remove the type entirely
-            n_nodes = jnp.delete(self.n_nodes, nid)
+        if self.n_nodes[ntype] == len(nids): # remove ntype entirely
+            n_nodes = jnp.delete(self.n_nodes, nids)
             edge_types_to_delete = jnp.unique(
                 jnp.concatenate([in_edge_types, out_edge_types])
             ).tolist()

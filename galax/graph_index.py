@@ -3,6 +3,7 @@ Inspired by: dgl.graph_index.
 
 """
 from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple
+import jax
 import jax.numpy as jnp
 import numpy as onp
 from jax.experimental.sparse import BCOO
@@ -60,10 +61,8 @@ class GraphIndex(NamedTuple):
 
         """
         assert num >= 0, "Can only add positive number of nodes."
-        return self.__class__(
+        return self._replace(
             n_nodes=self.n_nodes+num,
-            src=self.src,
-            dst=self.dst,
         )
 
     def add_edge(self, u: int, v: int):
@@ -87,8 +86,7 @@ class GraphIndex(NamedTuple):
 
         """
         assert self.has_node(u) and self.has_node(v)
-        return self.__class__(
-            n_nodes=self.n_nodes,
+        return self._replace(
             src=jnp.concatenate([self.src, jnp.array([u])]),
             dst=jnp.concatenate([self.dst, jnp.array([v])]),
         )
@@ -398,16 +396,43 @@ class GraphIndex(NamedTuple):
     def _reindex_after_remove(
             original_index: jnp.ndarray, removed_index: jnp.ndarray
         ):
-        old_idxs = jnp.arange(max(original_index.max(), removed_index.max()))
-        surviving_idxs = jnp.delete(old_idxs, removed_index)
-        new_idxs = old_idxs.at[removed_index].set(jnp.nan)
-        new_idxs = new_idxs.at[surviving_idxs].set(
-            jnp.arange(surviving_idxs.shape[0])
-        )
-        old_to_new_dict = dict(zip(old_idxs), zip(new_idxs))
-        old_to_new_fn = lambda old: old_to_new_dict[old]
-        modified_idxs = jax.lax.map(old_to_new_fn, original_index)
-        return modified_idxs
+        """ Reindex an array after removing some indicies.
+
+        Parameters
+        ----------
+        original_index : jnp.ndarray
+            Original indicies.
+        removed_index : jnp.ndarray
+            Indicies that are removed.
+
+        Returns
+        -------
+        jnp.ndarray
+            New indicies.
+
+        Examples
+        --------
+        >>> original_index = jnp.array([1, 2, 3, 4, 7, 10])
+        >>> removed_index = jnp.array([2, 7])
+        >>> new_index = GraphIndex._reindex_after_remove(
+        ...     original_index=original_index, removed_index=removed_index,
+        ... )
+        >>> new_index.tolist()
+        [1, 2, 3, 8]
+        """
+        is_removed = (
+            jnp.expand_dims(
+                original_index, -1) == jnp.expand_dims(removed_index, 0)
+        ).any(axis=-1)
+
+        new_index = original_index[~is_removed]
+
+        def get_new_index(old_index):
+            offset = (old_index > removed_index).sum()
+            return old_index - offset
+        new_index = jax.lax.map(get_new_index, new_index)
+        return new_index
+
 
     def remove_nodes(self, nids: jnp.ndarray):
         """ Remove nodes. The edges connected to the nodes will too be removed.
@@ -421,11 +446,22 @@ class GraphIndex(NamedTuple):
         -------
         GraphIndex
             A new graph with nodes removed.
+
+        Examples
+        --------
+        >>> g = GraphIndex(
+        ...     10, jnp.array([2, 3]), jnp.array([3, 4]),
+        ... )
+        >>> _g = g.remove_nodes(jnp.array([2]))
+        >>> _g.src.tolist()
+        [2]
+        >>> _g.dst.tolist()
+        [3]
         """
-        assert self.has_nodes(vids).all(), "Node does not exist. "
+        assert self.has_nodes(nids).all(), "Node does not exist. "
         v_is_src = (jnp.expand_dims(nids, -1) == self.src)
         v_is_dst = (jnp.expand_dims(nids, -1) == self.dst)
-        v_is_in_edge = (v_is_src or v_in_dst).any(axis=-1)
+        v_is_in_edge = (v_is_src + v_is_dst).any(axis=-1)
         eids = jnp.where(v_is_in_edge)[0]
         src = jnp.delete(self.src, eids)
         dst = jnp.delete(self.dst, eids)
@@ -470,9 +506,26 @@ class GraphIndex(NamedTuple):
         assert (eids < len(self.src)).all(), "Edge does not exist. "
         src = jnp.delete(self.src, eids)
         dst = jnp.delete(self.dst, eids)
-        return self.__class__(
-            n_nodes=self.n_nodes, src=src, dst=dst,
+        return self._replace(
+            src=src, dst=dst,
         )
+
+    def remove_edge(self, eid: int):
+        """ Remove edges.
+
+        Parameters
+        ----------
+        eids : jnp.ndarray
+            Edges to remove.
+
+        Returns
+        -------
+        GraphIndex
+            A new graph with edges removed.
+
+        """
+        eids = jnp.array([eid])
+        return self.remove_edges(eids)
 
     def edges(self, order: Optional[str]=None) -> Tuple[jnp.array]:
         """Return all the edges.

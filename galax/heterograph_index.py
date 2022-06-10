@@ -372,7 +372,6 @@ class HeteroGraphIndex(NamedTuple):
             edge_types_to_delete = jnp.union1d(
                 in_edge_types, out_edge_types,
             ).tolist()
-            print(in_edge_types, out_edge_types)
             edges = tuple([
                 self.edges[idx]
                 for idx in range(len(self.edges))

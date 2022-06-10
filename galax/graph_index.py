@@ -363,7 +363,7 @@ class GraphIndex(NamedTuple):
         """
         assert self.has_node(v), "Node does not exist. "
         v_is_dst = (v == self.dst)
-        eids = jnp.arange(self.src.shape[0])
+        eids = jnp.arange(self.src.shape[0])[v_is_dst]
         src = self.src[eids]
         dst = self.dst[eids]
         return src, dst, eids
@@ -387,7 +387,7 @@ class GraphIndex(NamedTuple):
         """
         assert self.has_node(v), "Node does not exist. "
         v_is_src = (v == self.src)
-        eids = jnp.arange(self.src.shape[0])
+        eids = jnp.arange(self.src.shape[0])[v_is_src]
         src = self.src[eids]
         dst = self.dst[eids]
         return src, dst, eids

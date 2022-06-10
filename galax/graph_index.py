@@ -689,7 +689,7 @@ class GraphIndex(NamedTuple):
             Edge ids.
         """
         assert self.has_node(v) and self.has_node(u), "Node does not exist. "
-        return jnp.where(self.src == u and self.dst == v)[0]
+        return jnp.where((self.src == u) * (self.dst == v))[0]
 
     def adjacency_matrix_scipy(
         self,

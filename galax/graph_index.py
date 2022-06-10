@@ -43,7 +43,7 @@ class GraphIndex(NamedTuple):
     src: Optional[jnp.ndarray] = None
     dst: Optional[jnp.ndarray] = None
 
-    # default empty array as src and dst
+    # default empty array as src and src
     if src is None:
         src = jnp.array([], dtype=jnp.int32)
     if dst is None:
@@ -118,7 +118,9 @@ class GraphIndex(NamedTuple):
 
         """
         src_and_dst = jnp.stack([self.src, self.dst], axis=-1)
-        return jnp.unique(src_and_dst, axis=0).shape[0] != src_and_dst.shape[0]
+        return (
+            jnp.unique(src_and_dst, axis=0).shape[0] != src_and_dst.shape[0]
+        )
 
     def number_of_nodes(self) -> int:
         """Return the number of nodes.
@@ -399,7 +401,9 @@ class GraphIndex(NamedTuple):
         return src, dst, eids
 
     @staticmethod
-    def _reindex_after_remove(original_index: jnp.ndarray, removed_index: jnp.ndarray):
+    def _reindex_after_remove(
+        original_index: jnp.ndarray, removed_index: jnp.ndarray
+    ):
         """Reindex an array after removing some indicies.
 
         Parameters
@@ -425,7 +429,8 @@ class GraphIndex(NamedTuple):
         [1, 2, 3, 8]
         """
         is_removed = (
-            jnp.expand_dims(original_index, -1) == jnp.expand_dims(removed_index, 0)
+            jnp.expand_dims(original_index, -1)
+            == jnp.expand_dims(removed_index, 0)
         ).any(axis=-1)
 
         new_index = original_index[~is_removed]
@@ -933,7 +938,9 @@ class GraphIndex(NamedTuple):
         )
 
 
-def from_coo(num_nodes: int, src: jnp.ndarray, dst: jnp.ndarray) -> GraphIndex:
+def from_coo(
+    num_nodes: int, src: jnp.ndarray, dst: jnp.ndarray
+) -> GraphIndex:
     """Convert from coo arrays.
 
     Parameters
@@ -1080,6 +1087,7 @@ def create_graph_index(graph_data):
             gidx = from_networkx(graph_data, readonly)
         except Exception:
             raise RuntimeError(
-                "Error while creating graph from input of type %s" % type(graph_data)
+                "Error while creating graph from input of type %s"
+                % type(graph_data)
             )
         return gidx

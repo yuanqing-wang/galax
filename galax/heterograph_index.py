@@ -447,8 +447,12 @@ class HeteroGraphIndex(NamedTuple):
                 else:
                     src, dst = src_and_dst
 
-                v_is_src = jnp.expand_dims(src, -1) == jnp.expand_dims(nids, 0)
-                v_is_dst = jnp.expand_dims(dst, -1) == jnp.expand_dims(nids, 0)
+                v_is_src = jnp.expand_dims(src, -1) == jnp.expand_dims(
+                    nids, 0
+                )
+                v_is_dst = jnp.expand_dims(dst, -1) == jnp.expand_dims(
+                    nids, 0
+                )
                 v_in_edge = (v_is_src + v_is_dst).any(-1)
                 src, dst = src[~v_in_edge], dst[~v_in_edge]
 
@@ -838,7 +842,9 @@ class HeteroGraphIndex(NamedTuple):
             A index for data shuffling due to sparse format change. Return None
             if shuffle is not required.
         """
-        return self.etype_subgraph(etype).adjacency_matrix(transpose=transpose)
+        return self.etype_subgraph(etype).adjacency_matrix(
+            transpose=transpose
+        )
 
     adj = adjacency_matrix
 

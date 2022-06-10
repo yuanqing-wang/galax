@@ -4,6 +4,7 @@ import jax.numpy as jnp
 from .heterograph_index import HeteroGraphIndex
 from flax.core import FrozenDict
 
+
 class HeteroGraph(NamedTuple):
     """Class for storing graph structure and node/edge feature data.
 
@@ -28,25 +29,29 @@ class HeteroGraph(NamedTuple):
         of edge type i. (default: None)
 
     """
-    gidx: Optional[HeteroGraphIndex]=None
-    ntypes: Optional[Tuple]=None
-    etypes: Optional[Tuple]=None
-    node_frames: Optional[Tuple]=None
-    edge_frames: Optional[Tuple]=None
 
-    if gidx is None: gidx = []
-    if ntypes is None: ntypes = ["_N"]
-    if etypes is None: etypes = ["_E"]
+    gidx: Optional[HeteroGraphIndex] = None
+    ntypes: Optional[Tuple] = None
+    etypes: Optional[Tuple] = None
+    node_frames: Optional[Tuple] = None
+    edge_frames: Optional[Tuple] = None
+
+    if gidx is None:
+        gidx = []
+    if ntypes is None:
+        ntypes = ["_N"]
+    if etypes is None:
+        etypes = ["_E"]
 
     _ntype_invmap = FrozenDict({idx: ntype for idx, ntype in enumerate(ntypes)})
     _etype_invmap = FrozenDict({idx: etype for idx, etype in enumerate(etypes)})
 
     def add_nodes(
-            self,
-            num: int,
-            data: Optional[dict]=None,
-            ntype: Optional[dict]=None,
-        ):
+        self,
+        num: int,
+        data: Optional[dict] = None,
+        ntype: Optional[dict] = None,
+    ):
         """Add new nodes of the same node type
 
         Parameters
@@ -126,13 +131,13 @@ class HeteroGraph(NamedTuple):
 
         if ntype not in self.ntypes:
             gidx = self.gidx.add_nodes(ntype=len(self.ntypes), num=num)
-            ntypes = self.ntypes + (ntype, )
+            ntypes = self.ntypes + (ntype,)
             etypes = self.etypes
             if data is not None:
                 data = FrozenDict(data)
-                node_frames = self.node_frames + (data, )
+                node_frames = self.node_frames + (data,)
             else:
-                node_frames = self.node_frames + (None, )
+                node_frames = self.node_frames + (None,)
             edge_frames = self.edge_frames
 
         else:
@@ -155,22 +160,31 @@ class HeteroGraph(NamedTuple):
                         )
                     }
                 )
-                node_frames = self.node_frames[:ntype_idx]\
-                    + (new_data, ) + self.node_frames[ntype_idx+1:]
+                node_frames = (
+                    self.node_frames[:ntype_idx]
+                    + (new_data,)
+                    + self.node_frames[ntype_idx + 1 :]
+                )
             else:
                 node_frames = self.node_frames
             edge_frames = self.edge_frames
             return self.__class__(
-                gidx=gidx, ntypes=ntypes, etypes=etypes,
-                node_frames=node_frames, edge_frames=edge_frames,
+                gidx=gidx,
+                ntypes=ntypes,
+                etypes=etypes,
+                node_frames=node_frames,
+                edge_frames=edge_frames,
             )
 
     def add_edges(
-            self,
-            u: jnp.ndarray, v: jnp.ndarray,
-            data: Optional[jnp.ndarray]=None, etype: Optional[str]=None,
-            srctype: Optional[str]=None, dsttype: Optional[str]=None,
-        ):
+        self,
+        u: jnp.ndarray,
+        v: jnp.ndarray,
+        data: Optional[jnp.ndarray] = None,
+        etype: Optional[str] = None,
+        srctype: Optional[str] = None,
+        dsttype: Optional[str] = None,
+    ):
         if etype is None:
             assert len(self.etypes) == 1, "Etype needs to be specified. "
             etype = self.etypes[0]
@@ -197,44 +211,52 @@ class HeteroGraph(NamedTuple):
                         )
                     }
                 )
-                edge_frames = self.edge_frames[:etype_idx]\
-                    + (new_data, ) + self.edge_frames[etype_idx+1:]
+                edge_frames = (
+                    self.edge_frames[:etype_idx]
+                    + (new_data,)
+                    + self.edge_frames[etype_idx + 1 :]
+                )
                 etype = self.etype
             else:
                 gidx = self.gidx.add_edges(
-                    etype=etype_idx, src=u, dst=v,
+                    etype=etype_idx,
+                    src=u,
+                    dst=v,
                     srctype=self._ntype_invmap[srctype],
                     dsttype=self._ntype_invmap[dsttype],
                 )
-                etypes = self.etypes + (etype, )
-                edge_frames = self.edge_frames + (FrozenDict(data), )
+                etypes = self.etypes + (etype,)
+                edge_frames = self.edge_frames + (FrozenDict(data),)
 
         return self.__class__(
-            gidx=gidx, ntypes=ntypes, etypes=etypes,
-            node_frames=node_frames, edge_frames=edge_frames,
+            gidx=gidx,
+            ntypes=ntypes,
+            etypes=etypes,
+            node_frames=node_frames,
+            edge_frames=edge_frames,
         )
 
-    def remove_edges(self, eids: jnp.array, etype: Optional[str]=None):
+    def remove_edges(self, eids: jnp.array, etype: Optional[str] = None):
         etype_idx = self.get_etype_id(etype)
 
         # handle the data corresponding to the edges
         sub_edge_frame = self.edge_frames[etype_idx]
         sub_edge_frame = FrozenDict(
-            {
-                key: jnp.delete(value, eids)
-                for key, value in sub_edge_frame.items()
-            }
+            {key: jnp.delete(value, eids) for key, value in sub_edge_frame.items()}
         )
 
         example_key, example_value = next(sub_edge_frame.items())
         if len(example_value) == 0:
-            edge_frames =\
-                self.edge_frames[:etype_idx] + self.edge_frames[etype_idx+1:]
-            etypes =\
-                self.etypes[:etype_idx] + self.etypes[etype_idx+1:]
+            edge_frames = (
+                self.edge_frames[:etype_idx] + self.edge_frames[etype_idx + 1 :]
+            )
+            etypes = self.etypes[:etype_idx] + self.etypes[etype_idx + 1 :]
         else:
-            edge_frames = self.edge_frames[:etype_idx]\
-                + sub_edge_frame + self.edge_frames[etype_idx+1:]
+            edge_frames = (
+                self.edge_frames[:etype_idx]
+                + sub_edge_frame
+                + self.edge_frames[etype_idx + 1 :]
+            )
             etypes = self.etypes
 
         gidx = self.gidx.remove_edges(etype=etype_idx, eids=eids)
@@ -246,28 +268,28 @@ class HeteroGraph(NamedTuple):
             edge_frames=edge_frames,
         )
 
-    def remove_nodes(self, nids: jnp.ndarray, ntype: Optional[str]=None):
+    def remove_nodes(self, nids: jnp.ndarray, ntype: Optional[str] = None):
         ntype_idx = self.get_ntype_id(ntype)
         gidx = self.gidx.remove_nodes(ntype=ntype_idx, nids=nids)
 
         # handle the data corresponding to the edges
         sub_node_frame = self.edge_frames[ntype_idx]
         sub_node_frame = FrozenDict(
-            {
-                key: jnp.delete(value, eids)
-                for key, value in sub_node_frame.items()
-            }
+            {key: jnp.delete(value, eids) for key, value in sub_node_frame.items()}
         )
 
         example_key, example_value = next(sub_node_frame.items())
         if len(example_value) == 0:
-            node_frames =\
-                self.node_frames[:ntype_idx] + self.node_frames[ntype_idx+1:]
-            ntypes =\
-                self.ntypes[:ntype_idx] + self.ntypes[ntype_idx+1:]
+            node_frames = (
+                self.node_frames[:ntype_idx] + self.node_frames[ntype_idx + 1 :]
+            )
+            ntypes = self.ntypes[:ntype_idx] + self.ntypes[ntype_idx + 1 :]
         else:
-            node_frames = self.node_frames[:ntype_idx]\
-                + sub_edge_frame + self.node_frames[ntype_idx+1:]
+            node_frames = (
+                self.node_frames[:ntype_idx]
+                + sub_edge_frame
+                + self.node_frames[ntype_idx + 1 :]
+            )
             ntypes = self.ntypes
 
         return self.__class__(
@@ -365,7 +387,7 @@ class HeteroGraph(NamedTuple):
         src, dst = self.gidx.metagraph.find_edge(etype_idx)
         return self.ntypes[src], etype, self.ntyes[dst]
 
-    def get_ntype_id(self, ntype: Optional[str]=None) -> int:
+    def get_ntype_id(self, ntype: Optional[str] = None) -> int:
         """Return the ID of the given node type.
         ntype can also be None. If so, there should be only one node type in the
         graph.
@@ -386,7 +408,7 @@ class HeteroGraph(NamedTuple):
             assert ntype in self._ntype_invmap, "No such ntype. "
             return self._ntype_invmap[ntype]
 
-    def get_etype_id(self, etype: Optional[str]=None) -> int:
+    def get_etype_id(self, etype: Optional[str] = None) -> int:
         """Return the id of the given edge type.
         etype can also be None. If so, there should be only one edge type in the
         graph.
@@ -407,10 +429,10 @@ class HeteroGraph(NamedTuple):
             assert ntype in self._etype_invmap, "No such etype. "
             return self._etype_invmap[etype]
 
-    def number_of_nodes(self, ntype: Optional[str]=None):
+    def number_of_nodes(self, ntype: Optional[str] = None):
         return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
 
-    def number_of_edges(self, etype: Optional[str]=None):
+    def number_of_edges(self, etype: Optional[str] = None):
         return self.gidx.number_of_edges(self.get_etype_id(etype))
 
     def is_multigraph(self):
@@ -520,8 +542,11 @@ class HeteroGraph(NamedTuple):
         return self.gidx.has_nodes(vid, ntype=ntype_idx)
 
     def has_edges_between(
-            self, u: jnp.ndarray, v: jnp.ndarray, etype: Optional[str]=None,
-        ) -> jnp.ndarray:
+        self,
+        u: jnp.ndarray,
+        v: jnp.ndarray,
+        etype: Optional[str] = None,
+    ) -> jnp.ndarray:
         """Return whether the graph contains the given edges.
 
         Parameters
@@ -625,8 +650,10 @@ class HeteroGraph(NamedTuple):
         return self.gidx.find_edges(eid=eid, etype=self.get_etype_id(etype))
 
     def in_degrees(
-            self, v: Optional[jnp.ndarray]=None, etype: Optional[str]=None,
-        ):
+        self,
+        v: Optional[jnp.ndarray] = None,
+        etype: Optional[str] = None,
+    ):
         """Return the in-degree(s) of the given nodes.
         It computes the in-degree(s) w.r.t. to the edges of the given edge type.
 
@@ -680,16 +707,14 @@ class HeteroGraph(NamedTuple):
         etype_idx = self.get_etype_id(etype)
 
         if v is None:
-            v = jnp.arange(
-                self.gidx.n_nodes[self.gidx.metagraph.dst[etype_idx]]
-            )
+            v = jnp.arange(self.gidx.n_nodes[self.gidx.metagraph.dst[etype_idx]])
 
         return self.gidx.in_degrees(
             v=v,
             etype=etype_idx,
         )
 
-    def out_degrees(self, u: jnp.ndarray, etype: Optional[str]=None):
+    def out_degrees(self, u: jnp.ndarray, etype: Optional[str] = None):
         """Return the out-degree(s) of the given nodes.
         It computes the out-degree(s) w.r.t. to the edges of the given edge type.
 
@@ -742,9 +767,7 @@ class HeteroGraph(NamedTuple):
         etype_idx = self.get_etype_id(etype)
 
         if u is None:
-            u = jnp.arange(
-                self.gidx.n_nodes[self.gidx.metagraph.src[etype_idx]]
-            )
+            u = jnp.arange(self.gidx.n_nodes[self.gidx.metagraph.src[etype_idx]])
 
         return self.gidx.in_degrees(
             u=u,
@@ -752,8 +775,10 @@ class HeteroGraph(NamedTuple):
         )
 
     def adjacency_matrix(
-            self, transpose: bool=False, etype: Optional[str]=None,
-        ):
+        self,
+        transpose: bool = False,
+        etype: Optional[str] = None,
+    ):
         """Return the adjacency matrix of edges of the given edge type.
         By default, a row of returned adjacency matrix represents the
         source of an edge and the column represents the destination.
@@ -806,7 +831,7 @@ class HeteroGraph(NamedTuple):
 
     adj = adjacency_matrix
 
-    def incidence_matrix(self, typestr: str, etype: Optional[str]=None):
+    def incidence_matrix(self, typestr: str, etype: Optional[str] = None):
         """Return the incidence matrix representation of edges with the given
         edge type.
         An incidence matrix is an n-by-m sparse matrix, where n is

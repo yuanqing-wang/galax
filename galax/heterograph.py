@@ -1,25 +1,29 @@
-from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple
+from typing import Any, Iterable, Mapping, Union, Optional, Tuple, Sequence
+from dataclasses import dataclass, field
+from functools import partial
 import jax
 import jax.numpy as jnp
+from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
+from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
 from flax.core import FrozenDict
 
-
-class HeteroGraph(NamedTuple):
+@partial(dataclass, frozen=True)
+class HeteroGraph:
     """Class for storing graph structure and node/edge feature data.
 
     Parameters
     ----------
-    gidx : HeteroGraphIndex
+    gidx : Optional[HeteroGraphIndex]
         Graph index object.
-    ntypes : list of str
+    ntypes : Optional[Sequence[str]]
         Node type list. ``ntypes[i]`` stores the name of node type i.
         If a pair is given, the graph created is a
         uni-directional bipartite graph,
         and its SRC node types and DST node types are given as in the pair.
-    etypes : list of str
+    etypes :Optional[Sequence[str]]
         Edge type list. ``etypes[i]`` stores the name of edge type i.
-    node_frames : list[Frame], optional
+    node_frames : list[Frame]
         Node feature storage. If None, empty frame is created.
         Otherwise, ``node_frames[i]`` stores the node features
         of node type i. (default: None)
@@ -30,25 +34,38 @@ class HeteroGraph(NamedTuple):
 
     """
 
-    gidx: Optional[HeteroGraphIndex] = None
-    ntypes: Optional[Tuple] = None
-    etypes: Optional[Tuple] = None
-    node_frames: Optional[Tuple] = None
-    edge_frames: Optional[Tuple] = None
+    gidx: Optional[HeteroGraphIndex] = field(default=HeteroGraphIndex())
+    ntypes: Optional[Sequence[str]]=field(default=("_N", ))
+    etypes: Optional[Sequence[str]]=field(default=("_E", ))
+    node_frames: Optional[Sequence]=None
+    edge_frames: Optional[Sequence]=None
 
-    if gidx is None:
-        gidx = []
-    if ntypes is None:
-        ntypes = ["_N"]
-    if etypes is None:
-        etypes = ["_E"]
+    def __post_init__(self):
+        # Force set, not very elegant
+        object.__setattr__(self, "ntypes", tuple(self.ntypes))
+        object.__setattr__(self, "etypes", tuple(self.etypes))
+        object.__setattr__(self, "_ntype_invmap", FrozenDict(
+            {ntype: idx for idx, ntype in enumerate(self.ntypes)}
+        ))
+        object.__setattr__(self, "_etype_invmap", FrozenDict(
+            {etype: idx for idx, etype in enumerate(self.etypes)}
+        ))
 
-    _ntype_invmap = FrozenDict(
-        {idx: ntype for idx, ntype in enumerate(ntypes)}
-    )
-    _etype_invmap = FrozenDict(
-        {idx: etype for idx, etype in enumerate(etypes)}
-    )
+        node_frames = self.node_frames
+        edge_frames = self.edge_frames
+
+        if node_frames is None:
+            node_frames = tuple([None for _ in range(len(self.ntypes))])
+        if edge_frames is None:
+            edge_frames = tuple([None for _ in range(len(self.etypes))])
+
+        if not isinstance(node_frames, tuple):
+            node_frames = tuple(node_frames)
+        if not isinstance(edge_frames, tuple):
+            edge_frames = tuple(edge_frames)
+
+        object.__setattr__(self, "node_frames", node_frames)
+        object.__setattr__(self, "edge_frames", edge_frames)
 
     def add_nodes(
         self,
@@ -62,7 +79,7 @@ class HeteroGraph(NamedTuple):
         ----------
         num : int
             Number of nodes to add.
-        data : dict, optional
+        data : Mapping, optional
             Feature data of the added nodes.
         ntype : str, optional
             The type of the new nodes. Can be omitted if there is
@@ -70,70 +87,50 @@ class HeteroGraph(NamedTuple):
 
         Examples
         --------
-
-        The following example uses PyTorch backend.
-
-        >>> import galax
-
         **Homogeneous Graphs or Heterogeneous Graphs with A Single Node Type**
-
-        >>> g = dgl.graph((torch.tensor([0, 1]), torch.tensor([1, 2])))
-        >>> g.num_nodes()
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> g.number_of_nodes()
         3
-        >>> g.add_nodes(2)
-        >>> g.num_nodes()
+        >>> g = g.add_nodes(2)
+        >>> g.number_of_nodes()
         5
 
         If the graph has some node features and new nodes are added without
-        features, their features will be created by initializers defined
-        with :func:`set_n_initializer`.
+        features, their features will be zeros.
+        >>> g = g.ndata.set("h", jnp.ones((5, 1)))
+        >>> g.ndata["h"].flatten().tolist()
+        [1.0, 1.0, 1.0, 1.0, 1.0]
 
-        >>> g.ndata['h'] = torch.ones(5, 1)
-        >>> g.add_nodes(1)
-        >>> g.ndata['h']
-        tensor([[1.], [1.], [1.], [1.], [1.], [0.]])
+        >>> g = g.add_nodes(1)
+        >>> g.ndata["h"].flatten().tolist()
+        [1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
 
         We can also assign features for the new nodes in adding new nodes.
-
-        >>> g.add_nodes(1, {'h': torch.ones(1, 1), 'w': torch.ones(1, 1)})
-        >>> g.ndata['h']
-        tensor([[1.], [1.], [1.], [1.], [1.], [0.], [1.]])
-
-        Since ``data`` contains new feature fields, the features for old nodes
-        will be created by initializers defined with :func:`set_n_initializer`.
-
-        >>> g.ndata['w']
-        tensor([[0.], [0.], [0.], [0.], [0.], [0.], [1.]])
-
+        >>> g = g.add_nodes(1, {'h': jnp.ones((1, 1)), 'w': jnp.ones((1, 1))})
+        >>> g.ndata['h'].flatten().tolist()
+        [1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0]
+        >>> g.ndata['w'].flatten().tolist()
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
 
         **Heterogeneous Graphs with Multiple Node Types**
-
-        >>> g = dgl.heterograph({
-        ...     ('user', 'plays', 'game'): (torch.tensor([0, 1, 1, 2]),
-        ...                                 torch.tensor([0, 0, 1, 1])),
-        ...     ('developer', 'develops', 'game'): (torch.tensor([0, 1]),
-        ...                                         torch.tensor([0, 1]))
+        >>> g = graph({
+        ...     ('user', 'plays', 'game'): (jnp.array([0, 1, 1, 2]),
+        ...                                 jnp.array([0, 0, 1, 1])),
+        ...     ('developer', 'develops', 'game'): (jnp.array([0, 1]),
+        ...                                         jnp.array([0, 1]))
         ...     })
-        >>> g.add_nodes(2)
-        DGLError: Node type name must be specified
-        if there are more than one node types.
-        >>> g.num_nodes('user')
+        >>> g.number_of_nodes("user")
         3
-        >>> g.add_nodes(2, ntype='user')
-        >>> g.num_nodes('user')
+        >>> g = g.add_nodes(2, ntype="user")
+        >>> g.number_of_nodes("user")
         5
 
-        See Also
-        --------
-        remove_nodes
-        add_edges
-        remove_edges
         """
         if ntype is None:
             assert len(self.ntypes) == 1, "Please specify node types. "
             ntype = self.ntypes[0]
 
-        if ntype not in self.ntypes:
+        if ntype not in self.ntypes: # new node
             gidx = self.gidx.add_nodes(ntype=len(self.ntypes), num=num)
             ntypes = self.ntypes + (ntype,)
             etypes = self.etypes
@@ -144,41 +141,95 @@ class HeteroGraph(NamedTuple):
                 node_frames = self.node_frames + (None,)
             edge_frames = self.edge_frames
 
-        else:
-            ntype_idx = self._ntype_invmap(ntype)
-            gidx = self.gidx.add_nodes(ntype=self.ntype_idx, num=num)
+        else: # existing node
+            ntype_idx = self._ntype_invmap[ntype]
+            gidx = self.gidx.add_nodes(ntype=ntype_idx, num=num)
             ntypes = self.ntypes
             etypes = self.etypes
-            if data is not None:
-                data = FrozenDict(data)
-                original_data = self.node_frames[ntype]
-                assert list(original_data.keys()) == list(data.keys())
-                new_data = FrozenDict(
-                    {
-                        key: jnp.concatenate(
+            if data is None:
+                if self.node_frames[ntype_idx] is None:
+                    node_frames = self.node_frames
+                else:
+                    original_data = self.node_frames[ntype_idx]
+                    new_data = FrozenDict(
+                        {
+                            key: jnp.concatenate(
+                                [
+                                    original_data[key],
+                                    jnp.zeros(
+                                        (num, ) + original_data[key].shape[1:]
+                                    ),
+                                ]
+                            )
+                            for key in original_data.keys()
+                        }
+                    )
+
+                    node_frames = (
+                        self.node_frames[:ntype_idx]
+                        + (new_data,)
+                        + self.node_frames[ntype_idx + 1 :]
+                    )
+
+            else:
+                new_data = {}
+                original_data = self.node_frames[ntype_idx]
+
+                for key in original_data:
+                    if key in data:
+                        value = jnp.concatenate(
                             [
                                 original_data[key],
                                 data[key],
                             ]
-                            for key in original_data.keys()
                         )
-                    }
-                )
+                    else:
+                        placeholder = jnp.zeros(
+                            (num, ) + original_data[key].shape[1:]
+                        )
+
+                        value = jnp.concatenate(
+                            [
+                                original_data[key],
+                                placeholder,
+                            ]
+                        )
+
+                    new_data[key] = value
+
+                for key in data:
+                    if key not in original_data:
+                        placeholder = jnp.zeros(
+                            (self.number_of_nodes(ntype), ) +\
+                                data[key].shape[1:]
+                        )
+                        value = jnp.concatenate(
+                            [
+                                placeholder,
+                                data[key],
+                            ]
+                        )
+
+                        new_data[key] = value
+
+
+                new_data = FrozenDict(new_data)
+
                 node_frames = (
                     self.node_frames[:ntype_idx]
                     + (new_data,)
                     + self.node_frames[ntype_idx + 1 :]
                 )
-            else:
-                node_frames = self.node_frames
+
             edge_frames = self.edge_frames
-            return self.__class__(
-                gidx=gidx,
-                ntypes=ntypes,
-                etypes=etypes,
-                node_frames=node_frames,
-                edge_frames=edge_frames,
-            )
+
+        return self.__class__(
+            gidx=gidx,
+            ntypes=ntypes,
+            etypes=etypes,
+            node_frames=node_frames,
+            edge_frames=edge_frames,
+        )
 
     def add_edges(
         self,
@@ -189,48 +240,185 @@ class HeteroGraph(NamedTuple):
         srctype: Optional[str] = None,
         dsttype: Optional[str] = None,
     ):
+        """Add multiple new edges for the specified edge type
+        The i-th new edge will be from ``u[i]`` to ``v[i]``.
+
+        Parameters
+        ----------
+        u : jnp.ndarray
+            Source node IDs,
+            ``u[i]`` gives the source node for the i-th new edge.
+        v : jnp.ndarray
+            Destination node IDs, `
+            `v[i]`` gives the destination node for the i-th new edge.
+        data : dict, optional
+            Feature data of the added edges.
+            The i-th row of the feature data
+            corresponds to the i-th new edge.
+        etype : str or tuple of str, optional
+            The type of the new edges. Can be omitted if there is
+            only one edge type in the graph.
+
+        Notes
+        -----
+        * If the key of ``data`` does not contain some existing feature
+          fields, those features for the new edges will be filled
+          with zeros.
+        * If the key of ``data`` contains new feature fields,
+          those features for the old edges will be filled with zeros.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> g.number_of_edges()
+        2
+
+        >>> g = g.add_nodes(2)
+        >>> g = g.add_edges((1, 3), (0, 1))
+        >>> g.number_of_edges()
+        4
+
+        If the graph has some edge features and new edges are added without
+        features, their features will be create.
+        >>> g = g.edata.set("h", jnp.ones((4, 1)))
+        >>> g = g.add_edges((1, ), (1, ))
+        >>> g.edata['h'].flatten().tolist()
+        [1.0, 1.0, 1.0, 1.0, 0.0]
+
+        We can also assign features for the new edges in adding new edges.
+        >>> g = g.add_edges(jnp.array([0, 0]), jnp.array([2, 2]),
+        ...     {'h': jnp.array([[1.], [2.]]), 'w': jnp.ones((2, 1))})
+        >>> g.edata['h'].flatten().tolist()
+        [1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 2.0]
+
+        Since ``data`` contains new feature fields, the features for old edges
+        will be created.
+        >>> g.edata['w'].flatten().tolist()
+        [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0]
+
+        **Heterogeneous Graphs with Multiple Edge Types**
+        >>> g = graph({
+        ...     ('user', 'plays', 'game'): ((0, 1, 1, 2),
+        ...                                 (0, 0, 1, 1)),
+        ...     ('developer', 'develops', 'game'): ((0, 1),
+        ...                                         (0, 1))
+        ...     })
+        >>> g.number_of_edges('plays')
+        4
+        >>> g = g.add_edges(jnp.array([2]), jnp.array([1]), etype='plays')
+        >>> g.number_of_edges('plays')
+        5
+
+        """
         if etype is None:
             assert len(self.etypes) == 1, "Etype needs to be specified. "
             etype = self.etypes[0]
 
-        ntypes = self.ntypes
-        node_frames = self.node_frames
+        # convert nodes to ndarray
+        if not isinstance(u, jnp.ndarray):
+            u = jnp.array(u)
+        if not isinstance(v, jnp.ndarray):
+            v = jnp.array(v)
 
-        if etype in self._etype_invmap:
-            etype_idx = self._etype_invmap[etype]
-            gidx = self.gidx.add_edges(etype=etype_idx, src=u, dst=v)
-
+        if etype not in self.etypes: # new node
+            etype_idx = len(self.etypes)
+            gidx = self.gidx.add_edges(
+                etype=etype_idx,
+                src=u,
+                dst=v,
+                srctype=srctype,
+                dsttype=dsttype,
+            )
+            ntypes = self.ntypes
+            etypes = self.etypes + (etype, )
             if data is not None:
                 data = FrozenDict(data)
-                original_data = self.edge_frames[etype]
-                assert list(original_data.keys()) == list(data.keys())
-                new_data = FrozenDict(
-                    {
-                        key: jnp.concatenate(
+                edge_frames = self.edge_frames + (data,)
+            else:
+                edge_frames = self.edge_frames + (None,)
+            node_frames = self.node_frames
+
+        else: # existing node
+            etype_idx = self._etype_invmap[etype]
+            gidx = self.gidx.add_edges(etype=etype_idx, src=u, dst=v)
+            ntypes = self.ntypes
+            etypes = self.etypes
+            if data is None:
+                if self.edge_frames[etype_idx] is None:
+                    edge_frames = self.edge_frames
+                else:
+                    original_data = self.edge_frames[etype_idx]
+                    new_data = FrozenDict(
+                        {
+                            key: jnp.concatenate(
+                                [
+                                    original_data[key],
+                                    jnp.zeros(
+                                        (len(u),) + original_data[key].shape[1:]
+                                    ),
+                                ]
+                            )
+                            for key in original_data.keys()
+                        }
+                    )
+
+                    edge_frames = (
+                        self.edge_frames[:etype_idx]
+                        + (new_data,)
+                        + self.edge_frames[etype_idx + 1 :]
+                    )
+
+            else:
+                new_data = {}
+                original_data = self.edge_frames[etype_idx]
+
+                for key in original_data:
+                    if key in data:
+                        value = jnp.concatenate(
                             [
                                 original_data[key],
                                 data[key],
                             ]
-                            for key in original_data.keys()
                         )
-                    }
-                )
+                    else:
+                        placeholder = jnp.zeros(
+                            (num, ) + original_data[key].shape[1:]
+                        )
+
+                        value = jnp.concatenate(
+                            [
+                                original_data[key],
+                                placeholder,
+                            ]
+                        )
+
+                    new_data[key] = value
+
+                for key in data:
+                    if key not in original_data:
+                        placeholder = jnp.zeros(
+                            (self.number_of_edges(etype), ) +\
+                                data[key].shape[1:]
+                        )
+                        value = jnp.concatenate(
+                            [
+                                placeholder,
+                                data[key],
+                            ]
+                        )
+
+                        new_data[key] = value
+
+
+                new_data = FrozenDict(new_data)
+
                 edge_frames = (
                     self.edge_frames[:etype_idx]
                     + (new_data,)
                     + self.edge_frames[etype_idx + 1 :]
                 )
-                etype = self.etype
-            else:
-                gidx = self.gidx.add_edges(
-                    etype=etype_idx,
-                    src=u,
-                    dst=v,
-                    srctype=self._ntype_invmap[srctype],
-                    dsttype=self._ntype_invmap[dsttype],
-                )
-                etypes = self.etypes + (etype,)
-                edge_frames = self.edge_frames + (FrozenDict(data),)
+
+            node_frames = self.node_frames
 
         return self.__class__(
             gidx=gidx,
@@ -332,20 +520,7 @@ class HeteroGraph(NamedTuple):
         --------
         etypes
 
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3])),
-        ...     ('user', 'plays', 'game'): (torch.tensor([1, 3]), torch.tensor([2, 3]))
-        ... })
-        >>> g.canonical_etypes
-        [('user', 'follows', 'user'),
-         ('user', 'follows', 'game'),
-         ('user', 'plays', 'game')]
+
         """
         return [
             (
@@ -375,25 +550,6 @@ class HeteroGraph(NamedTuple):
         (str, str, str)
             The canonical edge type corresponding to the edge type.
 
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        Create a heterograph.
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): ([0, 1], [1, 2]),
-        ...     ('user', 'plays', 'game'): ([0, 1, 1, 2], [0, 0, 1, 1]),
-        ...     ('developer', 'follows', 'game'): ([0, 1], [0, 1])
-        ... })
-        Map an edge type to its corresponding canonical edge type.
-        >>> g.to_canonical_etype('plays')
-        ('user', 'plays', 'game')
-        >>> g.to_canonical_etype(('user', 'plays', 'game'))
-        ('user', 'plays', 'game')
-        See Also
-        --------
-        canonical_etypes
         """
         etype_idx = self.get_etype_id(etype)
         src, dst = self.gidx.metagraph.find_edge(etype_idx)
@@ -438,7 +594,7 @@ class HeteroGraph(NamedTuple):
             assert len(self.etypes) == 1, "Etype needs to be specified. "
             return 0
         else:
-            assert ntype in self._etype_invmap, "No such etype. "
+            assert etype in self._etype_invmap, "No such etype. "
             return self._etype_invmap[etype]
 
     def number_of_nodes(self, ntype: Optional[str] = None):
@@ -459,31 +615,6 @@ class HeteroGraph(NamedTuple):
         bool
             True if the graph is a multigraph.
 
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        Check for homogeneous graphs.
-        >>> g = dgl.graph((torch.tensor([0, 1]), torch.tensor([1, 3])))
-        >>> g.is_multigraph
-        False
-        >>> g = dgl.graph((torch.tensor([0, 1, 1]), torch.tensor([1, 3, 3])))
-        >>> g.is_multigraph
-        True
-        Check for heterogeneous graphs.
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3]))
-        ... })
-        >>> g.is_multigraph
-        False
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1, 1]), torch.tensor([1, 2, 2])),
-        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3]))
-        ... })
-        >>> g.is_multigraph
-        True
         """
         return self.gidx.is_multigraph()
 
@@ -496,19 +627,6 @@ class HeteroGraph(NamedTuple):
         bool
             True if the graph is a homogeneous graph.
 
-        Examples
-        --------
-        >>> import dgl
-        >>> import torch
-
-        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 0, 2, 3])))
-        >>> g.is_homogeneous
-        True
-
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3]))})
-        >>> g.is_homogeneous
-        False
         """
         return len(self.ntypes) == 1 and len(self.etypes) == 1
 
@@ -535,22 +653,6 @@ class HeteroGraph(NamedTuple):
             A tensor of bool flags where each element is True if the node is in the graph.
             If the input is a single node, return one bool value.
 
-        Examples
-        --------
-        >>> import dgl
-        >>> import torch
-        Create a graph with two node types -- 'user' and 'game'.
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([0, 1]))
-        ... })
-        Query for the nodes.
-        >>> g.has_nodes(0, 'user')
-        True
-        >>> g.has_nodes(3, 'game')
-        False
-        >>> g.has_nodes(torch.tensor([3, 0, 1]), 'game')
-        tensor([False,  True,  True])
         """
         ntype_idx = self.get_ntype_id(ntype)
         return self.gidx.has_nodes(vid, ntype=ntype_idx)
@@ -588,33 +690,7 @@ class HeteroGraph(NamedTuple):
         bool or bool Tensor
             A tensor of bool flags where each element is True if the node is in the graph.
             If the input is a single node, return one bool value.
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        Create a homogeneous graph.
-        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 0, 2, 3])))
-        Query for the edges.
-        >>> g.has_edges_between(1, 2)
-        True
-        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]))
-        tensor([ True, False])
-        If the graph has multiple edge types, one need to specify the edge type.
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'follows', 'game'): (torch.tensor([0, 1, 2]), torch.tensor([1, 2, 3])),
-        ...     ('user', 'plays', 'game'): (torch.tensor([1, 3]), torch.tensor([2, 3]))
-        ... })
-        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]), 'plays')
-        tensor([ True, False])
-        Use a canonical edge type instead when there is ambiguity for an edge type.
-        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]),
-        ...                     ('user', 'follows', 'user'))
-        tensor([ True, False])
-        >>> g.has_edges_between(torch.tensor([1, 2]), torch.tensor([2, 3]),
-        ...                     ('user', 'follows', 'game'))
-        tensor([True, True])
+
         """
         etype_idx = self.get_etype_id(etype)
         return self.gidx.has_edges_between(u, v, etype=etype_idx)
@@ -643,23 +719,7 @@ class HeteroGraph(NamedTuple):
         Tensor
             The destination node IDs of the edges. The i-th element is the destination node
             ID of the i-th edge.
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        Create a homogeneous graph.
-        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 0, 2, 3])))
-        Find edges of IDs 0 and 2.
-        >>> g.find_edges(torch.tensor([0, 2]))
-        (tensor([0, 1]), tensor([1, 2]))
-        For a graph of multiple edge types, it is required to specify the edge type in query.
-        >>> hg = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([5, 6]))
-        ... })
-        >>> hg.find_edges(torch.tensor([1, 0]), 'plays')
-        (tensor([4, 3]), tensor([6, 5]))
+
         """
         return self.gidx.find_edges(eid=eid, etype=self.get_etype_id(etype))
 
@@ -693,30 +753,6 @@ class HeteroGraph(NamedTuple):
             The in-degree(s) of the node(s) in a Tensor. The i-th element is the in-degree
             of the i-th input node. If :attr:`v` is an ``int``, return an ``int`` too.
 
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        Create a homogeneous graph.
-        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 1, 2, 3])))
-        Query for all nodes.
-        >>> g.in_degrees()
-        tensor([0, 2, 1, 1])
-        Query for nodes 1 and 2.
-        >>> g.in_degrees(torch.tensor([1, 2]))
-        tensor([2, 1])
-        For a graph of multiple edge types, it is required to specify the edge type in query.
-        >>> hg = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([5, 6]))
-        ... })
-        >>> hg.in_degrees(torch.tensor([1, 0]), etype='follows')
-        tensor([1, 0])
-
-        See Also
-        --------
-        out_degrees
         """
         etype_idx = self.get_etype_id(etype)
 
@@ -756,29 +792,7 @@ class HeteroGraph(NamedTuple):
             The out-degree(s) of the node(s) in a Tensor. The i-th element is the out-degree
             of the i-th input node. If :attr:`v` is an ``int``, return an ``int`` too.
 
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        Create a homogeneous graph.
-        >>> g = dgl.graph((torch.tensor([0, 0, 1, 1]), torch.tensor([1, 1, 2, 3])))
-        Query for all nodes.
-        >>> g.out_degrees()
-        tensor([2, 2, 0, 0])
-        Query for nodes 1 and 2.
-        >>> g.out_degrees(torch.tensor([1, 2]))
-        tensor([2, 0])
-        For a graph of multiple edge types, it is required to specify the edge type in query.
-        >>> hg = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): (torch.tensor([0, 1]), torch.tensor([1, 2])),
-        ...     ('user', 'plays', 'game'): (torch.tensor([3, 4]), torch.tensor([5, 6]))
-        ... })
-        >>> hg.out_degrees(torch.tensor([1, 0]), etype='follows')
-        tensor([1, 1])
-        See Also
-        --------
-        in_degrees
+
         """
         etype_idx = self.get_etype_id(etype)
 
@@ -821,26 +835,7 @@ class HeteroGraph(NamedTuple):
         -------
         SparseTensor or scipy.sparse.spmatrix
             Adjacency matrix.
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> import torch
-        Instantiate a heterogeneous graph.
-        >>> g = dgl.heterograph({
-        ...     ('user', 'follows', 'user'): ([0, 1], [0, 1]),
-        ...     ('developer', 'develops', 'game'): ([0, 1], [0, 2])
-        ... })
-        Get a backend dependent sparse tensor. Here we use PyTorch for example.
-        >>> g.adj(etype='develops')
-        tensor(indices=tensor([[0, 1],
-                               [0, 2]]),
-               values=tensor([1., 1.]),
-               size=(2, 3), nnz=2, layout=torch.sparse_coo)
-        Get a scipy coo sparse matrix.
-        >>> g.adj(scipy_fmt='coo', etype='develops')
-        <2x3 sparse matrix of type '<class 'numpy.int64'>'
-           with 2 stored elements in COOrdinate format>
+
         """
         return self.gidx.adjacency_matrix(
             etype=self.get_etype_id(etype),
@@ -885,26 +880,7 @@ class HeteroGraph(NamedTuple):
         -------
         Framework SparseTensor
             The incidence matrix.
-        Examples
-        --------
-        The following example uses PyTorch backend.
-        >>> import dgl
-        >>> g = dgl.graph(([0, 1], [0, 2]))
-        >>> g.inc('in')
-        tensor(indices=tensor([[0, 2],
-                               [0, 1]]),
-               values=tensor([1., 1.]),
-               size=(3, 2), nnz=2, layout=torch.sparse_coo)
-        >>> g.inc('out')
-        tensor(indices=tensor([[0, 1],
-                               [0, 1]]),
-               values=tensor([1., 1.]),
-               size=(3, 2), nnz=2, layout=torch.sparse_coo)
-        >>> g.inc('both')
-        tensor(indices=tensor([[1, 2],
-                               [1, 1]]),
-               values=tensor([-1.,  1.]),
-               size=(3, 2), nnz=2, layout=torch.sparse_coo)
+
         """
         return self.gidx.incidence_matrix(
             typestr=typestr,
@@ -912,3 +888,158 @@ class HeteroGraph(NamedTuple):
         )
 
     inc = incidence_matrix
+
+    @property
+    def ndata(self):
+        assert len(self.ntypes) == 1, "ndata only supports one node type. "
+        return NodeDataView(self, 0)
+
+    @property
+    def edata(self):
+        assert len(self.etypes) == 1, "edata only supports one edge type. "
+        return EdgeDataView(self, 0)
+
+
+def graph(
+        data: Any,
+        n_nodes: Optional[Union[Mapping, int]]=None,
+):
+    """ Create a heterogeneous graph and return.
+
+    Parameters
+    ----------
+    data : Any
+    n_nodes : Optional[Union[Mapping, int]] (default=None)
+
+    Returns
+    -------
+    HeteroGraph
+        The created graph.
+
+    Examples
+    --------
+    Create a small three-edge graph.
+    >>> # Source nodes for edges (2, 1), (3, 2), (4, 3)
+    >>> src_ids = jnp.array([2, 3, 4])
+    >>> # Destination nodes for edges (2, 1), (3, 2), (4, 3)
+    >>> dst_ids = jnp.array([1, 2, 3])
+    >>> g = graph((src_ids, dst_ids))
+    >>> g.number_of_nodes()
+    5
+    >>> g.number_of_edges()
+    3
+    >>> g.ntypes
+    ('_N',)
+    >>> g.etypes
+    ('_E',)
+
+    Explicitly specify the number of nodes in the graph.
+    >>> g = graph((src_ids, dst_ids), n_nodes=2666)
+    >>> g.number_of_nodes()
+    2666
+    >>> g.number_of_edges()
+    3
+
+    >>> data_dict = {
+    ...     ('user', 'follows', 'user'): ((0, 1), (1, 2)),
+    ...     ('user', 'follows_', 'topic'): ((1, 1), (1, 2)), # etype different
+    ...     ('user', 'plays', 'game'): ((0, 3), (3, 4)),
+    ... }
+    >>> g = graph(data_dict)
+    >>> g.number_of_nodes('user')
+    3
+    >>> g.number_of_edges('follows')
+    2
+
+    """
+    if isinstance(data, tuple): # single node type, single edge type
+        metagraph = GraphIndex(
+            n_nodes=1, src=jnp.array([0]), dst=jnp.array([0])
+        )
+
+        assert len(data) == 2, "Only need src and dst. "
+        src, dst = data
+        if not isinstance(src, jnp.ndarray):
+            src = jnp.array(src)
+        if not isinstance(dst, jnp.ndarray):
+            dst = jnp.array(dst)
+
+        edges = ((src, dst), )
+        inferred_n_nodes = max(max(edges[0][0]), max(edges[0][1])).item() + 1
+        if n_nodes is None: # infer n_nodes
+            n_nodes = inferred_n_nodes
+        else:
+            assert isinstance(n_nodes, int), "Single node type."
+            assert n_nodes >= inferred_n_nodes, "Edge with non-existing nodes. "
+        n_nodes = jnp.array([n_nodes])
+        gidx = HeteroGraphIndex(
+            metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        )
+        return HeteroGraph(gidx=gidx)
+
+    elif isinstance(data, Mapping):
+        metagraph = GraphIndex()
+        from collections import OrderedDict
+        _ntype_invmap = OrderedDict()
+        _etype_invmap = OrderedDict()
+
+        edges = []
+        for key, value in data.items():
+            assert isinstance(key, tuple), "Edge has to be tuple. "
+            assert isinstance(value, tuple), "Edge has to be tuple. "
+            assert len(key) == 3, "Specify src, etype, and dst. "
+            srctype, etype, dsttype = key
+
+            # put ntype into invmap
+            if srctype not in _ntype_invmap:
+                _ntype_invmap[srctype] = len(_ntype_invmap)
+                metagraph = metagraph.add_nodes(1)
+            srctype_idx = _ntype_invmap[srctype]
+
+            if dsttype not in _ntype_invmap:
+                _ntype_invmap[dsttype] = len(_ntype_invmap)
+                metagraph = metagraph.add_nodes(1)
+            dsttype_idx = _ntype_invmap[dsttype]
+
+            # put etype into invmap
+            assert etype not in _etype_invmap, "Etype has to be unique. "
+            _etype_invmap[etype] = len(_etype_invmap)
+            metagraph = metagraph.add_edge(srctype_idx, dsttype_idx)
+            etype_idx = _etype_invmap[etype]
+
+            assert len(value) == 2, "Only need src and dst. "
+            src, dst = value
+            if not isinstance(src, jnp.ndarray):
+                src = jnp.array(src)
+            if not isinstance(dst, jnp.ndarray):
+                dst = jnp.array(dst)
+            edges.append((src, dst))
+
+        # edges and n_nodes
+        edges = tuple(edges)
+        inferred_n_nodes = jnp.array(
+            [
+                max(value[0].max(), value[1].max()).item() + 1
+                for value in edges
+            ]
+        )
+
+        # custom n_nodes
+        if n_nodes is not None:
+            assert (n_nodes >= inferred_n_nodes).all()
+            n_nodes = jnp.max(n_nodes, inferred_n_nodes)
+        else:
+            n_nodes = inferred_n_nodes
+
+        # organize gidx
+        gidx = HeteroGraphIndex(
+            metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+        )
+
+        # extract ntypes and etypes from ordered dict
+        ntypes = tuple(_ntype_invmap.keys())
+        etypes = tuple(_etype_invmap.keys())
+
+        return HeteroGraph(
+            gidx=gidx, ntypes=ntypes, etypes=etypes,
+        )

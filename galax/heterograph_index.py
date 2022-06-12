@@ -192,9 +192,10 @@ class HeteroGraphIndex(NamedTuple):
         >>> _g = g.add_edges(
         ...     etype=0, src=jnp.array([0]), dst=jnp.array([0]),
         ... )
-        >>> _g.edges[0].tolist()
+
+        >>> _g.edges[0][0].tolist()
         [0, 1, 0]
-        >>> _g.edges[1].tolist()
+        >>> _g.edges[0][1].tolist()
         [1, 2, 0]
 
         >>> # add new etype
@@ -202,7 +203,7 @@ class HeteroGraphIndex(NamedTuple):
         ...     etype=None, src=jnp.array([0]), dst=jnp.array([0]),
         ...     srctype=2, dsttype=2,
         ... )
-        >>> _g.edges[-1].tolist()
+        >>> _g.edges[-1][0].tolist()
         [0]
 
         """
@@ -211,22 +212,25 @@ class HeteroGraphIndex(NamedTuple):
         if etype < len(self.edges):
             assert srctype is None and dsttype is None
             metagraph = self.metagraph
-            edges = (
-                self.edges[:etype]
+            srctype, dsttype = metagraph.find_edge(etype)
+            assert self.has_nodes(srctype, src).all(), "Node missing. "
+            assert self.has_nodes(dsttype, dst).all(), "Node missing. "
+            edges = self.edges[:etype]\
                 + (
-                    jnp.concatenate([self.edges[etype][0], src]),
-                    jnp.concatenate([self.edges[etype][1], dst]),
-                )
+                    (
+                        jnp.concatenate([self.edges[etype][0], src]),
+                        jnp.concatenate([self.edges[etype][1], dst]),
+                    ),
+                )\
                 + self.edges[etype + 1 :]
-            )
 
         else:
             assert etype == len(self.edges), "Edges are sorted. "
             assert srctype is not None and dsttype is not None
-            assert (src < self.n_nodes[srctype]).all()
-            assert (dst < self.n_nodes[dsttype]).all()
+            assert (src < self.n_nodes[srctype]).all(), "Node missing. "
+            assert (dst < self.n_nodes[dsttype]).all(), "Node missing. "
             metagraph = self.metagraph.add_edge(srctype, dsttype)
-            edges = self.edges + (src, dst)
+            edges = self.edges + ((src, dst), )
 
         return self.__class__(
             metagraph=metagraph,
@@ -269,9 +273,9 @@ class HeteroGraphIndex(NamedTuple):
         >>> _g = g.add_edge(
         ...     etype=0, src=0, dst=0,
         ... )
-        >>> _g.edges[0].tolist()
+        >>> _g.edges[0][0].tolist()
         [0, 1, 0]
-        >>> _g.edges[1].tolist()
+        >>> _g.edges[0][1].tolist()
         [1, 2, 0]
 
         """
@@ -641,7 +645,7 @@ class HeteroGraphIndex(NamedTuple):
         >>> g.number_of_edges(2)
         2
         """
-        return len(self.edges[etype])
+        return len(self.edges[etype][0])
 
     def has_nodes(self, ntype: jnp.ndarray, vids: jnp.ndarray):
         """Return true if the nodes exist.

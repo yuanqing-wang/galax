@@ -18,18 +18,24 @@ class EntityView(object):
         self.long_name = long_name
         self.get_id = lambda key: getattr(
             self.graph, "get_%stype_id" % short_name
-        )
+        )(key)
         self.get_number = lambda idx: getattr(
-            self.graph, "get_number_of_%ss" % long_name,
+            self.graph, "number_of_%ss" % long_name,
         )(idx)
 
     def __getitem__(self, key: str):
         typeidx = self.get_id(key)
-        return DataSpace()
+        return DataSpace(
+            data=DataView(
+                graph=self.graph,
+                typeidx=typeidx,
+                short_name=self.short_name,
+                long_name=self.long_name,
+            ),
+        )
 
-    def __call__(self, typestr: str):
-        typeidx = self.get_id(typestr)
-        return jnp.arange(self.get_number(typeidx))
+    def __call__(self, typestr: Optional[str]=None):
+        return jnp.arange(self.get_number(typestr))
 
 class DataView(object):
     def __init__(self, graph, typeidx: int, short_name: str, long_name: str):

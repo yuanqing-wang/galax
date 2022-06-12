@@ -333,7 +333,7 @@ class HeteroGraphIndex(NamedTuple):
         dst = jnp.delete(original_dst, eids)
 
         if len(src) > 0:  # partially remove
-            edges = self.edges[:etype] + (src, dst) + self.edges[etype + 1 :]
+            edges = self.edges[:etype] + ((src, dst),) + self.edges[etype + 1 :]
             return self.__class__(
                 metagraph=self.metagraph,
                 n_nodes=self.n_nodes,

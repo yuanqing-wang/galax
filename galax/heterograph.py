@@ -428,32 +428,79 @@ class HeteroGraph:
             edge_frames=edge_frames,
         )
 
-    def remove_edges(self, eids: jnp.array, etype: Optional[str] = None):
-        etype_idx = self.get_etype_id(etype)
+    def remove_edges(
+            self, eids: Optional[jnp.array]=None, etype: Optional[str] = None
+        ):
 
-        # handle the data corresponding to the edges
-        sub_edge_frame = self.edge_frames[etype_idx]
-        sub_edge_frame = FrozenDict(
-            {
-                key: jnp.delete(value, eids)
-                for key, value in sub_edge_frame.items()
-            }
-        )
+        """Remove multiple edges with the specified edge type
+        Nodes will not be removed. After removing edges, the rest
+        edges will be re-indexed using consecutive integers from 0,
+        with their relative order preserved.
+        The features for the removed edges will be removed accordingly.
 
-        example_key, example_value = next(sub_edge_frame.items())
-        if len(example_value) == 0:
-            edge_frames = (
-                self.edge_frames[:etype_idx]
-                + self.edge_frames[etype_idx + 1 :]
-            )
-            etypes = self.etypes[:etype_idx] + self.etypes[etype_idx + 1 :]
+        Parameters
+        ----------
+        eids : int, tensor, numpy.ndarray, list
+            IDs for the edges to remove.
+        etype : str or tuple of str, optional
+            The type of the edges to remove. Can be omitted if there is
+            only one edge type in the graph.
+
+        Examples
+        --------
+        >>> g = graph(((0, 0, 2), (0, 1, 2)))
+        >>> g = g.edata.set("he", jnp.array([0.0, 1.0, 2.0]))
+        >>> g = g.remove_edges((0, 1))
+        >>> g.edges().tolist()
+        [0]
+
+        **Heterogeneous Graphs with Multiple Edge Types**
+        >>> g = graph({
+        ...     ('user', 'plays', 'game'): ([0, 1, 1, 2], [0, 0, 1, 1]),
+        ...     ('developer', 'develops', 'game'): ([0, 1], [0, 1]),
+        ...     })
+
+        >>> g = g.remove_edges([0, 1], 'plays')
+        >>> g.edges('plays').tolist()
+        [0, 1]
+
+        """
+
+        etype_idx = self.get_etype_id(etype) # get the id of the edge type
+
+        if not isinstance(eids, jnp.ndarray): # make eid into array
+            eids = jnp.array(eids)
+
+        assert len(eids) <= self.number_of_edges(etype), "Not enough edges. "
+        if len(eids) == self.number_of_edges(etype):
+            complete = True
         else:
+            complete = False
+
+        if complete: # delete etype entirely
+            etypes = self.etypes[:etype_idx] + self.etypes[etype_idx + 1 :]
             edge_frames = (
                 self.edge_frames[:etype_idx]
-                + sub_edge_frame
                 + self.edge_frames[etype_idx + 1 :]
             )
+
+        else: # partially delete
             etypes = self.etypes
+            edge_frames = self.edge_frames
+            sub_edge_frame = edge_frames[etype_idx]
+            if sub_edge_frame is not None:
+                sub_edge_frame = FrozenDict(
+                    {
+                        key: jnp.delete(value, eids)
+                        for key, value in sub_edge_frame.items()
+                    }
+                )
+
+                edge_frames = (
+                    self.edge_frames[:etype_idx]
+                    + (sub_edge_frame, )
+                    + self.edge_frames[etype_idx + 1 :]
+                )
 
         gidx = self.gidx.remove_edges(etype=etype_idx, eids=eids)
         return self.__class__(
@@ -465,39 +512,161 @@ class HeteroGraph:
         )
 
     def remove_nodes(self, nids: jnp.ndarray, ntype: Optional[str] = None):
-        ntype_idx = self.get_ntype_id(ntype)
+        """Remove multiple nodes with the specified node type
+        Edges that connect to the nodes will be removed as well. After removing
+        nodes and edges, the rest nodes and edges will be re-indexed using
+        consecutive integers from 0, with their relative order preserved.
+        The features for the removed nodes/edges will be removed accordingly.
+
+        Parameters
+        ----------
+        nids : int, tensor, numpy.ndarray, list
+            Nodes to remove.
+        ntype : str, optional
+            The type of the nodes to remove. Can be omitted if there is
+            only one node type in the graph.
+
+        Notes
+        -----
+        * This does not remove the etype entirely.
+
+        Examples
+        --------
+        **Homogeneous Graphs or Heterogeneous Graphs with A Single Node Type**
+        >>> g = graph(([0, 0, 2], [0, 1, 2]))
+        >>> g = g.ndata.set("hv", jnp.array([0.0, 1.0, 2.0]))
+        >>> g = g.edata.set("he", jnp.array([0.0, 1.0, 2.0]))
+        >>> g = g.remove_nodes((0, 1))
+        >>> g.number_of_nodes()
+        1
+        >>> g.ndata["hv"].flatten().tolist()
+        [2.0]
+        >>> g.edata["he"].flatten().tolist()
+        [2.0]
+
+        **Heterogeneous Graphs with Multiple Node Types**
+        >>> g = graph({
+        ...     ('user', 'plays', 'game'): ([0, 1, 1, 2], [0, 0, 1, 1]),
+        ...     ('developer', 'develops', 'game'): ([0, 1], [0, 1])
+        ...     })
+        >>> g = g.remove_nodes([0, 1], ntype='game')
+        >>> g.number_of_nodes('user')
+        3
+        >>> 'game' in g.ntypes
+        False
+
+        """
+        ntype_idx = self.get_ntype_id(ntype) # get ntype
+
+        if not isinstance(nids, jnp.ndarray): # make nid into array
+            nids = jnp.array(nids)
+
+        assert len(nids) <= self.number_of_nodes(ntype), "Not enough edges. "
+        if len(nids) == self.number_of_nodes(ntype):
+            complete = True
+        else:
+            complete = False
+
+        if complete: # delete etype entirely
+            ntypes = self.ntypes[:ntype_idx] + self.ntypes[ntype_idx + 1 :]
+            node_frames = (
+                self.node_frames[:ntype_idx]
+                + self.node_frames[ntype_idx + 1 :]
+            )
+
+        else: # partially delete
+            ntypes = self.ntypes
+            node_frames = self.node_frames
+            sub_node_frame = node_frames[ntype_idx]
+            if sub_node_frame is not None:
+                sub_node_frame = FrozenDict(
+                    {
+                        key: jnp.delete(value, nids)
+                        for key, value in sub_node_frame.items()
+                    }
+                )
+
+                node_frames = (
+                    self.node_frames[:ntype_idx]
+                    + (sub_node_frame, )
+                    + self.node_frames[ntype_idx + 1 :]
+                )
+
         gidx = self.gidx.remove_nodes(ntype=ntype_idx, nids=nids)
 
-        # handle the data corresponding to the edges
-        sub_node_frame = self.edge_frames[ntype_idx]
-        sub_node_frame = FrozenDict(
-            {
-                key: jnp.delete(value, eids)
-                for key, value in sub_node_frame.items()
-            }
-        )
+        # take care of edge_frames
+        _, __, in_edge_types = self.gidx.metagraph.in_edges(ntype_idx)
+        _, __, out_edge_types = self.gidx.metagraph.out_edges(ntype_idx)
 
-        example_key, example_value = next(sub_node_frame.items())
-        if len(example_value) == 0:
-            node_frames = (
-                self.node_frames[:ntype_idx]
-                + self.node_frames[ntype_idx + 1 :]
-            )
-            ntypes = self.ntypes[:ntype_idx] + self.ntypes[ntype_idx + 1 :]
-        else:
-            node_frames = (
-                self.node_frames[:ntype_idx]
-                + sub_edge_frame
-                + self.node_frames[ntype_idx + 1 :]
-            )
-            ntypes = self.ntypes
+        edge_frames = list(self.edge_frames)
+        for edge_type in range(self.gidx.metagraph.number_of_edges()):
+            if edge_frames[edge_type] is None:
+                continue
+            else:
+                if edge_type in in_edge_types and edge_type in out_edge_types:
+                    if self.gidx.edges[edge_type] is None:
+                        continue
+                    else:
+                        src, dst = self.gidx.edges[edge_type]
+                        v_is_src = jnp.expand_dims(src, -1) == jnp.expand_dims(
+                            nids, 0
+                        )
+                        v_is_dst = jnp.expand_dims(dst, -1) == jnp.expand_dims(
+                            nids, 0
+                        )
+                        v_in_edge = (v_is_src + v_is_dst).any(-1)
+                        edge_frames[edge_type] = FrozenDict(
+                            {
+                                key: value[~v_in_edge]
+                                for key, value in edge_frames[
+                                    edge_type
+                                ].items()
+                            }
+                        )
+                elif edge_type in in_edge_types:
+                    if self.gidx.edges[edge_type] is None:
+                        continue
+                    else:
+                        src, dst = self.gidx.edges[edge_type]
+                        v_is_dst = jnp.expand_dims(dst, -1) == jnp.expand_dims(
+                            nids, 0
+                        )
+                        v_in_edge = v_is_dst
+                        edge_frames[edge_type] = FrozenDict(
+                            {
+                                key: value[~v_in_edge]
+                                for key, value in edge_frames[
+                                    edge_type
+                                ].items()
+                            }
+                        )
+
+                elif edge_type in out_edge_types:
+                    if self.gidx.edges[edge_type] is None:
+                        continue
+                    else:
+                        src, dst = self.gidx.edges[edge_type]
+                        v_is_src = jnp.expand_dims(src, -1) == jnp.expand_dims(
+                            nids, 0
+                        )
+                        v_in_edge = v_is_src
+                        edge_frames[edge_type] = FrozenDict(
+                            {
+                                key: value[~v_in_edge]
+                                for key, value in edge_frames[
+                                    edge_type
+                                ].items()
+                            }
+                        )
+
+        edge_frames = tuple(edge_frames)
 
         return self.__class__(
             gidx=gidx,
             ntypes=ntypes,
             etypes=self.etypes,
             node_frames=node_frames,
-            edge_frames=self.edge_frames,
+            edge_frames=edge_frames,
         )
 
     def canonical_etypes(self):
@@ -573,7 +742,7 @@ class HeteroGraph:
             assert len(self.ntypes) == 1, "Ntype needs to be specified. "
             return 0
         else:
-            assert ntype in self._ntype_invmap, "No such ntype. "
+            assert ntype in self._ntype_invmap, "No such ntype %s. " % ntype
             return self._ntype_invmap[ntype]
 
     def get_etype_id(self, etype: Optional[str] = None) -> int:
@@ -594,7 +763,7 @@ class HeteroGraph:
             assert len(self.etypes) == 1, "Etype needs to be specified. "
             return 0
         else:
-            assert etype in self._etype_invmap, "No such etype. "
+            assert etype in self._etype_invmap, "No such etype %s. " % etype
             return self._etype_invmap[etype]
 
     def number_of_nodes(self, ntype: Optional[str] = None):
@@ -888,6 +1057,14 @@ class HeteroGraph:
         )
 
     inc = incidence_matrix
+
+    @property
+    def nodes(self):
+        return NodeView(self)
+
+    @property
+    def edges(self):
+        return EdgeView(self)
 
     @property
     def ndata(self):

@@ -1,13 +1,99 @@
 """Built-in functions."""
 from typing import Optional
+from functools import partial
 from collections import namedtuple
 import jax
 import jax.numpy as jnp
+
+# =============================================================================
+# MESSAGE FUNCTIONS
+# =============================================================================
+CODE2STR = {
+    "u": "source",
+    "v": "destination",
+    "e": "edge",
+}
+
+CODE2OP = {
+    "add": lambda x, y: x + y,
+    "sub": lambda x, y: x - y,
+    "mul": lambda x, y: x * y,
+    "div": lambda x, y: x / y,
+    "dot": lambda x, y: (x * y).sum(axis=-1, keepdims=True),
+}
+
+CODE2DATA = {
+    "u": "srcdata",
+    "e": "data",
+    "v": "dstdata",
+}
+
+def _gen_message_builtin(lhs, rhs, binary_op):
+    name = "{}_{}_{}".format(lhs, binary_op, rhs)
+    docstring = """Builtin message function that computes a message on an edge
+    by performing element-wise {} between features of {} and {}
+    if the features have the same shape; otherwise, it first broadcasts
+    the features to a new shape and performs the element-wise operation.
+
+    Broadcasting follows NumPy semantics. Please see
+    https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html
+    for more details about the NumPy broadcasting semantics.
+
+    Parameters
+    ----------
+    lhs_field : str
+        The feature field of {}.
+    rhs_field : str
+        The feature field of {}.
+    out : str
+        The output message field.
+
+    """.format(binary_op,
+               CODE2STR[lhs],
+               CODE2STR[rhs],
+               CODE2STR[lhs],
+               CODE2STR[rhs],
+    )
+
+    # grab data field
+    lhs_data, rhs_data = CODE2DATA[lhs], CODE2DATA[rhs]
+
+    # define function
+    func = lambda edge: CODE2OP[binary_op](
+        getattr(edge, lhs_data), getattr(edge, rhs_data),
+    )
+
+    # attach name and doc
+    func.__name__ = name
+    func.__doc__ = docstring
+    return func
+
+def _register_builtin_message_func():
+    """Register builtin message functions"""
+    target = ["u", "v", "e"]
+    for lhs, rhs in product(target, target):
+        if lhs != rhs:
+            for binary_op in ["add", "sub", "mul", "div", "dot"]:
+                func = _gen_message_builtin(lhs, rhs, binary_op)
+                setattr(sys.modules[__name__], func.__name__, func)
+                __all__.append(func.__name__)
+
+_register_builtin_message_func()
+
+
+# =============================================================================
+# REDUCE FUNCTIONS
+# =============================================================================
 
 ReduceFunction = namedtuple(
     "ReduceFunction",
     ["op", "msg_field", "out_field"]
 )
+
+sum = partial(ReduceFunction, op="sum")
+mean = partial(ReduceFunction, op="mean")
+max = partial(ReduceFunction, op="max")
+min = partial(ReduceFunction, op="")
 
 segment_sum = jax.ops.segment_sum
 segment_max = jax.ops.segment_max

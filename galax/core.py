@@ -4,6 +4,7 @@ from typing import Callable, Optional
 from flax.core import freeze, unfreeze
 from dataclasses import replace
 from functools import partial
+from . import function
 from .function import ReduceFunction
 import jax
 from jax.tree_util import tree_map
@@ -58,7 +59,7 @@ def message_passing(
     message = mfunc(graph.edges[etype])
 
     # reduce by calling jax.ops.segment_
-    _rfunc = getattr(jax.ops, "segment_%s" % rfunc.op)
+    _rfunc = getattr(function, "segment_%s" % rfunc.op)
     _rfunc = partial(
         _rfunc,
         segment_ids=graph.gidx.edges[0][1],

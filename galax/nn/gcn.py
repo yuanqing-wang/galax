@@ -24,3 +24,4 @@ class GCN(nn.Module):
         Output features size.
     norm : Optional[str]
     """
+    raise NotImplementedError

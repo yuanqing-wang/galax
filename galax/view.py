@@ -37,10 +37,10 @@ class EntityView(object):
             )
         elif self.short_name == "e":
             srctype_idx, dsttype_idx = self.graph.gidx.metagraph.find_edge(
-                self.typeidx,
+                typeidx,
             )
 
-            src, dst = self.gidx.edges[self.typeidx]
+            src, dst = self.graph.gidx.edges[typeidx]
 
             return EdgeSpace(
                 data=DataView(
@@ -54,14 +54,14 @@ class EntityView(object):
                     typeidx=srctype_idx,
                     short_name="n",
                     long_name="node",
-                    src=src,
+                    idxs=src,
                 ),
                 dstdata=DataView(
                     graph=self.graph,
                     typeidx=dsttype_idx,
                     short_name="n",
                     long_name="node",
-                    src=src,
+                    idxs=dst,
                 ),
             )
 
@@ -90,11 +90,11 @@ class DataView(object):
         res = getattr(
             self.graph, "%s_frames" % self.long_name)[self.typeidx][key]
         if self.idxs is not None:
-            res = res[idxs]
+            res = res[self.idxs]
         return res
 
     def set(self, key: str, data: jnp.ndarray):
-        assert self.idxs is not None, "Cannot partially set. "
+        assert self.idxs is None, "Cannot partially set. "
         assert data.shape[0] == self.get_number(self.typeidx)
         frame = getattr(
             self.graph, "%s_frames" % self.long_name)[self.typeidx]

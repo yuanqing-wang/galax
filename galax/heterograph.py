@@ -1076,6 +1076,69 @@ class HeteroGraph:
         assert len(self.etypes) == 1, "edata only supports one edge type. "
         return EdgeDataView(self, 0)
 
+    @property
+    def srcdata(self, etype: Optional[str]=None):
+        """Return a node data view for setting/getting source node features.
+        Let ``g`` be a Graph.
+
+        Parameters
+        ----------
+        etype : Optional[str]
+            Edge type.
+
+        Examples
+        --------
+        >>> g = graph({
+        ...     ('user', 'plays', 'game'): ([0, 1], [1, 2])})
+        >>> g = g.nodes["user"].data.set("h", jnp.ones(2))
+        >>> g.srcdata["h"].flatten().tolist()
+        [1.0, 1.0]
+
+        """
+        etype_idx = self.get_etype_id(etype)
+        srctype_idx, _ = self.gidx.metagraph.find_edge(etype_idx)
+        src, _ = self.gidx.edges[etype_idx]
+        node_frame = self.node_frames[srctype_idx]
+        _node_frame = FrozenDict(
+            {
+                key: value[src]
+                for key, value in node_frame.items()
+            }
+        )
+
+        return _node_frame
+
+    @property
+    def dstdata(self, etype: Optional[str]=None):
+        """Return a node data view for setting/getting destination node features.
+        Let ``g`` be a Graph.
+
+        Parameters
+        ----------
+        etype : Optional[str]
+            Edge type.
+
+        Examples
+        --------
+        >>> g = graph({
+        ...     ('user', 'plays', 'game'): ([0, 1], [1, 2])})
+        >>> g = g.nodes["game"].data.set("h", jnp.ones(3))
+        >>> g.dstdata["h"].flatten().tolist()
+        [1.0, 1.0]
+
+        """
+        etype_idx = self.get_etype_id(etype)
+        _, dsttype_idx = self.gidx.metagraph.find_edge(etype_idx)
+        _, dst = self.gidx.edges[etype_idx]
+        node_frame = self.node_frames[dsttype_idx]
+        _node_frame = FrozenDict(
+            {
+                key: value[dst]
+                for key, value in node_frame.items()
+            }
+        )
+
+        return _node_frame
 
 def graph(
         data: Any,
@@ -1124,7 +1187,7 @@ def graph(
     ... }
     >>> g = graph(data_dict)
     >>> g.number_of_nodes('user')
-    3
+    4
     >>> g.number_of_edges('follows')
     2
 
@@ -1161,6 +1224,7 @@ def graph(
         _etype_invmap = OrderedDict()
 
         edges = []
+        inferred_n_nodes = []
         for key, value in data.items():
             assert isinstance(key, tuple), "Edge has to be tuple. "
             assert isinstance(value, tuple), "Edge has to be tuple. "
@@ -1171,11 +1235,13 @@ def graph(
             if srctype not in _ntype_invmap:
                 _ntype_invmap[srctype] = len(_ntype_invmap)
                 metagraph = metagraph.add_nodes(1)
+                inferred_n_nodes.append(0)
             srctype_idx = _ntype_invmap[srctype]
 
             if dsttype not in _ntype_invmap:
                 _ntype_invmap[dsttype] = len(_ntype_invmap)
                 metagraph = metagraph.add_nodes(1)
+                inferred_n_nodes.append(0)
             dsttype_idx = _ntype_invmap[dsttype]
 
             # put etype into invmap
@@ -1192,14 +1258,26 @@ def graph(
                 dst = jnp.array(dst)
             edges.append((src, dst))
 
+            inferred_n_nodes[srctype_idx] = max(
+                inferred_n_nodes[srctype_idx],
+                max(src).item() + 1
+            )
+
+            inferred_n_nodes[dsttype_idx] = max(
+                inferred_n_nodes[dsttype_idx],
+                max(dst).item() + 1
+            )
+
+
+        inferred_n_nodes = jnp.array(inferred_n_nodes)
+
         # edges and n_nodes
         edges = tuple(edges)
-        inferred_n_nodes = jnp.array(
-            [
-                max(value[0].max(), value[1].max()).item() + 1
-                for value in edges
-            ]
-        )
+
+        for key, value in data.items():
+            srctype, etype, dsttype = key
+            src, dst = value
+
 
         # custom n_nodes
         if n_nodes is not None:

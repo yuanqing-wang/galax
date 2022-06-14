@@ -43,12 +43,16 @@ class DataView(object):
         self.typeidx = typeidx
         self.short_name = short_name
         self.long_name = long_name
+        self.get_number = lambda idx: getattr(
+            self.graph.gidx, "number_of_%ss" % long_name,
+        )(idx)
 
     def __getitem__(self, key: str):
         return getattr(
             self.graph, "%s_frames" % self.long_name)[self.typeidx][key]
 
     def set(self, key: str, data: jnp.ndarray):
+        assert data.shape[0] == self.get_number(self.typeidx)
         frame = getattr(
             self.graph, "%s_frames" % self.long_name)[self.typeidx]
         if frame is None:

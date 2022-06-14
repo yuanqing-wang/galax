@@ -1109,7 +1109,7 @@ class HeteroGraph:
         return _node_frame
 
     @property
-    def dstdata(self, etype: Optional[str]=None):
+    def dstdata(self):
         """Return a node data view for setting/getting destination node features.
         Let ``g`` be a Graph.
 
@@ -1127,7 +1127,8 @@ class HeteroGraph:
         [1.0, 1.0]
 
         """
-        etype_idx = self.get_etype_id(etype)
+        
+        etype_idx = 0
         _, dsttype_idx = self.gidx.metagraph.find_edge(etype_idx)
         _, dst = self.gidx.edges[etype_idx]
         node_frame = self.node_frames[dsttype_idx]

@@ -9,7 +9,8 @@ import jax
 import jax.numpy as jnp
 from flax.core import freeze, unfreeze
 
-DataSpace = namedtuple("DataSpace", ["data"])
+NodeSpace = namedtuple("NodeSpace", ["data"])
+EdgeSpace = namedtuple("EdgeSpace", ["data", "srcdata", "dstdata"])
 
 class EntityView(object):
     def __init__(self, graph, short_name: str, long_name: str):
@@ -25,20 +26,57 @@ class EntityView(object):
 
     def __getitem__(self, key: str):
         typeidx = self.get_id(key)
-        return DataSpace(
-            data=DataView(
-                graph=self.graph,
-                typeidx=typeidx,
-                short_name=self.short_name,
-                long_name=self.long_name,
-            ),
-        )
+        if self.short_name == "n":
+            return NodeSpace(
+                data=DataView(
+                    graph=self.graph,
+                    typeidx=typeidx,
+                    short_name="n",
+                    long_name="node",
+                ),
+            )
+        elif self.short_name == "e":
+            srctype_idx, dsttype_idx = self.graph.gidx.metagraph.find_edge(
+                self.typeidx,
+            )
+
+            src, dst = self.gidx.edges[self.typeidx]
+
+            return EdgeSpace(
+                data=DataView(
+                    graph=self.graph,
+                    typeidx=typeidx,
+                    short_name="e",
+                    long_name="edge",
+                ),
+                srcdata=DataView(
+                    graph=self.graph,
+                    typeidx=srctype_idx,
+                    short_name="n",
+                    long_name="node",
+                    src=src,
+                ),
+                dstdata=DataView(
+                    graph=self.graph,
+                    typeidx=dsttype_idx,
+                    short_name="n",
+                    long_name="node",
+                    src=src,
+                ),
+            )
 
     def __call__(self, typestr: Optional[str]=None):
         return jnp.arange(self.get_number(typestr))
 
 class DataView(object):
-    def __init__(self, graph, typeidx: int, short_name: str, long_name: str):
+    def __init__(
+            self,
+            graph,
+            typeidx: int,
+            short_name: str,
+            long_name: str,
+            idxs: Optional[jnp.ndarray]=None,
+        ):
         self.graph = graph
         self.typeidx = typeidx
         self.short_name = short_name
@@ -46,12 +84,17 @@ class DataView(object):
         self.get_number = lambda idx: getattr(
             self.graph.gidx, "number_of_%ss" % long_name,
         )(idx)
+        self.idxs = idxs
 
     def __getitem__(self, key: str):
-        return getattr(
+        res = getattr(
             self.graph, "%s_frames" % self.long_name)[self.typeidx][key]
+        if self.idxs is not None:
+            res = res[idxs]
+        return res
 
     def set(self, key: str, data: jnp.ndarray):
+        assert self.idxs is not None, "Cannot partially set. "
         assert data.shape[0] == self.get_number(self.typeidx)
         frame = getattr(
             self.graph, "%s_frames" % self.long_name)[self.typeidx]

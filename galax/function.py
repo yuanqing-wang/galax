@@ -1,6 +1,8 @@
 """Built-in functions."""
+import sys
 from typing import Optional
 from functools import partial
+from itertools import product
 from collections import namedtuple
 import jax
 import jax.numpy as jnp
@@ -27,6 +29,31 @@ CODE2DATA = {
     "e": "data",
     "v": "dstdata",
 }
+
+def copy_u(u, out):
+    """Builtin message function that computes message using source node
+    feature.
+
+    Parameters
+    ----------
+    u : str
+        The source feature field.
+    out : str
+        The output message field.
+    """
+    return lambda edge: {out: edge.srcdata[u]}
+
+def copy_e(e, out):
+    """Builtin message function that computes message using edge feature.
+
+    Parameters
+    ----------
+    e : str
+        The edge feature field.
+    out : str
+        The output message field.
+    """
+    return lambda edge: {out: edge.data[e]}
 
 def _gen_message_builtin(lhs, rhs, binary_op):
     name = "{}_{}_{}".format(lhs, binary_op, rhs)
@@ -76,7 +103,6 @@ def _register_builtin_message_func():
             for binary_op in ["add", "sub", "mul", "div", "dot"]:
                 func = _gen_message_builtin(lhs, rhs, binary_op)
                 setattr(sys.modules[__name__], func.__name__, func)
-                __all__.append(func.__name__)
 
 _register_builtin_message_func()
 
@@ -90,10 +116,10 @@ ReduceFunction = namedtuple(
     ["op", "msg_field", "out_field"]
 )
 
-sum = partial(ReduceFunction, op="sum")
-mean = partial(ReduceFunction, op="mean")
-max = partial(ReduceFunction, op="max")
-min = partial(ReduceFunction, op="")
+sum = partial(ReduceFunction, "sum")
+mean = partial(ReduceFunction, "mean")
+max = partial(ReduceFunction, "max")
+min = partial(ReduceFunction, "min")
 
 segment_sum = jax.ops.segment_sum
 segment_max = jax.ops.segment_max

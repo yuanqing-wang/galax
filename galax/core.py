@@ -41,8 +41,8 @@ def message_passing(
     >>> import jax.numpy as jnp
     >>> g = galax.graph(((0, 1), (1, 2)))
     >>> g = g.ndata.set("h", jnp.ones(3))
-    >>> mfunc = lambda edge: {"m": edge.srcdata["h"]}
-    >>> rfunc = ReduceFunction("sum", "m", "h1")
+    >>> mfunc = galax.function.copy_u("h", "m")
+    >>> rfunc = galax.function.sum("m", "h1")
     >>> _g = message_passing(g, mfunc, rfunc)
     >>> _g.ndata['h1'].flatten().tolist()
     [0.0, 1.0, 1.0]

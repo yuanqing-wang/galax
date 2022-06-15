@@ -9,6 +9,7 @@ from .function import ReduceFunction
 import jax
 from jax.tree_util import tree_map
 
+@partial(jax.jit, static_argnums=(1, 2, 3, 4))
 def message_passing(
         graph: HeteroGraph,
         mfunc: Optional[Callable],

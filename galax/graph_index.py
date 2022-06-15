@@ -10,7 +10,7 @@ from jax.experimental.sparse import BCOO
 from jax.tree_util import register_pytree_node_class
 from dataclasses import field
 
-@register_pytree_node_class
+# @register_pytree_node_class
 class GraphIndex(NamedTuple):
     """Graph index object.
 
@@ -50,15 +50,15 @@ class GraphIndex(NamedTuple):
     if dst is None:
         dst = jnp.array([], dtype=jnp.int32)
 
-    def tree_flatten(self):
-        children = (self.n_nodes, self.src, self.dst)
-        aux_data = None
-        return (children, aux_data)
-
-    @classmethod
-    def tree_unflatten(cls, aux_data, children):
-        n_nodes, src, dst = children
-        return cls(n_nodes=n_nodes, src=src, dst=dst)
+    # def tree_flatten(self):
+    #     children = (self.n_nodes, self.src, self.dst)
+    #     aux_data = None
+    #     return (children, aux_data)
+    #
+    # @classmethod
+    # def tree_unflatten(cls, aux_data, children):
+    #     n_nodes, src, dst = children
+    #     return cls(n_nodes=n_nodes, src=src, dst=dst)
 
     def add_nodes(self, num: int):
         """Add nodes.
@@ -332,8 +332,8 @@ class GraphIndex(NamedTuple):
         (0, 1)
 
         """
-        assert eid < len(self.src)
-        return self.src[eid].item(), self.dst[eid].item()
+        # assert eid < len(self.src)
+        return self.src[eid], self.dst[eid]
 
     def find_edges(self, eid: jnp.ndarray) -> Tuple[jnp.array]:
         """Return the source and destination nodes that contain the eids.
@@ -604,7 +604,7 @@ class GraphIndex(NamedTuple):
 
         """
         assert self.has_node(v), "Node does not exist. "
-        return (v == self.dst).sum().item()
+        return (v == self.dst).sum()
 
     def in_degrees(self, v: jnp.array) -> jnp.array:
         """Return the in degrees of the nodes.
@@ -654,7 +654,7 @@ class GraphIndex(NamedTuple):
         3
         """
         assert self.has_node(v), "Node does not exist. "
-        return (v == self.src).sum().item()
+        return (v == self.src).sum()
 
     def out_degrees(self, v: jnp.array) -> jnp.array:
         """Return the out degrees of the nodes.
@@ -930,7 +930,7 @@ class GraphIndex(NamedTuple):
         ret = nx.MultiDiGraph()
         ret.add_nodes_from(range(self.number_of_nodes()))
         for u, v, e in zip(src, dst, eid):
-            u, v, e = u.item(), v.item(), e.item()
+            u, v, e = u, v, e
             ret.add_edge(u, v, id=e)
         return ret
 

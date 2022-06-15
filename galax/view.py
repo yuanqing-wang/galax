@@ -4,6 +4,7 @@ Inspired by dgl.view
 
 from collections import namedtuple
 from dataclasses import replace
+from functools import partial
 from typing import Optional
 import jax
 import jax.numpy as jnp
@@ -17,12 +18,16 @@ class EntityView(object):
         self.graph = graph
         self.short_name = short_name
         self.long_name = long_name
-        self.get_id = lambda key: getattr(
+        get_id = lambda key: getattr(
             self.graph, "get_%stype_id" % short_name
         )(key)
-        self.get_number = lambda idx: getattr(
+        get_number = lambda idx: getattr(
             self.graph, "number_of_%ss" % long_name,
         )(idx)
+
+        get_id = jax.jit(get_id, static_argnums=(0, ))
+        self.get_id = get_id
+        self.get_number = get_number
 
     def __getitem__(self, key: str):
         typeidx = self.get_id(key)
@@ -72,7 +77,7 @@ class DataView(object):
     def __init__(
             self,
             graph,
-            typeidx: int,
+            typeidx: str,
             short_name: str,
             long_name: str,
             idxs: Optional[jnp.ndarray]=None,

@@ -7,7 +7,9 @@ from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
 from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
 from flax.core import FrozenDict
+from jax.tree_util import register_pytree_node_class
 
+@register_pytree_node_class
 @partial(dataclass, frozen=True)
 class HeteroGraph:
     """Class for storing graph structure and node/edge feature data.
@@ -66,6 +68,19 @@ class HeteroGraph:
 
         object.__setattr__(self, "node_frames", node_frames)
         object.__setattr__(self, "edge_frames", edge_frames)
+
+    def tree_flatten(self):
+        children = (self.gidx, self.node_frames, self.edge_frames)
+        aux_data = (self.ntypes, self.etypes)
+        return (children, aux_data)
+
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        gidx, node_frames, edge_frames = children
+        ntypes, etypes = aux_data
+        return cls(
+            gidx=gidx, node_frames=node_frames, ntypes=ntypes, etypes=etypes
+        )
 
     def add_nodes(
         self,
@@ -1127,7 +1142,7 @@ class HeteroGraph:
         [1.0, 1.0]
 
         """
-        
+
         etype_idx = 0
         _, dsttype_idx = self.gidx.metagraph.find_edge(etype_idx)
         _, dst = self.gidx.edges[etype_idx]

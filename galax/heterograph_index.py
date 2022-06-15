@@ -17,8 +17,9 @@ from .graph_index import GraphIndex, from_coo
 import jax
 import jax.numpy as jnp
 from jax.experimental.sparse import BCOO
+from jax.tree_util import register_pytree_node_class
 
-
+@register_pytree_node_class
 class HeteroGraphIndex(NamedTuple):
     """HeteroGraph index object.
 
@@ -62,6 +63,16 @@ class HeteroGraphIndex(NamedTuple):
         n_nodes = jnp.array([])
     if edges is None:
         edges = ()
+
+    def tree_flatten(self):
+        children = (self.metagraph, self.n_nodes, self.edges)
+        aux_data = None
+        return (children, aux_data)
+
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        metagraph, n_nodes, edges = children
+        return cls(metagraph=metagraph, n_nodes=n_nodes, edges=edges)
 
     def number_of_ntypes(self):
         """Return the number of node types.

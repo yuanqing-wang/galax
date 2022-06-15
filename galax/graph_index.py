@@ -7,9 +7,10 @@ import jax
 import jax.numpy as jnp
 import numpy as onp
 from jax.experimental.sparse import BCOO
+from jax.tree_util import register_pytree_node_class
 from dataclasses import field
 
-
+@register_pytree_node_class
 class GraphIndex(NamedTuple):
     """Graph index object.
 
@@ -48,6 +49,16 @@ class GraphIndex(NamedTuple):
         src = jnp.array([], dtype=jnp.int32)
     if dst is None:
         dst = jnp.array([], dtype=jnp.int32)
+
+    def tree_flatten(self):
+        children = (self.n_nodes, self.src, self.dst)
+        aux_data = None
+        return (children, aux_data)
+
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        n_nodes, src, dst = children
+        return cls(n_nodes=n_nodes, src=src, dst=dst)
 
     def add_nodes(self, num: int):
         """Add nodes.

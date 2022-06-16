@@ -480,7 +480,7 @@ class GraphIndex(NamedTuple):
         assert self.has_nodes(nids).all(), "Node does not exist. "
         v_is_src = jnp.expand_dims(nids, -1) == self.src
         v_is_dst = jnp.expand_dims(nids, -1) == self.dst
-        v_is_in_edge = (v_is_src + v_is_dst).any(axis=-1)
+        v_is_in_edge = (v_is_src + v_is_dst).any(axis=0)
         eids = jnp.where(v_is_in_edge)[0]
         src = jnp.delete(self.src, eids)
         dst = jnp.delete(self.dst, eids)

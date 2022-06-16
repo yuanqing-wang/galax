@@ -9,7 +9,7 @@ from .function import ReduceFunction
 import jax
 from jax.tree_util import tree_map
 
-@partial(jax.jit, static_argnums=(1, 2, 3, 4))
+# @partial(jax.jit, static_argnums=(1, 2, 3, 4))
 def message_passing(
         graph: HeteroGraph,
         mfunc: Optional[Callable],
@@ -57,7 +57,7 @@ def message_passing(
     etype_idx = graph.get_etype_id(etype)
 
     # extract the message
-    message = mfunc(graph.edges[etype])
+    message = mfunc(graph.edges[etype_idx])
 
     # reduce by calling jax.ops.segment_
     _rfunc = getattr(function, "segment_%s" % rfunc.op)

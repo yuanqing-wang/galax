@@ -5,7 +5,7 @@ Inspired by dgl.view
 from collections import namedtuple
 from dataclasses import replace
 from functools import partial
-from typing import Optional
+from typing import Optional, Union
 import jax
 import jax.numpy as jnp
 from flax.core import freeze, unfreeze
@@ -18,28 +18,23 @@ class EntityView(object):
         self.graph = graph
         self.short_name = short_name
         self.long_name = long_name
-        get_id = lambda key: getattr(
-            self.graph, "get_%stype_id" % short_name
-        )(key)
         get_number = lambda idx: getattr(
             self.graph, "number_of_%ss" % long_name,
         )(idx)
 
-        get_id = jax.jit(get_id, static_argnums=(0, ))
-        self.get_id = get_id
         self.get_number = get_number
 
-    def __getitem__(self, key: str):
-        typeidx = self.get_id(key)
+    def __getitem__(self, key: Union[str, int]):
         if self.short_name == "n":
             return NodeSpace(
                 data=DataView(
                     graph=self.graph,
-                    typeidx=typeidx,
+                    type=key,
                     short_name="n",
                     long_name="node",
                 ),
             )
+
         elif self.short_name == "e":
             srctype_idx, dsttype_idx = self.graph.gidx.metagraph.find_edge(
                 typeidx,

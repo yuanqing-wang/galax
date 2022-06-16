@@ -6,7 +6,7 @@ import jax.numpy as jnp
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
 from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
-from flax.core import FrozenDict
+from flax.core import FrozenDict, freeze, unfreeze
 from jax.tree_util import register_pytree_node_class
 
 @register_pytree_node_class
@@ -25,11 +25,11 @@ class HeteroGraph:
         and its SRC node types and DST node types are given as in the pair.
     etypes :Optional[Sequence[str]]
         Edge type list. ``etypes[i]`` stores the name of edge type i.
-    node_frames : list[Frame]
+    node_frames : Mapping[str, Frame]
         Node feature storage. If None, empty frame is created.
         Otherwise, ``node_frames[i]`` stores the node features
         of node type i. (default: None)
-    edge_frames : list[Frame], optional
+    edge_frames : Mapping[str, Frame], optional
         Edge feature storage. If None, empty frame is created.
         Otherwise, ``edge_frames[i]`` stores the edge features
         of edge type i. (default: None)
@@ -39,8 +39,8 @@ class HeteroGraph:
     gidx: Optional[HeteroGraphIndex] = field(default=HeteroGraphIndex())
     ntypes: Optional[Sequence[str]]=field(default=("_N", ))
     etypes: Optional[Sequence[str]]=field(default=("_E", ))
-    node_frames: Optional[Sequence]=None
-    edge_frames: Optional[Sequence]=None
+    node_frames: Optional[Mapping]=None
+    edge_frames: Optional[Mapping]=None
 
     def __post_init__(self):
         # Force set, not very elegant
@@ -53,18 +53,34 @@ class HeteroGraph:
             {etype: idx for idx, etype in enumerate(self.etypes)}
         ))
 
+        # construct etype to ntype map
+        src, dst, eid = self.gidx.metagraph.edges()
+        src, dst, eid = src.tolist(), dst.tolist(), eid.tolist()
+        _srctypes, _dsttypes, _etypes = (
+            [ntypes[idx] for idx in src],
+            [ntypes[idx] for idx in dst],
+            [etypes[idx] for idx in eid],
+        )
+        _e2n_map = {
+            _etype: (_srctype, _dsttype)
+            for (_etype, _srctype, _dsttype) in zip(
+                _etypes, _srctypes, _dsttypes,
+            )
+        }
+        object.__setattr__(self, "_e2n_map", FrozenDict(_e2n_map))
+
         node_frames = self.node_frames
         edge_frames = self.edge_frames
 
         if node_frames is None:
-            node_frames = tuple([None for _ in range(len(self.ntypes))])
+            node_frames = FrozenDict({ntype: None for ntype in self.ntypes})
         if edge_frames is None:
-            edge_frames = tuple([None for _ in range(len(self.etypes))])
+            edge_frames = FrozenDict({etype: None for etype in self.etypes})
 
-        if not isinstance(node_frames, tuple):
-            node_frames = tuple(node_frames)
+        if not isinstance(node_frames, FrozenDict):
+            node_frames = freeze(node_frames)
         if not isinstance(edge_frames, tuple):
-            edge_frames = tuple(edge_frames)
+            edge_frames = freeze(edge_frames)
 
         object.__setattr__(self, "node_frames", node_frames)
         object.__setattr__(self, "edge_frames", edge_frames)
@@ -149,11 +165,11 @@ class HeteroGraph:
             gidx = self.gidx.add_nodes(ntype=len(self.ntypes), num=num)
             ntypes = self.ntypes + (ntype,)
             etypes = self.etypes
+            node_frames = unfreeze(self.node_frames)
             if data is not None:
                 data = FrozenDict(data)
-                node_frames = self.node_frames + (data,)
-            else:
-                node_frames = self.node_frames + (None,)
+            node_frames[ntype] = data
+            node_frames = freeze(node_frames)
             edge_frames = self.edge_frames
 
         else: # existing node
@@ -162,7 +178,7 @@ class HeteroGraph:
             ntypes = self.ntypes
             etypes = self.etypes
             if data is None:
-                if self.node_frames[ntype_idx] is None:
+                if self.node_frames[ntype] is None:
                     node_frames = self.node_frames
                 else:
                     original_data = self.node_frames[ntype_idx]
@@ -180,11 +196,9 @@ class HeteroGraph:
                         }
                     )
 
-                    node_frames = (
-                        self.node_frames[:ntype_idx]
-                        + (new_data,)
-                        + self.node_frames[ntype_idx + 1 :]
-                    )
+                    node_frames = unfreeze(self.node_frames)
+                    node_frames[ntype] = new_data
+                    node_frames = freeze(node_frames)
 
             else:
                 new_data = {}
@@ -230,11 +244,9 @@ class HeteroGraph:
 
                 new_data = FrozenDict(new_data)
 
-                node_frames = (
-                    self.node_frames[:ntype_idx]
-                    + (new_data,)
-                    + self.node_frames[ntype_idx + 1 :]
-                )
+                node_frames = unfreeze(self.node_frames)
+                node_frames[ntype] = new_data
+                node_frames = freeze(node_frames)
 
             edge_frames = self.edge_frames
 
@@ -348,9 +360,10 @@ class HeteroGraph:
             etypes = self.etypes + (etype, )
             if data is not None:
                 data = FrozenDict(data)
-                edge_frames = self.edge_frames + (data,)
-            else:
-                edge_frames = self.edge_frames + (None,)
+
+            edge_frames = unfreeze(self.edge_frames)
+            edge_frames[etype] = new_data
+            edge_frames = freeze(edge_frames)
             node_frames = self.node_frames
 
         else: # existing node
@@ -359,10 +372,10 @@ class HeteroGraph:
             ntypes = self.ntypes
             etypes = self.etypes
             if data is None:
-                if self.edge_frames[etype_idx] is None:
+                if self.edge_frames[etype] is None:
                     edge_frames = self.edge_frames
                 else:
-                    original_data = self.edge_frames[etype_idx]
+                    original_data = self.edge_frames[etype]
                     new_data = FrozenDict(
                         {
                             key: jnp.concatenate(
@@ -377,11 +390,9 @@ class HeteroGraph:
                         }
                     )
 
-                    edge_frames = (
-                        self.edge_frames[:etype_idx]
-                        + (new_data,)
-                        + self.edge_frames[etype_idx + 1 :]
-                    )
+                    edge_frames = unfreeze(self.edge_frames)
+                    edge_frames[etype] = new_data
+                    edge_frames = freeze(edge_frames)
 
             else:
                 new_data = {}
@@ -427,11 +438,9 @@ class HeteroGraph:
 
                 new_data = FrozenDict(new_data)
 
-                edge_frames = (
-                    self.edge_frames[:etype_idx]
-                    + (new_data,)
-                    + self.edge_frames[etype_idx + 1 :]
-                )
+                edge_frames = unfreeze(self.edge_frames)
+                edge_frames[etype] = new_data
+                edge_frames = freeze(edge_frames)
 
             node_frames = self.node_frames
 
@@ -494,15 +503,16 @@ class HeteroGraph:
 
         if complete: # delete etype entirely
             etypes = self.etypes[:etype_idx] + self.etypes[etype_idx + 1 :]
-            edge_frames = (
-                self.edge_frames[:etype_idx]
-                + self.edge_frames[etype_idx + 1 :]
-            )
+
+            edge_frames = unfreeze(self.edge_frames)
+            del edge_frames[etype]
+            edge_frames = freeze(edge_frames)
 
         else: # partially delete
             etypes = self.etypes
             edge_frames = self.edge_frames
-            sub_edge_frame = edge_frames[etype_idx]
+            sub_edge_frame = edge_frames[etype]
+
             if sub_edge_frame is not None:
                 sub_edge_frame = FrozenDict(
                     {
@@ -511,11 +521,9 @@ class HeteroGraph:
                     }
                 )
 
-                edge_frames = (
-                    self.edge_frames[:etype_idx]
-                    + (sub_edge_frame, )
-                    + self.edge_frames[etype_idx + 1 :]
-                )
+                edge_frames = unfreeze(self.edge_frames)
+                edge_frames[etype] = sub_edge_frame
+                edge_frames = freeze(edge_frames)
 
         gidx = self.gidx.remove_edges(etype=etype_idx, eids=eids)
         return self.__class__(
@@ -584,15 +592,15 @@ class HeteroGraph:
 
         if complete: # delete etype entirely
             ntypes = self.ntypes[:ntype_idx] + self.ntypes[ntype_idx + 1 :]
-            node_frames = (
-                self.node_frames[:ntype_idx]
-                + self.node_frames[ntype_idx + 1 :]
-            )
+
+            node_frames = unfreeze(self.node_frames)
+            del node_frames[etype]
+            node_frames = freeze(node_frames)
 
         else: # partially delete
             ntypes = self.ntypes
             node_frames = self.node_frames
-            sub_node_frame = node_frames[ntype_idx]
+            sub_node_frame = node_frames[ntype]
             if sub_node_frame is not None:
                 sub_node_frame = FrozenDict(
                     {
@@ -601,11 +609,9 @@ class HeteroGraph:
                     }
                 )
 
-                node_frames = (
-                    self.node_frames[:ntype_idx]
-                    + (sub_node_frame, )
-                    + self.node_frames[ntype_idx + 1 :]
-                )
+                node_frames = unfreeze(self.node_frames)
+                node_frames[ntype] = sub_node_frame
+                node_frames = freeze(node_frames)
 
         gidx = self.gidx.remove_nodes(ntype=ntype_idx, nids=nids)
 
@@ -1111,9 +1117,8 @@ class HeteroGraph:
 
         """
         etype_idx = self.get_etype_id(etype)
-        srctype_idx, _ = self.gidx.metagraph.find_edge(etype_idx)
         src, _ = self.gidx.edges[etype_idx]
-        node_frame = self.node_frames[srctype_idx]
+        node_frame = self.node_frames["_N"]
         _node_frame = FrozenDict(
             {
                 key: value[src]
@@ -1144,9 +1149,8 @@ class HeteroGraph:
         """
 
         etype_idx = 0
-        _, dsttype_idx = self.gidx.metagraph.find_edge(etype_idx)
         _, dst = self.gidx.edges[etype_idx]
-        node_frame = self.node_frames[dsttype_idx]
+        node_frame = self.node_frames["_N"]
         _node_frame = FrozenDict(
             {
                 key: value[dst]

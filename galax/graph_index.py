@@ -328,7 +328,8 @@ class GraphIndex(NamedTuple):
         >>> g = GraphIndex(
         ...     5, src=jnp.array([0, 0, 3]), dst=jnp.array([1, 1, 2])
         ... )
-        >>> g.find_edge(0)
+        >>> src, dst = g.find_edge(0)
+        >>> int(src), int(dst)
         (0, 1)
 
         """
@@ -599,7 +600,7 @@ class GraphIndex(NamedTuple):
         Examples
         --------
         >>> g = GraphIndex(6, jnp.array([0, 1, 2]), jnp.array([3, 3, 3]))
-        >>> g.in_degree(3)
+        >>> int(g.in_degree(3))
         3
 
         """
@@ -650,7 +651,7 @@ class GraphIndex(NamedTuple):
         Examples
         --------
         >>> g = GraphIndex(6, jnp.array([0, 0, 0]), jnp.array([1, 2, 3]))
-        >>> g.out_degree(0)
+        >>> int(g.out_degree(0))
         3
         """
         assert self.has_node(v), "Node does not exist. "
@@ -924,6 +925,7 @@ class GraphIndex(NamedTuple):
 
         """
         src, dst, eid = self.edges()
+        src, dst, eid = src.tolist(), dst.tolist(), eid.tolist()
         # xiangsx: Always treat graph as multigraph
         import networkx as nx
 

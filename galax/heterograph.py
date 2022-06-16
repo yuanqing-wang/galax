@@ -5,7 +5,7 @@ import jax
 import jax.numpy as jnp
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
-from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
+from .view import NodeDataView, EdgeDataView, prefetch_view
 from flax.core import FrozenDict
 from jax.tree_util import register_pytree_node_class
 
@@ -68,6 +68,10 @@ class HeteroGraph:
 
         object.__setattr__(self, "node_frames", node_frames)
         object.__setattr__(self, "edge_frames", edge_frames)
+
+        nodes, edges = prefetch_view(self)
+        object.__setattr__(self, "nodes", nodes)
+        object.__setattr__(self, "edges", edges)
 
     def tree_flatten(self):
         children = (self.gidx, self.node_frames, self.edge_frames)
@@ -466,7 +470,7 @@ class HeteroGraph:
         >>> g = graph(((0, 0, 2), (0, 1, 2)))
         >>> g = g.edata.set("he", jnp.array([0.0, 1.0, 2.0]))
         >>> g = g.remove_edges((0, 1))
-        >>> g.edges().tolist()
+        >>> g.all_edges()[2].tolist()
         [0]
 
         **Heterogeneous Graphs with Multiple Edge Types**
@@ -476,7 +480,7 @@ class HeteroGraph:
         ...     })
 
         >>> g = g.remove_edges([0, 1], 'plays')
-        >>> g.edges('plays').tolist()
+        >>> g.all_edges('plays')[2].tolist()
         [0, 1]
 
         """
@@ -608,7 +612,7 @@ class HeteroGraph:
                 )
 
         gidx = self.gidx.remove_nodes(ntype=ntype_idx, nids=nids)
-
+        
         # take care of edge_frames
         _, __, in_edge_types = self.gidx.metagraph.in_edges(ntype_idx)
         _, __, out_edge_types = self.gidx.metagraph.out_edges(ntype_idx)
@@ -1073,13 +1077,40 @@ class HeteroGraph:
 
     inc = incidence_matrix
 
-    @property
-    def nodes(self):
-        return NodeView(self)
+    def all_edges(self, etype: Optional[str]=None, order: Optional[str] = None):
+        """Return all the edges
 
-    @property
-    def edges(self):
-        return EdgeView(self)
+        Parameters
+        ----------
+        etype : str
+            Edge type
+        order : string
+            The order of the returned edges. Currently support:
+            - 'srcdst' : sorted by their src and dst ids.
+            - 'eid'    : sorted by edge Ids.
+            - None     : the arbitrary order.
+
+        Returns
+        -------
+        jnp.ndarray
+            The src nodes.
+        jnp.ndarray
+            The dst nodes.
+        jnp.ndarray
+            The edge ids.
+
+        """
+        etype_idx = self.get_etype_id(etype)
+        return self.gidx.all_edges(etype_idx, order=order)
+
+
+    # @property
+    # def nodes(self):
+    #     return NodeView(self)
+    #
+    # @property
+    # def edges(self):
+    #     return EdgeView(self)
 
     @property
     def ndata(self):

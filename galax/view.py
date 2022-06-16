@@ -83,36 +83,32 @@ class DataView(object):
             idxs: Optional[jnp.ndarray]=None,
         ):
         self.graph = graph
-        self.typeidx = typeidx
+        self.typeidx = str(typeidx)
         self.short_name = short_name
         self.long_name = long_name
-        self.get_number = lambda idx: getattr(
-            self.graph.gidx, "number_of_%ss" % long_name,
-        )(idx)
         self.idxs = idxs
 
     def __getitem__(self, key: str):
         res = getattr(
-            self.graph, "%s_frames" % self.long_name)[self.typeidx][key]
+            self.graph, "%s_frames" % self.long_name)[int(self.typeidx)][key]
         if self.idxs is not None:
             res = res[self.idxs]
         return res
 
     def set(self, key: str, data: jnp.ndarray):
         assert self.idxs is None, "Cannot partially set. "
-        assert data.shape[0] == self.get_number(self.typeidx)
         frame = getattr(
-            self.graph, "%s_frames" % self.long_name)[self.typeidx]
+            self.graph, "%s_frames" % self.long_name)[int(self.typeidx)]
         if frame is None:
             frame = {}
         frame = unfreeze(frame)
         frame[key] = data
         frame = freeze(frame)
         frames = getattr(
-            self.graph, "%s_frames" % self.long_name)[:self.typeidx]\
+            self.graph, "%s_frames" % self.long_name)[:int(self.typeidx)]\
             + (frame, )\
             + getattr(
-                self.graph, "%s_frames" % self.long_name)[self.typeidx+1:]
+                self.graph, "%s_frames" % self.long_name)[int(self.typeidx)+1:]
         graph = replace(
             self.graph,
             **{
@@ -122,7 +118,48 @@ class DataView(object):
         return graph
 
 from functools import partial
-NodeView = partial(EntityView, short_name="n", long_name="node")
-EdgeView = partial(EntityView, short_name="e", long_name="edge")
 NodeDataView = partial(DataView, short_name="n", long_name="node")
 EdgeDataView = partial(DataView, short_name="e", long_name="edge")
+
+def prefetch_view(graph):
+    nodes = {}
+    edges = {}
+    for idx, ntype in enumerate(graph.ntypes):
+        nodes[ntype] = NodeSpace(
+            data=DataView(
+                graph=graph,
+                typeidx=idx,
+                short_name="n",
+                long_name="node",
+            ),
+        )
+
+    for idx, etype in enumerate(graph.etypes):
+        if len(graph.gidx.metagraph.src) == 0:
+            continue
+        srctype_idx, dsttype_idx = graph.gidx.metagraph.find_edge(idx)
+        src, dst = graph.gidx.edges[idx]
+        edges[etype] = EdgeSpace(
+            data=DataView(
+                graph=graph,
+                typeidx=idx,
+                short_name="e",
+                long_name="edge",
+            ),
+            srcdata=DataView(
+                graph=graph,
+                typeidx=srctype_idx,
+                short_name="n",
+                long_name="node",
+                idxs=src,
+            ),
+            dstdata=DataView(
+                graph=graph,
+                typeidx=dsttype_idx,
+                short_name="n",
+                long_name="node",
+                idxs=dst,
+            ),
+        )
+
+    return nodes, edges

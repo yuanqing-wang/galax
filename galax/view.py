@@ -25,7 +25,6 @@ class EntityView(object):
             self.graph, "number_of_%ss" % long_name,
         )(idx)
 
-        get_id = jax.jit(get_id, static_argnums=(0, ))
         self.get_id = get_id
         self.get_number = get_number
 

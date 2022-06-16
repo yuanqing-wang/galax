@@ -50,6 +50,7 @@ def test_graph_jit():
 
     fn(g)
 
+
 def test_message_passing_jit():
     import galax
     import jax

@@ -75,7 +75,7 @@ def message_passing(
         reduced.update(afunc(reduced))
 
     # update destination node frames
-    srctype_idx, dsttype_idx = graph.gidx.metagraph.find_edge(etype_idx)
+    srctype_idx, dsttype_idx = graph.get_meta_edge(etype_idx)
     node_frame = graph.node_frames[dsttype_idx]
     node_frame = unfreeze(node_frame)
     node_frame.update(reduced)
@@ -84,4 +84,3 @@ def message_passing(
         + graph.node_frames[dsttype_idx+1:]
 
     return graph._replace(node_frames=node_frames)
-    return reduced

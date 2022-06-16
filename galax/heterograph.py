@@ -41,8 +41,7 @@ class HeteroGraph(NamedTuple):
     gidx: Optional[HeteroGraphIndex] = None
     node_frames: Optional[NamedTuple] = None
     edge_frames: Optional[NamedTuple] = None
-    etype_invmap: Optional[Mapping] = None
-    ntype_invmap: Optional[Mapping] = None
+    metamap: Optional[FrozenDict] = None
 
     @classmethod
     def init(
@@ -67,19 +66,25 @@ class HeteroGraph(NamedTuple):
         node_frames = namedtuple("node_frames", ntypes)(*node_frames)
         edge_frames = namedtuple("edge_frames", etypes)(*edge_frames)
 
-        ntype_invmap = FrozenDict(
-            {ntype: idx for idx, ntype in enumerate(ntypes)}
-        )
-
-        etype_invmap = FrozenDict(
-            {etype: idx for idx, etype in enumerate(etypes)}
-        )
-
+        # flattened version of metagraph
+        src, dst, eid = gidx.metagraph.all_edges()
+        src, dst, eid = src.tolist(), dst.tolist(), eid.tolist()
+        metamap = {
+            _eid: (jnp.zeros(_src), jnp.zeros(_dst))
+            for _src, _dst, _eid in zip(src, dst, eid)
+        }
+        metamap = FrozenDict(metamap)
         return HeteroGraph(
             gidx=gidx,
             node_frames=node_frames, edge_frames=edge_frames,
-            ntype_invmap=ntype_invmap, etype_invmap=etype_invmap
+            metamap=metamap,
         )
+
+    def get_meta_edge(self, eid):
+        src, dst = self.metamap[eid]
+        src = len(src)
+        dst = len(dst)
+        return src, dst
 
     @property
     def ntypes(self):
@@ -88,6 +93,16 @@ class HeteroGraph(NamedTuple):
     @property
     def etypes(self):
         return self.edge_frames._fields
+
+    @property
+    def _ntype_invmap(self):
+        fields = self.node_frames._fields
+        return dict(zip(fields, range(len(fields))))
+
+    @property
+    def _etype_invmap(self):
+        fields = self.edge_frames._fields
+        return dict(zip(fields, range(len(fields))))
 
     def add_nodes(
         self,
@@ -164,7 +179,7 @@ class HeteroGraph(NamedTuple):
             edge_frames = self.edge_frames
 
         else: # existing node
-            ntype_idx = self.ntype_invmap[ntype]
+            ntype_idx = self._ntype_invmap[ntype]
             gidx = self.gidx.add_nodes(ntype=ntype_idx, num=num)
             ntypes = self.ntypes
             etypes = self.etypes
@@ -361,7 +376,7 @@ class HeteroGraph(NamedTuple):
             node_frames = self.node_frames
 
         else: # existing node
-            etype_idx = self.etype_invmap[etype]
+            etype_idx = self._etype_invmap[etype]
             gidx = self.gidx.add_edges(etype=etype_idx, src=u, dst=v)
             ntypes = self.ntypes
             etypes = self.etypes
@@ -761,8 +776,8 @@ class HeteroGraph(NamedTuple):
             assert len(self.ntypes) == 1, "Ntype needs to be specified. "
             return 0
         else:
-            assert ntype in self.ntype_invmap, "No such ntype %s. " % ntype
-            return self.ntype_invmap[ntype]
+            assert ntype in self._ntype_invmap, "No such ntype %s. " % ntype
+            return self._ntype_invmap[ntype]
 
     def get_etype_id(self, etype: Optional[str] = None) -> int:
         """Return the id of the given edge type.
@@ -782,8 +797,8 @@ class HeteroGraph(NamedTuple):
             assert len(self.etypes) == 1, "Etype needs to be specified. "
             return 0
         else:
-            assert etype in self.etype_invmap, "No such etype %s. " % etype
-            return self.etype_invmap[etype]
+            assert etype in self._etype_invmap, "No such etype %s. " % etype
+            return self._etype_invmap[etype]
 
     def number_of_nodes(self, ntype: Optional[str] = None):
         if ntype is None:
@@ -1259,8 +1274,8 @@ def graph(
     elif isinstance(data, Mapping):
         metagraph = GraphIndex()
         from collections import OrderedDict
-        ntype_invmap = OrderedDict()
-        etype_invmap = OrderedDict()
+        _ntype_invmap = OrderedDict()
+        _etype_invmap = OrderedDict()
 
         edges = []
         inferred_n_nodes = []
@@ -1271,23 +1286,23 @@ def graph(
             srctype, etype, dsttype = key
 
             # put ntype into invmap
-            if srctype not in ntype_invmap:
-                ntype_invmap[srctype] = len(ntype_invmap)
+            if srctype not in _ntype_invmap:
+                _ntype_invmap[srctype] = len(_ntype_invmap)
                 metagraph = metagraph.add_nodes(1)
                 inferred_n_nodes.append(0)
-            srctype_idx = ntype_invmap[srctype]
+            srctype_idx = _ntype_invmap[srctype]
 
-            if dsttype not in ntype_invmap:
-                ntype_invmap[dsttype] = len(ntype_invmap)
+            if dsttype not in _ntype_invmap:
+                _ntype_invmap[dsttype] = len(_ntype_invmap)
                 metagraph = metagraph.add_nodes(1)
                 inferred_n_nodes.append(0)
-            dsttype_idx = ntype_invmap[dsttype]
+            dsttype_idx = _ntype_invmap[dsttype]
 
             # put etype into invmap
-            assert etype not in etype_invmap, "Etype has to be unique. "
-            etype_invmap[etype] = len(etype_invmap)
+            assert etype not in _etype_invmap, "Etype has to be unique. "
+            _etype_invmap[etype] = len(_etype_invmap)
             metagraph = metagraph.add_edge(srctype_idx, dsttype_idx)
-            etype_idx = etype_invmap[etype]
+            etype_idx = _etype_invmap[etype]
 
             assert len(value) == 2, "Only need src and dst. "
             src, dst = value
@@ -1331,8 +1346,8 @@ def graph(
         )
 
         # extract ntypes and etypes from ordered dict
-        ntypes = tuple(ntype_invmap.keys())
-        etypes = tuple(etype_invmap.keys())
+        ntypes = tuple(_ntype_invmap.keys())
+        etypes = tuple(_etype_invmap.keys())
 
         return HeteroGraph.init(
             gidx=gidx, ntypes=ntypes, etypes=etypes,

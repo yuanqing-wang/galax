@@ -583,6 +583,8 @@ class GraphIndex(NamedTuple):
             src, dst, eid = src[idxs], dst[idxs], eid[idxs]
         return src, dst, eid
 
+    all_edges = edges
+
     def in_degree(self, v: int) -> int:
         """Return the in degree of the node.
 

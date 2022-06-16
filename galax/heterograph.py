@@ -68,25 +68,25 @@ class HeteroGraph:
         object.__setattr__(self, "node_frames", node_frames)
         object.__setattr__(self, "edge_frames", edge_frames)
 
-        _edge_map = namedtuple("_edge_map", self.ntypes)(self.gidx.edges)
+        _edge_map = namedtuple("_edge_map", self.etypes)(*self.gidx.edges)
         object.__setattr__(self, "_edge_map", _edge_map)
 
-        # construct etype to ntype map
-        src, dst, eid = self.gidx.metagraph.edges()
-        # src, dst, eid = src.tolist(), dst.tolist(), eid.tolist()
-        _srctypes, _dsttypes, _etypes = (
-            [self.ntypes[idx] for idx in src],
-            [self.ntypes[idx] for idx in dst],
-            [self.etypes[idx] for idx in eid],
-        )
-
-        _e2n_map = {
-            _etype: (_srctype, _dsttype)
-            for (_etype, _srctype, _dsttype) in zip(
-                _etypes, _srctypes, _dsttypes,
-            )
-        }
-        object.__setattr__(self, "_e2n_map", _e2n_map)
+        # # construct etype to ntype map
+        # src, dst, eid = self.gidx.metagraph.edges()
+        # # src, dst, eid = src.tolist(), dst.tolist(), eid.tolist()
+        # _srctypes, _dsttypes, _etypes = (
+        #     [self.ntypes[idx] for idx in src],
+        #     [self.ntypes[idx] for idx in dst],
+        #     [self.etypes[idx] for idx in eid],
+        # )
+        #
+        # _e2n_map = {
+        #     _etype: (_srctype, _dsttype)
+        #     for (_etype, _srctype, _dsttype) in zip(
+        #         _etypes, _srctypes, _dsttypes,
+        #     )
+        # }
+        # object.__setattr__(self, "_e2n_map", _e2n_map)
 
     def tree_flatten(self):
         children = (self.gidx, self.node_frames, self.edge_frames)
@@ -1103,12 +1103,12 @@ class HeteroGraph:
     @property
     def ndata(self):
         assert len(self.ntypes) == 1, "ndata only supports one node type. "
-        return NodeDataView(self, 0)
+        return NodeDataView(self, self.ntypes[0])
 
     @property
     def edata(self):
         assert len(self.etypes) == 1, "edata only supports one edge type. "
-        return EdgeDataView(self, 0)
+        return EdgeDataView(self, self.etypes[0])
 
     @property
     def srcdata(self, etype: Optional[str]=None):

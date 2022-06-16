@@ -9,7 +9,6 @@ from .function import ReduceFunction
 import jax
 from jax.tree_util import tree_map
 
-@partial(jax.jit, static_argnums=(1, 2, 3, 4))
 def message_passing(
         graph: HeteroGraph,
         mfunc: Optional[Callable],
@@ -53,8 +52,9 @@ def message_passing(
     # TODO(yuanqing-wang): change this restriction in near future
     assert isinstance(rfunc, ReduceFunction), "Only built-in reduce supported. "
 
-    # find the edge type
-    etype_idx = graph.get_etype_id(etype)
+    if etype is None:
+        etype = graph.etypes[0]
+
 
     # extract the message
     message = mfunc(graph.edges[etype])

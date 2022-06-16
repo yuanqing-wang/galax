@@ -786,10 +786,14 @@ class HeteroGraph(NamedTuple):
             return self.etype_invmap[etype]
 
     def number_of_nodes(self, ntype: Optional[str] = None):
-        return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
+        if ntype is None:
+            ntype = self.ntypes[0]
+        return len(getattr(self.node_frames, ntype))
 
     def number_of_edges(self, etype: Optional[str] = None):
-        return self.gidx.number_of_edges(self.get_etype_id(etype))
+        if etype is None:
+            etype = self.etypes[0]
+        return len(getattr(self.edge_frames, etype))
 
     def is_multigraph(self):
         """Return whether the graph is a multigraph with parallel edges.

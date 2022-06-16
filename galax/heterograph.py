@@ -1,4 +1,5 @@
 from typing import Any, Iterable, Mapping, Union, Optional, Tuple, Sequence
+from collections import namedtuple
 from dataclasses import dataclass, field
 from functools import partial
 import jax
@@ -37,8 +38,8 @@ class HeteroGraph:
     """
 
     gidx: Optional[HeteroGraphIndex] = field(default=HeteroGraphIndex())
-    ntypes: Optional[Sequence[str]]=field(default=("_N", ))
-    etypes: Optional[Sequence[str]]=field(default=("_E", ))
+    ntypes: Optional[Sequence[str]]=field(default=("N_", ))
+    etypes: Optional[Sequence[str]]=field(default=("E_", ))
     node_frames: Optional[Sequence]=None
     edge_frames: Optional[Sequence]=None
 
@@ -57,17 +58,35 @@ class HeteroGraph:
         edge_frames = self.edge_frames
 
         if node_frames is None:
-            node_frames = tuple([None for _ in range(len(self.ntypes))])
+            node_frames = [None for _ in range(len(self.ntypes))]
         if edge_frames is None:
-            edge_frames = tuple([None for _ in range(len(self.etypes))])
+            edge_frames = [None for _ in range(len(self.etypes))]
 
-        if not isinstance(node_frames, tuple):
-            node_frames = tuple(node_frames)
-        if not isinstance(edge_frames, tuple):
-            edge_frames = tuple(edge_frames)
+        node_frames = namedtuple("node_frames", self.ntypes)(*node_frames)
+        edge_frames = namedtuple("edge_frames", self.etypes)(*edge_frames)
 
         object.__setattr__(self, "node_frames", node_frames)
         object.__setattr__(self, "edge_frames", edge_frames)
+
+        _edge_map = namedtuple("_edge_map", self.ntypes)(self.gidx.edges)
+        object.__setattr__(self, "_edge_map", _edge_map)
+
+        # construct etype to ntype map
+        src, dst, eid = self.gidx.metagraph.edges()
+        # src, dst, eid = src.tolist(), dst.tolist(), eid.tolist()
+        _srctypes, _dsttypes, _etypes = (
+            [self.ntypes[idx] for idx in src],
+            [self.ntypes[idx] for idx in dst],
+            [self.etypes[idx] for idx in eid],
+        )
+
+        _e2n_map = {
+            _etype: (_srctype, _dsttype)
+            for (_etype, _srctype, _dsttype) in zip(
+                _etypes, _srctypes, _dsttypes,
+            )
+        }
+        object.__setattr__(self, "_e2n_map", _e2n_map)
 
     def tree_flatten(self):
         children = (self.gidx, self.node_frames, self.edge_frames)
@@ -1185,9 +1204,9 @@ def graph(
     >>> g.number_of_edges()
     3
     >>> g.ntypes
-    ('_N',)
+    ('N_',)
     >>> g.etypes
-    ('_E',)
+    ('E_',)
 
     Explicitly specify the number of nodes in the graph.
     >>> g = graph((src_ids, dst_ids), n_nodes=2666)

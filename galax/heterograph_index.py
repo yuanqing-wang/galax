@@ -19,7 +19,6 @@ import jax.numpy as jnp
 from jax.experimental.sparse import BCOO
 from jax.tree_util import register_pytree_node_class
 
-# @register_pytree_node_class
 class HeteroGraphIndex(NamedTuple):
     """HeteroGraph index object.
 

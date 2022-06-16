@@ -28,7 +28,6 @@ def test_heterograph_index_jit():
          metagraph=metagraph, n_nodes=n_nodes, edges=edges,
     )
 
-
     @jax.jit
     def fn(g):
         _g = g._replace(n_nodes = g.n_nodes ** 2)
@@ -38,6 +37,20 @@ def test_heterograph_index_jit():
     assert (_g.n_nodes == g.n_nodes ** 2).all()
 
 def test_graph_jit():
+    import galax
+    import jax
+    import jax.numpy as jnp
+    g = galax.graph(((0, 1), (1, 2)))
+    g = g.set_ndata("h", jnp.ones(3))
+    g = g.set_edata("he", jnp.ones(2))
+
+    @jax.jit
+    def fn(g):
+        return g.edata["he"] ** 2
+
+    fn(g)
+
+def test_message_passing_jit():
     import galax
     import jax
     import jax.numpy as jnp

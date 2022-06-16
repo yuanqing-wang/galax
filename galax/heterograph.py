@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from functools import partial
 import jax
 import jax.numpy as jnp
+import numpy as onp
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
 from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
@@ -1210,7 +1211,7 @@ def graph(
     """
     if isinstance(data, tuple): # single node type, single edge type
         metagraph = GraphIndex(
-            n_nodes=1, src=jnp.array([0]), dst=jnp.array([0])
+            n_nodes=1, src=onp.array([0]), dst=onp.array([0])
         )
 
         assert len(data) == 2, "Only need src and dst. "

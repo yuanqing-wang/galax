@@ -1,13 +1,16 @@
 from typing import Any, Iterable, Mapping, Union, Optional, Tuple, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
+from collections import namedtuple
 from functools import partial
 import jax
 import jax.numpy as jnp
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
-from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
-from flax.core import FrozenDict
+from flax.core import FrozenDict, freeze, unfreeze
 from jax.tree_util import register_pytree_node_class
+
+NodeSpace = namedtuple("NodeSpace", ["data"])
+EdgeSpace = namedtuple("EdgeSpace", ["data"])
 
 @register_pytree_node_class
 @partial(dataclass, frozen=True)
@@ -37,8 +40,8 @@ class HeteroGraph:
     """
 
     gidx: Optional[HeteroGraphIndex] = field(default=HeteroGraphIndex())
-    ntypes: Optional[Sequence[str]]=field(default=("_N", ))
-    etypes: Optional[Sequence[str]]=field(default=("_E", ))
+    ntypes: Optional[Sequence[str]]=field(default=("N_", ))
+    etypes: Optional[Sequence[str]]=field(default=("E_", ))
     node_frames: Optional[Sequence]=None
     edge_frames: Optional[Sequence]=None
 
@@ -57,17 +60,26 @@ class HeteroGraph:
         edge_frames = self.edge_frames
 
         if node_frames is None:
-            node_frames = tuple([None for _ in range(len(self.ntypes))])
+            node_frames = [None for _ in range(len(self.ntypes))]
         if edge_frames is None:
-            edge_frames = tuple([None for _ in range(len(self.etypes))])
+            edge_frames = [None for _ in range(len(self.etypes))]
 
-        if not isinstance(node_frames, tuple):
-            node_frames = tuple(node_frames)
-        if not isinstance(edge_frames, tuple):
-            edge_frames = tuple(edge_frames)
+        node_frames = namedtuple("node_frames", self.ntypes)(*node_frames)
+        edge_frames = namedtuple("edge_frames", self.etypes)(*edge_frames)
 
         object.__setattr__(self, "node_frames", node_frames)
         object.__setattr__(self, "edge_frames", edge_frames)
+
+        nodes = FrozenDict(
+            {ntype: NodeSpace(data=node_frame) for ntype, node_frame in zip(self.ntypes, self.node_frames)}
+        )
+
+        edges = FrozenDict(
+            {etype: EdgeSpace(data=edge_frame) for etype, edge_frame in zip(self.etypes, self.edge_frames)}
+        )
+        
+        object.__setattr__(self, "nodes", nodes)
+        object.__setattr__(self, "edges", edges)
 
     def tree_flatten(self):
         children = (self.gidx, self.node_frames, self.edge_frames)
@@ -112,7 +124,7 @@ class HeteroGraph:
 
         If the graph has some node features and new nodes are added without
         features, their features will be zeros.
-        >>> g = g.ndata.set("h", jnp.ones((5, 1)))
+        >>> g = g.set_ndata("h", jnp.ones((5, 1)))
         >>> g.ndata["h"].flatten().tolist()
         [1.0, 1.0, 1.0, 1.0, 1.0]
 
@@ -295,7 +307,7 @@ class HeteroGraph:
 
         If the graph has some edge features and new edges are added without
         features, their features will be create.
-        >>> g = g.edata.set("h", jnp.ones((4, 1)))
+        >>> g = g.set_edata("h", jnp.ones((4, 1)))
         >>> g = g.add_edges((1, ), (1, ))
         >>> g.edata['h'].flatten().tolist()
         [1.0, 1.0, 1.0, 1.0, 0.0]
@@ -464,10 +476,8 @@ class HeteroGraph:
         Examples
         --------
         >>> g = graph(((0, 0, 2), (0, 1, 2)))
-        >>> g = g.edata.set("he", jnp.array([0.0, 1.0, 2.0]))
+        >>> g = g.set_edata("he", jnp.array([0.0, 1.0, 2.0]))
         >>> g = g.remove_edges((0, 1))
-        >>> g.edges().tolist()
-        [0]
 
         **Heterogeneous Graphs with Multiple Edge Types**
         >>> g = graph({
@@ -476,8 +486,7 @@ class HeteroGraph:
         ...     })
 
         >>> g = g.remove_edges([0, 1], 'plays')
-        >>> g.edges('plays').tolist()
-        [0, 1]
+
 
         """
 
@@ -549,8 +558,8 @@ class HeteroGraph:
         --------
         **Homogeneous Graphs or Heterogeneous Graphs with A Single Node Type**
         >>> g = graph(([0, 0, 2], [0, 1, 2]))
-        >>> g = g.ndata.set("hv", jnp.array([0.0, 1.0, 2.0]))
-        >>> g = g.edata.set("he", jnp.array([0.0, 1.0, 2.0]))
+        >>> g = g.set_ndata("hv", jnp.array([0.0, 1.0, 2.0]))
+        >>> g = g.set_edata("he", jnp.array([0.0, 1.0, 2.0]))
         >>> g = g.remove_nodes((0, 1))
         >>> g.number_of_nodes()
         1
@@ -1073,23 +1082,38 @@ class HeteroGraph:
 
     inc = incidence_matrix
 
-    @property
-    def nodes(self):
-        return NodeView(self)
+    def set_ndata(self, key, data, ntype=None):
+        if ntype is None:
+            ntype = self.ntypes[0]
+        node_frame = getattr(self.node_frames, ntype)
+        if node_frame is None:
+            node_frame = {}
+        node_frame = unfreeze(node_frame)
+        node_frame[key] = data
+        node_frame = freeze(node_frame)
+        node_frames = self.node_frames._replace(**{ntype: node_frame})
+        return replace(self, node_frames=node_frames)
 
-    @property
-    def edges(self):
-        return EdgeView(self)
+    def set_edata(self, key, data, etype=None):
+        if etype is None:
+            etype = self.etypes[0]
+        edge_frame = getattr(self.edge_frames, etype)
+        if edge_frame is None:
+            edge_frame = {}
+        edge_frame = unfreeze(edge_frame)
+        edge_frame[key] = data
+        edge_frame = freeze(edge_frame)
+        edge_frames = self.edge_frames._replace(**{etype: edge_frame})
+        return replace(self, edge_frames=edge_frames)
 
-    @property
-    def ndata(self):
-        assert len(self.ntypes) == 1, "ndata only supports one node type. "
-        return NodeDataView(self, 0)
 
     @property
     def edata(self):
-        assert len(self.etypes) == 1, "edata only supports one edge type. "
-        return EdgeDataView(self, 0)
+        return self.edge_frames[0]
+
+    @property
+    def ndata(self):
+        return self.node_frames[0]
 
     @property
     def srcdata(self, etype: Optional[str]=None):
@@ -1105,7 +1129,7 @@ class HeteroGraph:
         --------
         >>> g = graph({
         ...     ('user', 'plays', 'game'): ([0, 1], [1, 2])})
-        >>> g = g.nodes["user"].data.set("h", jnp.ones(2))
+        >>> g = g.set_ndata("h", jnp.ones(2), "user")
         >>> g.srcdata["h"].flatten().tolist()
         [1.0, 1.0]
 
@@ -1137,7 +1161,7 @@ class HeteroGraph:
         --------
         >>> g = graph({
         ...     ('user', 'plays', 'game'): ([0, 1], [1, 2])})
-        >>> g = g.nodes["game"].data.set("h", jnp.ones(3))
+        >>> g = g.set_ndata("h", jnp.ones(3), "game")
         >>> g.dstdata["h"].flatten().tolist()
         [1.0, 1.0]
 
@@ -1185,9 +1209,9 @@ def graph(
     >>> g.number_of_edges()
     3
     >>> g.ntypes
-    ('_N',)
+    ('N_',)
     >>> g.etypes
-    ('_E',)
+    ('E_',)
 
     Explicitly specify the number of nodes in the graph.
     >>> g = graph((src_ids, dst_ids), n_nodes=2666)

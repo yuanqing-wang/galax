@@ -52,11 +52,17 @@ def message_passing(
     # TODO(yuanqing-wang): change this restriction in near future
     assert isinstance(rfunc, ReduceFunction), "Only built-in reduce supported. "
 
+    if etype is None:
+        etype = graph.etypes[0]
+
     # find the edge type
     etype_idx = graph.get_etype_id(etype)
 
     # extract the message
-    message = mfunc(graph.edges[etype])
+    message = mfunc(graph.edge_frames[etype_idx])
+
+    if message[rfunc.msg_field] is None:
+        return graph
 
     # reduce by calling jax.ops.segment_
     _rfunc = getattr(function, "segment_%s" % rfunc.op)

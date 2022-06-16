@@ -42,13 +42,15 @@ def test_graph_jit():
     import jax
     import jax.numpy as jnp
     g = galax.graph(((0, 1), (1, 2)))
-    g = g.ndata.set("h", jnp.ones(3))
+    g = g.set_ndata("h", jnp.ones(3))
+    g = g.set_edata("he", jnp.ones(2))
 
     @jax.jit
     def fn(g):
-        mfunc = galax.function.copy_u("h", "m")
+        mfunc = galax.function.copy_e("he", "m")
         rfunc = galax.function.sum("m", "h1")
         _g = galax.message_passing(g, mfunc, rfunc)
         return _g
 
     _g = fn(g)
+    print(_g.ndata)

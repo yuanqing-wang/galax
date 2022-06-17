@@ -50,16 +50,6 @@ class GraphIndex(NamedTuple):
     if dst is None:
         dst = jnp.array([], dtype=jnp.int32)
 
-    # def tree_flatten(self):
-    #     children = (self.n_nodes, self.src, self.dst)
-    #     aux_data = None
-    #     return (children, aux_data)
-    #
-    # @classmethod
-    # def tree_unflatten(cls, aux_data, children):
-    #     n_nodes, src, dst = children
-    #     return cls(n_nodes=n_nodes, src=src, dst=dst)
-
     def add_nodes(self, num: int):
         """Add nodes.
 

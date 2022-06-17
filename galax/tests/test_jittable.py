@@ -66,4 +66,3 @@ def test_message_passing_jit():
         return _g
 
     _g = fn(g)
-    print(_g.ndata)

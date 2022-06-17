@@ -6,6 +6,7 @@ import jax
 import jax.numpy as jnp
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
+from .view import NodeView, EdgeView
 from flax.core import FrozenDict, freeze, unfreeze
 from flax import struct
 from jax.tree_util import register_pytree_node_class
@@ -703,6 +704,14 @@ class HeteroGraph(NamedTuple):
             edge_frames=edge_frames,
         )
 
+    @property
+    def nodes(self):
+        return NodeView(self)
+
+    @property
+    def edges(self):
+        return EdgeView(self)
+
     def canonical_etypes(self):
         """Return all the canonical edge types in the graph.
 
@@ -801,14 +810,10 @@ class HeteroGraph(NamedTuple):
             return self._etype_invmap[etype]
 
     def number_of_nodes(self, ntype: Optional[str] = None):
-        if ntype is None:
-            ntype = self.ntypes[0]
-        return len(getattr(self.node_frames, ntype))
+        return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
 
     def number_of_edges(self, etype: Optional[str] = None):
-        if etype is None:
-            etype = self.etypes[0]
-        return len(getattr(self.edge_frames, etype))
+        return self.gidx.number_of_edges(self.get_etype_id(etype))
 
     def is_multigraph(self):
         """Return whether the graph is a multigraph with parallel edges.

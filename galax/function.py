@@ -53,9 +53,7 @@ def copy_e(e, out):
     out : str
         The output message field.
     """
-    def fn(edge):
-            return {out: edge[e]}
-    return fn
+    return lambda edge: {out: edge.data[e]}
 
 def _gen_message_builtin(lhs, rhs, binary_op):
     name = "{}_{}_{}".format(lhs, binary_op, rhs)

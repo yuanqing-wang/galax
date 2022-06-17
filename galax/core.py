@@ -9,7 +9,7 @@ from .function import ReduceFunction
 import jax
 from jax.tree_util import tree_map
 
-@partial(jax.jit, static_argnums=(1, 2, 3, 4))
+# @partial(jax.jit, static_argnums=(1, 2, 3, 4))
 def message_passing(
         graph: HeteroGraph,
         mfunc: Optional[Callable],
@@ -58,15 +58,19 @@ def message_passing(
     # find the edge type
     etype_idx = graph.get_etype_id(etype)
 
+    # get number of nodes
+    srctype_idx, dsttype_idx = graph.get_meta_edge(etype_idx)
+    n_dst = next(iter(graph.node_frames[dsttype_idx].values())).shape[0]
+
     # extract the message
-    message = mfunc(getattr(graph.edge_frames, etype))
+    message = mfunc(graph.edges[etype])
 
     # reduce by calling jax.ops.segment_
     _rfunc = getattr(function, "segment_%s" % rfunc.op)
     _rfunc = partial(
         _rfunc,
         segment_ids=graph.gidx.edges[0][1],
-        num_segments=graph.number_of_nodes(),
+        num_segments=n_dst,
     )
     reduced = {rfunc.out_field: _rfunc(message[rfunc.msg_field])}
 
@@ -75,7 +79,6 @@ def message_passing(
         reduced.update(afunc(reduced))
 
     # update destination node frames
-    srctype_idx, dsttype_idx = graph.get_meta_edge(etype_idx)
     node_frame = graph.node_frames[dsttype_idx]
     node_frame = unfreeze(node_frame)
     node_frame.update(reduced)

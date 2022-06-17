@@ -67,7 +67,7 @@
   <h1>Source code for galax.function</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Built-in functions.&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
@@ -199,7 +199,6 @@
 <span class="n">segment_max</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_max</span>
 <span class="n">segment_min</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_min</span>
 
-
 <div class="viewcode-block" id="segment_mean"><a class="viewcode-back" href="../../autosummary/galax.function.segment_mean.html#galax.function.segment_mean">[docs]</a><span class="k">def</span> <span class="nf">segment_mean</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">segment_ids</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -252,9 +251,9 @@
 <span class="c1"># =============================================================================</span>
 <div class="viewcode-block" id="apply_nodes"><a class="viewcode-back" href="../../autosummary/galax.function.apply_nodes.html#galax.function.apply_nodes">[docs]</a><span class="k">def</span> <span class="nf">apply_nodes</span><span class="p">(</span>
     <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
-    <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">ntype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span>
+    <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ntype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Apply a function to node attributes.</span>
 
@@ -288,6 +287,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">out_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">out_field</span> <span class="o">=</span> <span class="n">in_field</span>
+
     <span class="k">def</span> <span class="nf">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span> <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span> <span class="n">ntype</span><span class="o">=</span><span class="n">ntype</span><span class="p">):</span>
         <span class="n">ntype_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_ntype_id</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ntype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -301,9 +301,9 @@
 
 <div class="viewcode-block" id="apply_edges"><a class="viewcode-back" href="../../autosummary/galax.function.apply_edges.html#galax.function.apply_edges">[docs]</a><span class="k">def</span> <span class="nf">apply_edges</span><span class="p">(</span>
     <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
-    <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">etype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span>
+    <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">etype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Apply a function to edge attributes.</span>
 
@@ -337,6 +337,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">out_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">out_field</span> <span class="o">=</span> <span class="n">in_field</span>
+        
     <span class="k">def</span> <span class="nf">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span> <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="n">etype</span><span class="p">):</span>
         <span class="n">etype_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_etype_id</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">etype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

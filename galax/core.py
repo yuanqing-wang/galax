@@ -2,12 +2,10 @@
 from .heterograph import HeteroGraph
 from typing import Callable, Optional
 from flax.core import freeze, unfreeze
-from dataclasses import replace
 from functools import partial
 from . import function
 from .function import ReduceFunction
 import jax
-from jax.tree_util import tree_map
 
 
 def message_passing(

@@ -1022,7 +1022,6 @@ def from_networkx(nx_graph):
         for e in nx_graph.edges:
             src.append(e[0])
             dst.append(e[1])
-    num_nodes = nx_graph.number_of_nodes()
     # We store edge Ids as an edge attribute.
     src = jnp.array(src)
     dst = jnp.array(dst)
@@ -1082,13 +1081,13 @@ def create_graph_index(graph_data):
         return GraphIndex()
     elif isinstance(graph_data, (list, tuple)):
         # edge list
-        return from_edge_list(graph_data, readonly)
+        return from_edge_list(graph_data)
     elif isinstance(graph_data, scipy.sparse.spmatrix):
         # scipy format
-        return from_scipy_sparse_matrix(graph_data, readonly)
+        return from_scipy_sparse_matrix(graph_data)
     else:
         try:
-            gidx = from_networkx(graph_data, readonly)
+            gidx = from_networkx(graph_data)
         except Exception:
             raise RuntimeError(
                 "Error while creating graph from input of type %s"

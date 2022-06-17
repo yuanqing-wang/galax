@@ -66,9 +66,6 @@ class HeteroGraph(NamedTuple):
         if gidx is None:
             gidx = HeteroGraphIndex()
 
-        node_frames = node_frames
-        edge_frames = edge_frames
-
         if node_frames is None:
             node_frames = [None for _ in range(len(ntypes))]
         if edge_frames is None:
@@ -1243,7 +1240,7 @@ class HeteroGraph(NamedTuple):
 
         return _node_frame
 
-    def apply_nodes(function, ntype=None):
+    def apply_nodes(self, function, ntype=None):
         raise NotImplementedError
 
 def graph(

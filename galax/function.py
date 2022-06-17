@@ -1,11 +1,12 @@
 """Built-in functions."""
 import sys
-from typing import Optional
+from typing import Optional, Any, Callable
 from functools import partial
 from itertools import product
 from collections import namedtuple
 import jax
 import jax.numpy as jnp
+from flax.core import freeze, unfreeze
 
 # =============================================================================
 # MESSAGE FUNCTIONS
@@ -168,3 +169,104 @@ def segment_mean(data: jnp.ndarray,
         unique_indices=unique_indices)
     return nominator / jnp.maximum(denominator,
                                  jnp.ones(shape=[], dtype=denominator.dtype))
+
+# =============================================================================
+# APPLY FUNCTIONS
+# =============================================================================
+def apply_nodes(
+    function: Callable,
+    in_field: str="h",
+    out_field: Optional[str]=None,
+    ntype: Optional[str]=None,
+):
+    """Apply a function to node attributes.
+
+    Parameters
+    ----------
+    function : Callable
+        Input function.
+    in_field : str
+        Input field
+    out_field : str
+        Output field.
+
+    Returns
+    -------
+    Callable
+        Function that takes and returns a graph.
+
+    Examples
+    --------
+    Transform function.
+    >>> import jax
+    >>> import jax.numpy as jnp
+    >>> import galax
+    >>> graph = galax.graph(((0, 1), (1, 2)))
+    >>> graph = graph.ndata.set("h", jnp.ones(3))
+    >>> fn = apply_nodes(lambda x: x * 2)
+    >>> graph = jax.jit(fn)(graph)
+    >>> graph.ndata['h'].tolist()
+    [2.0, 2.0, 2.0]
+
+    """
+    if out_field is None:
+        out_field = in_field
+    def _fn(graph, in_field=in_field, out_field=out_field, ntype=ntype):
+        ntype_idx = graph.get_ntype_id(ntype)
+        if ntype is None:
+            ntype = graph.ntypes[0]
+        node_frame = unfreeze(graph.node_frames[ntype_idx])
+        node_frame[out_field] = function(node_frame[in_field])
+        node_frame = freeze(node_frame)
+        node_frames = graph.node_frames._replace(**{ntype: node_frame})
+        return graph._replace(node_frames=node_frames)
+    return _fn
+
+def apply_edges(
+    function: Callable,
+    in_field: str="h",
+    out_field: Optional[str]=None,
+    etype: Optional[str]=None,
+):
+    """Apply a function to edge attributes.
+
+    Parameters
+    ----------
+    function : Callable
+        Input function.
+    in_field : str
+        Input field
+    out_field : str
+        Output field.
+
+    Returns
+    -------
+    Callable
+        Function that takes and returns a graph.
+
+    Examples
+    --------
+    Transform function.
+    >>> import jax
+    >>> import jax.numpy as jnp
+    >>> import galax
+    >>> graph = galax.graph(((0, 1), (1, 2)))
+    >>> graph = graph.edata.set("h", jnp.ones(2))
+    >>> fn = apply_edges(lambda x: x * 3)
+    >>> graph = jax.jit(fn)(graph)
+    >>> graph.edata['h'].tolist()
+    [3.0, 3.0]
+
+    """
+    if out_field is None:
+        out_field = in_field
+    def _fn(graph, in_field=in_field, out_field=out_field, etype=etype):
+        etype_idx = graph.get_etype_id(etype)
+        if etype is None:
+            etype = graph.etypes[0]
+        edge_frame = unfreeze(graph.edge_frames[etype_idx])
+        edge_frame[out_field] = function(edge_frame[in_field])
+        edge_frame = freeze(edge_frame)
+        edge_frames = graph.edge_frames._replace(**{etype: edge_frame})
+        return graph._replace(edge_frames=edge_frames)
+    return _fn

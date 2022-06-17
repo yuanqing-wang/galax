@@ -63,6 +63,10 @@ class NodeDataView(object):
             res = res[self.idxs]
         return res
 
+    def set(self, key, data):
+        ntype = self.graph.ntypes[self.ntype_idx]
+        return self.graph.set_ndata(key=key, data=data, ntype=ntype)
+
 class EdgeDataView(object):
     def __init__(self, graph, etype_idx, idxs=None):
         self.graph = graph
@@ -74,3 +78,8 @@ class EdgeDataView(object):
         if self.idxs is not None:
             res = res[self.idxs]
         return res
+
+    def set(self, key, data):
+        assert self.idxs is None, "Cannot partially set. "
+        etype = self.graph.etypes[self.etype_idx]
+        return self.graph.set_edata(key=key, data=data, etype=etype)

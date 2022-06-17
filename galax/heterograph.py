@@ -6,7 +6,7 @@ import jax
 import jax.numpy as jnp
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
-from .view import NodeView, EdgeView
+from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
 from flax.core import FrozenDict, freeze, unfreeze
 from flax import struct
 from jax.tree_util import register_pytree_node_class
@@ -1128,11 +1128,11 @@ class HeteroGraph(NamedTuple):
 
     @property
     def edata(self):
-        return self.edge_frames[0]
+        return EdgeDataView(self, 0)
 
     @property
     def ndata(self):
-        return self.node_frames[0]
+        return NodeDataView(self, 0)
 
     @property
     def srcdata(self, etype: Optional[str]=None):
@@ -1198,6 +1198,9 @@ class HeteroGraph(NamedTuple):
         )
 
         return _node_frame
+
+    def apply_nodes(function, ntype=None):
+        raise NotImplementedError
 
 def graph(
         data: Any,

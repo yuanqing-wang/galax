@@ -991,13 +991,15 @@ class HeteroGraph(NamedTuple):
         v : node IDs
             The node IDs. The allowed formats are:
             * ``int``: A single node.
-            * Int Tensor: Each element is a node ID. The tensor must have the same device type
+            * Int Tensor: Each element is a node ID.
+              The tensor must have the same device type
               and ID data type as the graph's.
             * iterable[int]: Each element is a node ID.
             If not given, return the in-degrees of all the nodes.
         etype : str or (str, str, str), optional
             The type name of the edges. The allowed type name formats are:
-            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * ``(str, str, str)`` for source node type,
+              edge type and destination node type.
             * or one ``str`` edge type name if the name can uniquely identify a
               triplet format in the graph.
             Can be omitted if the graph has only one type of edges.
@@ -1005,8 +1007,10 @@ class HeteroGraph(NamedTuple):
         Returns
         -------
         int or Tensor
-            The in-degree(s) of the node(s) in a Tensor. The i-th element is the in-degree
-            of the i-th input node. If :attr:`v` is an ``int``, return an ``int`` too.
+            The in-degree(s) of the node(s) in a Tensor.
+            The i-th element is the in-degree
+            of the i-th input node. If :attr:`v` is an ``int``,
+            return an ``int`` too.
 
         """
         etype_idx = self.get_etype_id(etype)
@@ -1030,13 +1034,15 @@ class HeteroGraph(NamedTuple):
         u : node IDs
             The node IDs. The allowed formats are:
             * ``int``: A single node.
-            * Int Tensor: Each element is a node ID. The tensor must have the same device type
+            * Int Tensor: Each element is a node ID.
+              The tensor must have the same device type
               and ID data type as the graph's.
             * iterable[int]: Each element is a node ID.
             If not given, return the in-degrees of all the nodes.
         etype : str or (str, str, str), optional
             The type names of the edges. The allowed type name formats are:
-            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * ``(str, str, str)`` for source node type, edge type
+              and destination node type.
             * or one ``str`` edge type name if the name can uniquely identify a
               triplet format in the graph.
             Can be omitted if the graph has only one type of edges.
@@ -1044,8 +1050,10 @@ class HeteroGraph(NamedTuple):
         Returns
         -------
         int or Tensor
-            The out-degree(s) of the node(s) in a Tensor. The i-th element is the out-degree
-            of the i-th input node. If :attr:`v` is an ``int``, return an ``int`` too.
+            The out-degree(s) of the node(s) in a Tensor.
+            The i-th element is the out-degree
+            of the i-th input node. If :attr:`v` is an ``int``,
+            return an ``int`` too.
 
 
         """

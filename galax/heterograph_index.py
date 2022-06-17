@@ -624,7 +624,7 @@ class HeteroGraphIndex(NamedTuple):
         3
 
         """
-        return self.n_nodes[ntype].item()
+        return self.n_nodes[ntype]# .item()
 
     def number_of_edges(self, etype: int) -> int:
         """Return the number of edges.

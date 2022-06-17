@@ -13,115 +13,64 @@ from flax.core import freeze, unfreeze
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data", "srcdata", "dstdata"])
 
-class EntityView(object):
-    def __init__(self, graph, short_name: str, long_name: str):
+class NodeView(object):
+    def __init__(self, graph):
         self.graph = graph
-        self.short_name = short_name
-        self.long_name = long_name
-        get_id = lambda key: getattr(
-            self.graph, "get_%stype_id" % short_name
-        )(key)
-        get_number = lambda idx: getattr(
-            self.graph, "number_of_%ss" % long_name,
-        )(idx)
 
-        self.get_id = get_id
-        self.get_number = get_number
+    def __getitem__(self, key):
+        ntype_idx = self.graph._ntype_invmap[key]
+        return NodeSpace(
+            data=NodeDataView(
+                graph=self.graph,
+                ntype_idx=ntype_idx,
+            ),
+        )
 
-    def __getitem__(self, key: str):
-        typeidx = self.get_id(key)
-        if self.short_name == "n":
-            return NodeSpace(
-                data=DataView(
-                    graph=self.graph,
-                    typeidx=typeidx,
-                    short_name="n",
-                    long_name="node",
-                ),
-            )
-        elif self.short_name == "e":
-            srctype_idx, dsttype_idx = self.graph.gidx.metagraph.find_edge(
-                typeidx,
-            )
-
-            src, dst = self.graph.gidx.edges[typeidx]
-
-            return EdgeSpace(
-                data=DataView(
-                    graph=self.graph,
-                    typeidx=typeidx,
-                    short_name="e",
-                    long_name="edge",
-                ),
-                srcdata=DataView(
-                    graph=self.graph,
-                    typeidx=srctype_idx,
-                    short_name="n",
-                    long_name="node",
-                    idxs=src,
-                ),
-                dstdata=DataView(
-                    graph=self.graph,
-                    typeidx=dsttype_idx,
-                    short_name="n",
-                    long_name="node",
-                    idxs=dst,
-                ),
-            )
-
-    def __call__(self, typestr: Optional[str]=None):
-        return jnp.arange(self.get_number(typestr))
-
-class DataView(object):
-    def __init__(
-            self,
-            graph,
-            typeidx: str,
-            short_name: str,
-            long_name: str,
-            idxs: Optional[jnp.ndarray]=None,
-        ):
+class EdgeView(object):
+    def __init__(self, graph):
         self.graph = graph
-        self.typeidx = typeidx
-        self.short_name = short_name
-        self.long_name = long_name
-        self.get_number = lambda idx: getattr(
-            self.graph.gidx, "number_of_%ss" % long_name,
-        )(idx)
+
+    def __getitem__(self, key):
+        etype_idx = self.graph._etype_invmap[key]
+        srctype_idx, dsttype_idx = self.graph.get_meta_edge(etype_idx)
+        src, dst = self.graph.gidx.edges[etype_idx]
+        return EdgeSpace(
+            data=EdgeDataView(
+                graph=self.graph,
+                etype_idx=etype_idx,
+            ),
+            srcdata=NodeDataView(
+                graph=self.graph,
+                ntype_idx=srctype_idx,
+                idxs=src,
+            ),
+            dstdata=NodeDataView(
+                graph=self.graph,
+                ntype_idx=dsttype_idx,
+                idxs=dst,
+            ),
+        )
+
+class NodeDataView(object):
+    def __init__(self, graph, ntype_idx, idxs=None):
+        self.graph = graph
+        self.ntype_idx = ntype_idx
         self.idxs = idxs
 
-    def __getitem__(self, key: str):
-        res = getattr(
-            self.graph, "%s_frames" % self.long_name)[self.typeidx][key]
+    def __getitem__(self, key):
+        res = self.graph.node_frames[self.ntype_idx][key]
         if self.idxs is not None:
             res = res[self.idxs]
         return res
 
-    def set(self, key: str, data: jnp.ndarray):
-        assert self.idxs is None, "Cannot partially set. "
-        assert data.shape[0] == self.get_number(self.typeidx)
-        frame = getattr(
-            self.graph, "%s_frames" % self.long_name)[self.typeidx]
-        if frame is None:
-            frame = {}
-        frame = unfreeze(frame)
-        frame[key] = data
-        frame = freeze(frame)
-        frames = getattr(
-            self.graph, "%s_frames" % self.long_name)[:self.typeidx]\
-            + (frame, )\
-            + getattr(
-                self.graph, "%s_frames" % self.long_name)[self.typeidx+1:]
-        graph = replace(
-            self.graph,
-            **{
-                "%s_frames" % self.long_name: frames
-            }
-        )
-        return graph
+class EdgeDataView(object):
+    def __init__(self, graph, etype_idx, idxs=None):
+        self.graph = graph
+        self.etype_idx = etype_idx
+        self.idxs = idxs
 
-from functools import partial
-NodeView = partial(EntityView, short_name="n", long_name="node")
-EdgeView = partial(EntityView, short_name="e", long_name="edge")
-NodeDataView = partial(DataView, short_name="n", long_name="node")
-EdgeDataView = partial(DataView, short_name="e", long_name="edge")
+    def __getitem__(self, key):
+        res = self.graph.edge_frames[self.etype_idx][key]
+        if self.idxs is not None:
+            res = res[self.idxs]
+        return res

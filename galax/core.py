@@ -9,6 +9,7 @@ from .function import ReduceFunction
 import jax
 from jax.tree_util import tree_map
 
+# @partial(jax.jit, static_argnums=(1, 2, 3, 4))
 def message_passing(
         graph: HeteroGraph,
         mfunc: Optional[Callable],
@@ -50,10 +51,16 @@ def message_passing(
     """
 
     # TODO(yuanqing-wang): change this restriction in near future
-    assert isinstance(rfunc, ReduceFunction), "Only built-in reduce supported. "
+    # assert isinstance(rfunc, ReduceFunction), "Only built-in reduce supported. "
+    if etype is None:
+         etype = graph.etypes[0]
 
     # find the edge type
     etype_idx = graph.get_etype_id(etype)
+
+    # get number of nodes
+    srctype_idx, dsttype_idx = graph.get_meta_edge(etype_idx)
+    n_dst = next(iter(graph.node_frames[dsttype_idx].values())).shape[0]
 
     # extract the message
     message = mfunc(graph.edges[etype])
@@ -63,7 +70,7 @@ def message_passing(
     _rfunc = partial(
         _rfunc,
         segment_ids=graph.gidx.edges[0][1],
-        num_segments=graph.number_of_nodes()
+        num_segments=n_dst,
     )
     reduced = {rfunc.out_field: _rfunc(message[rfunc.msg_field])}
 
@@ -72,7 +79,6 @@ def message_passing(
         reduced.update(afunc(reduced))
 
     # update destination node frames
-    srctype_idx, dsttype_idx = graph.gidx.metagraph.find_edge(etype_idx)
     node_frame = graph.node_frames[dsttype_idx]
     node_frame = unfreeze(node_frame)
     node_frame.update(reduced)
@@ -80,4 +86,4 @@ def message_passing(
     node_frames = graph.node_frames[:dsttype_idx] + (node_frame, )\
         + graph.node_frames[dsttype_idx+1:]
 
-    return replace(graph, node_frames=node_frames)
+    return graph._replace(node_frames=node_frames)

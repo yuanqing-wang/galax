@@ -26,4 +26,4 @@ class GCN(nn.Module):
     norm : Optional[str]
     """
 
-    raise NotImplementedError
+    pass

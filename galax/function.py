@@ -42,7 +42,7 @@ def copy_u(u, out):
     out : str
         The output message field.
     """
-    return lambda edge: {out: edge.srcdata[u]}
+    return lambda edge: {out: edge.src[u]}
 
 
 def copy_e(e, out):

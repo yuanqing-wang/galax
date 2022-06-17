@@ -1,8 +1,9 @@
 from typing import Optional
 from flax import linen as nn
 
+
 class GCN(nn.Module):
-    """ Graph convolutional layer from
+    """Graph convolutional layer from
     `Semi-Supervised Classification with Graph Convolutional
     Networks <https://arxiv.org/abs/1609.02907>`__
 
@@ -24,4 +25,5 @@ class GCN(nn.Module):
         Output features size.
     norm : Optional[str]
     """
+
     raise NotImplementedError

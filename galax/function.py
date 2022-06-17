@@ -31,6 +31,7 @@ CODE2DATA = {
     "v": "dstdata",
 }
 
+
 def copy_u(u, out):
     """Builtin message function that computes message using source node
     feature.
@@ -42,7 +43,8 @@ def copy_u(u, out):
     out : str
         The output message field.
     """
-    return lambda edge: {out: edge.srcdata[u]}
+    return lambda edge: {out: edge.src[u]}
+
 
 def copy_e(e, out):
     """Builtin message function that computes message using edge feature.
@@ -55,6 +57,7 @@ def copy_e(e, out):
         The output message field.
     """
     return lambda edge: {out: edge.data[e]}
+
 
 def _gen_message_builtin(lhs, rhs, binary_op):
     name = "{}_{}_{}".format(lhs, binary_op, rhs)
@@ -76,11 +79,12 @@ def _gen_message_builtin(lhs, rhs, binary_op):
     out : str
         The output message field.
 
-    """.format(binary_op,
-               CODE2STR[lhs],
-               CODE2STR[rhs],
-               CODE2STR[lhs],
-               CODE2STR[rhs],
+    """.format(
+        binary_op,
+        CODE2STR[lhs],
+        CODE2STR[rhs],
+        CODE2STR[lhs],
+        CODE2STR[rhs],
     )
 
     # grab data field
@@ -88,13 +92,15 @@ def _gen_message_builtin(lhs, rhs, binary_op):
 
     # define function
     func = lambda edge: CODE2OP[binary_op](
-        getattr(edge, lhs_data), getattr(edge, rhs_data),
+        getattr(edge, lhs_data),
+        getattr(edge, rhs_data),
     )
 
     # attach name and doc
     func.__name__ = name
     func.__doc__ = docstring
     return func
+
 
 def _register_builtin_message_func():
     """Register builtin message functions"""
@@ -105,6 +111,7 @@ def _register_builtin_message_func():
                 func = _gen_message_builtin(lhs, rhs, binary_op)
                 setattr(sys.modules[__name__], func.__name__, func)
 
+
 _register_builtin_message_func()
 
 
@@ -113,8 +120,7 @@ _register_builtin_message_func()
 # =============================================================================
 
 ReduceFunction = namedtuple(
-    "ReduceFunction",
-    ["op", "msg_field", "out_field"]
+    "ReduceFunction", ["op", "msg_field", "out_field"]
 )
 
 sum = partial(ReduceFunction, "sum")
@@ -126,11 +132,14 @@ segment_sum = jax.ops.segment_sum
 segment_max = jax.ops.segment_max
 segment_min = jax.ops.segment_min
 
-def segment_mean(data: jnp.ndarray,
-                 segment_ids: jnp.ndarray,
-                 num_segments: Optional[int] = None,
-                 indices_are_sorted: bool = False,
-                 unique_indices: bool = False):
+
+def segment_mean(
+    data: jnp.ndarray,
+    segment_ids: jnp.ndarray,
+    num_segments: Optional[int] = None,
+    indices_are_sorted: bool = False,
+    unique_indices: bool = False,
+):
     """Returns mean for each segment.
 
     Reference
@@ -160,7 +169,8 @@ def segment_mean(data: jnp.ndarray,
         segment_ids,
         num_segments,
         indices_are_sorted=indices_are_sorted,
-        unique_indices=unique_indices)
+        unique_indices=unique_indices,
+    )
     denominator = segment_sum(
         jnp.ones_like(data),
         segment_ids,

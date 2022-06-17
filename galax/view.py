@@ -11,7 +11,8 @@ import jax.numpy as jnp
 from flax.core import freeze, unfreeze
 
 NodeSpace = namedtuple("NodeSpace", ["data"])
-EdgeSpace = namedtuple("EdgeSpace", ["data", "srcdata", "dstdata"])
+EdgeSpace = namedtuple("EdgeSpace", ["data", "src", "dst"])
+
 
 class NodeView(object):
     def __init__(self, graph):
@@ -26,6 +27,7 @@ class NodeView(object):
             ),
         )
 
+
 class EdgeView(object):
     def __init__(self, graph):
         self.graph = graph
@@ -39,17 +41,18 @@ class EdgeView(object):
                 graph=self.graph,
                 etype_idx=etype_idx,
             ),
-            srcdata=NodeDataView(
+            src=NodeDataView(
                 graph=self.graph,
                 ntype_idx=srctype_idx,
                 idxs=src,
             ),
-            dstdata=NodeDataView(
+            dst=NodeDataView(
                 graph=self.graph,
                 ntype_idx=dsttype_idx,
                 idxs=dst,
             ),
         )
+
 
 class NodeDataView(object):
     def __init__(self, graph, ntype_idx, idxs=None):

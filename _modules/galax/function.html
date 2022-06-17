@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>galax.function &mdash; galax  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> galax
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">galax</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>galax.function</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for galax.function</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Built-in functions.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+<span class="kn">from</span> <span class="nn">flax.core</span> <span class="kn">import</span> <span class="n">freeze</span><span class="p">,</span> <span class="n">unfreeze</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># MESSAGE FUNCTIONS</span>
+<span class="c1"># =============================================================================</span>
+<span class="n">CODE2STR</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="s2">&quot;source&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="s2">&quot;destination&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="s2">&quot;edge&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">CODE2OP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;add&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s2">&quot;sub&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s2">&quot;mul&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s2">&quot;div&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s2">&quot;dot&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">CODE2DATA</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="s2">&quot;srcdata&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="s2">&quot;dstdata&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="copy_u"><a class="viewcode-back" href="../../autosummary/galax.function.copy_u.html#galax.function.copy_u">[docs]</a><span class="k">def</span> <span class="nf">copy_u</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Builtin message function that computes message using source node</span>
+<span class="sd">    feature.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u : str</span>
+<span class="sd">        The source feature field.</span>
+<span class="sd">    out : str</span>
+<span class="sd">        The output message field.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">edge</span><span class="p">:</span> <span class="p">{</span><span class="n">out</span><span class="p">:</span> <span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="p">[</span><span class="n">u</span><span class="p">]}</span></div>
+
+
+<div class="viewcode-block" id="copy_e"><a class="viewcode-back" href="../../autosummary/galax.function.copy_e.html#galax.function.copy_e">[docs]</a><span class="k">def</span> <span class="nf">copy_e</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Builtin message function that computes message using edge feature.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    e : str</span>
+<span class="sd">        The edge feature field.</span>
+<span class="sd">    out : str</span>
+<span class="sd">        The output message field.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">edge</span><span class="p">:</span> <span class="p">{</span><span class="n">out</span><span class="p">:</span> <span class="n">edge</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">e</span><span class="p">]}</span></div>
+
+
+<span class="k">def</span> <span class="nf">_gen_message_builtin</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">binary_op</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">binary_op</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>
+    <span class="n">docstring</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Builtin message function that computes a message on an edge</span>
+<span class="s2">    by performing element-wise </span><span class="si">{}</span><span class="s2"> between features of </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">    if the features have the same shape; otherwise, it first broadcasts</span>
+<span class="s2">    the features to a new shape and performs the element-wise operation.</span>
+
+<span class="s2">    Broadcasting follows NumPy semantics. Please see</span>
+<span class="s2">    https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html</span>
+<span class="s2">    for more details about the NumPy broadcasting semantics.</span>
+
+<span class="s2">    Parameters</span>
+<span class="s2">    ----------</span>
+<span class="s2">    lhs_field : str</span>
+<span class="s2">        The feature field of </span><span class="si">{}</span><span class="s2">.</span>
+<span class="s2">    rhs_field : str</span>
+<span class="s2">        The feature field of </span><span class="si">{}</span><span class="s2">.</span>
+<span class="s2">    out : str</span>
+<span class="s2">        The output message field.</span>
+
+<span class="s2">    &quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">binary_op</span><span class="p">,</span>
+        <span class="n">CODE2STR</span><span class="p">[</span><span class="n">lhs</span><span class="p">],</span>
+        <span class="n">CODE2STR</span><span class="p">[</span><span class="n">rhs</span><span class="p">],</span>
+        <span class="n">CODE2STR</span><span class="p">[</span><span class="n">lhs</span><span class="p">],</span>
+        <span class="n">CODE2STR</span><span class="p">[</span><span class="n">rhs</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># grab data field</span>
+    <span class="n">lhs_data</span><span class="p">,</span> <span class="n">rhs_data</span> <span class="o">=</span> <span class="n">CODE2DATA</span><span class="p">[</span><span class="n">lhs</span><span class="p">],</span> <span class="n">CODE2DATA</span><span class="p">[</span><span class="n">rhs</span><span class="p">]</span>
+
+    <span class="c1"># define function</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">edge</span><span class="p">:</span> <span class="n">CODE2OP</span><span class="p">[</span><span class="n">binary_op</span><span class="p">](</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">lhs_data</span><span class="p">),</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">rhs_data</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># attach name and doc</span>
+    <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">docstring</span>
+    <span class="k">return</span> <span class="n">func</span>
+
+
+<span class="k">def</span> <span class="nf">_register_builtin_message_func</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Register builtin message functions&quot;&quot;&quot;</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">lhs</span> <span class="o">!=</span> <span class="n">rhs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">binary_op</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="s2">&quot;sub&quot;</span><span class="p">,</span> <span class="s2">&quot;mul&quot;</span><span class="p">,</span> <span class="s2">&quot;div&quot;</span><span class="p">,</span> <span class="s2">&quot;dot&quot;</span><span class="p">]:</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="n">_gen_message_builtin</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">binary_op</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">],</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+
+
+<span class="n">_register_builtin_message_func</span><span class="p">()</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># REDUCE FUNCTIONS</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">ReduceFunction</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span>
+    <span class="s2">&quot;ReduceFunction&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;op&quot;</span><span class="p">,</span> <span class="s2">&quot;msg_field&quot;</span><span class="p">,</span> <span class="s2">&quot;out_field&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">sum</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">ReduceFunction</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">)</span>
+<span class="n">mean</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">ReduceFunction</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">)</span>
+<span class="nb">max</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">ReduceFunction</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">)</span>
+<span class="nb">min</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">ReduceFunction</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">)</span>
+
+<span class="n">segment_sum</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_sum</span>
+<span class="n">segment_max</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_max</span>
+<span class="n">segment_min</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_min</span>
+
+
+<div class="viewcode-block" id="segment_mean"><a class="viewcode-back" href="../../autosummary/galax.function.segment_mean.html#galax.function.segment_mean">[docs]</a><span class="k">def</span> <span class="nf">segment_mean</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">segment_ids</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">num_segments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">indices_are_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">unique_indices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns mean for each segment.</span>
+
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    * Shamelessly stolen from jraph.utils</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : jnp.ndarray</span>
+<span class="sd">        the values which are averaged segment-wise.</span>
+<span class="sd">    segment_ids : jnp.ndarray</span>
+<span class="sd">        indices for the segments.</span>
+<span class="sd">    num_segments : Optional[int]</span>
+<span class="sd">        total number of segments.</span>
+<span class="sd">    indices_are_sorted : bool=False</span>
+<span class="sd">        whether ``segment_ids`` is known to be sorted.</span>
+<span class="sd">    unique_indices : bool=False</span>
+<span class="sd">        whether ``segment_ids`` is known to be free of duplicates.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    jnp.ndarray</span>
+<span class="sd">        The data after segmentation sum.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">nominator</span> <span class="o">=</span> <span class="n">segment_sum</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">segment_ids</span><span class="p">,</span>
+        <span class="n">num_segments</span><span class="p">,</span>
+        <span class="n">indices_are_sorted</span><span class="o">=</span><span class="n">indices_are_sorted</span><span class="p">,</span>
+        <span class="n">unique_indices</span><span class="o">=</span><span class="n">unique_indices</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="n">segment_sum</span><span class="p">(</span>
+        <span class="n">jnp</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="n">segment_ids</span><span class="p">,</span>
+        <span class="n">num_segments</span><span class="p">,</span>
+        <span class="n">indices_are_sorted</span><span class="o">=</span><span class="n">indices_are_sorted</span><span class="p">,</span>
+        <span class="n">unique_indices</span><span class="o">=</span><span class="n">unique_indices</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nominator</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">denominator</span><span class="p">,</span>
+                                 <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">denominator</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span></div>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># APPLY FUNCTIONS</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="apply_nodes"><a class="viewcode-back" href="../../autosummary/galax.function.apply_nodes.html#galax.function.apply_nodes">[docs]</a><span class="k">def</span> <span class="nf">apply_nodes</span><span class="p">(</span>
+    <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+    <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ntype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Apply a function to node attributes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    function : Callable</span>
+<span class="sd">        Input function.</span>
+<span class="sd">    in_field : str</span>
+<span class="sd">        Input field</span>
+<span class="sd">    out_field : str</span>
+<span class="sd">        Output field.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable</span>
+<span class="sd">        Function that takes and returns a graph.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Transform function.</span>
+<span class="sd">    &gt;&gt;&gt; import jax</span>
+<span class="sd">    &gt;&gt;&gt; import jax.numpy as jnp</span>
+<span class="sd">    &gt;&gt;&gt; import galax</span>
+<span class="sd">    &gt;&gt;&gt; graph = galax.graph(((0, 1), (1, 2)))</span>
+<span class="sd">    &gt;&gt;&gt; graph = graph.ndata.set(&quot;h&quot;, jnp.ones(3))</span>
+<span class="sd">    &gt;&gt;&gt; fn = apply_nodes(lambda x: x * 2)</span>
+<span class="sd">    &gt;&gt;&gt; graph = jax.jit(fn)(graph)</span>
+<span class="sd">    &gt;&gt;&gt; graph.ndata[&#39;h&#39;].tolist()</span>
+<span class="sd">    [2.0, 2.0, 2.0]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">out_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_field</span> <span class="o">=</span> <span class="n">in_field</span>
+    <span class="k">def</span> <span class="nf">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span> <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span> <span class="n">ntype</span><span class="o">=</span><span class="n">ntype</span><span class="p">):</span>
+        <span class="n">ntype_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_ntype_id</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ntype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ntype</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ntypes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">node_frame</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[</span><span class="n">ntype_idx</span><span class="p">])</span>
+        <span class="n">node_frame</span><span class="p">[</span><span class="n">out_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">node_frame</span><span class="p">[</span><span class="n">in_field</span><span class="p">])</span>
+        <span class="n">node_frame</span> <span class="o">=</span> <span class="n">freeze</span><span class="p">(</span><span class="n">node_frame</span><span class="p">)</span>
+        <span class="n">node_frames</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">node_frames</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">ntype</span><span class="p">:</span> <span class="n">node_frame</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">node_frames</span><span class="o">=</span><span class="n">node_frames</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_fn</span></div>
+
+<div class="viewcode-block" id="apply_edges"><a class="viewcode-back" href="../../autosummary/galax.function.apply_edges.html#galax.function.apply_edges">[docs]</a><span class="k">def</span> <span class="nf">apply_edges</span><span class="p">(</span>
+    <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+    <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">etype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Apply a function to edge attributes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    function : Callable</span>
+<span class="sd">        Input function.</span>
+<span class="sd">    in_field : str</span>
+<span class="sd">        Input field</span>
+<span class="sd">    out_field : str</span>
+<span class="sd">        Output field.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable</span>
+<span class="sd">        Function that takes and returns a graph.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Transform function.</span>
+<span class="sd">    &gt;&gt;&gt; import jax</span>
+<span class="sd">    &gt;&gt;&gt; import jax.numpy as jnp</span>
+<span class="sd">    &gt;&gt;&gt; import galax</span>
+<span class="sd">    &gt;&gt;&gt; graph = galax.graph(((0, 1), (1, 2)))</span>
+<span class="sd">    &gt;&gt;&gt; graph = graph.edata.set(&quot;h&quot;, jnp.ones(2))</span>
+<span class="sd">    &gt;&gt;&gt; fn = apply_edges(lambda x: x * 3)</span>
+<span class="sd">    &gt;&gt;&gt; graph = jax.jit(fn)(graph)</span>
+<span class="sd">    &gt;&gt;&gt; graph.edata[&#39;h&#39;].tolist()</span>
+<span class="sd">    [3.0, 3.0]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">out_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_field</span> <span class="o">=</span> <span class="n">in_field</span>
+    <span class="k">def</span> <span class="nf">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span> <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="n">etype</span><span class="p">):</span>
+        <span class="n">etype_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_etype_id</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">etype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">etype</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">etypes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">edge_frame</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[</span><span class="n">etype_idx</span><span class="p">])</span>
+        <span class="n">edge_frame</span><span class="p">[</span><span class="n">out_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">edge_frame</span><span class="p">[</span><span class="n">in_field</span><span class="p">])</span>
+        <span class="n">edge_frame</span> <span class="o">=</span> <span class="n">freeze</span><span class="p">(</span><span class="n">edge_frame</span><span class="p">)</span>
+        <span class="n">edge_frames</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_frames</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">etype</span><span class="p">:</span> <span class="n">edge_frame</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">edge_frames</span><span class="o">=</span><span class="n">edge_frames</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_fn</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yuanqing Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

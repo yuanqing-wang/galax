@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>galax.function.segment_mean &mdash; galax  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="galax.function.u_add_e" href="galax.function.u_add_e.html" />
+    <link rel="prev" title="galax.function.e_sub_v" href="galax.function.e_sub_v.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> galax
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="galax.heterograph.html">galax.heterograph</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="galax.function.html">galax.function</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="galax.function.apply_edges.html">galax.function.apply_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.apply_nodes.html">galax.function.apply_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.copy_e.html">galax.function.copy_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.copy_u.html">galax.function.copy_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_add_u.html">galax.function.e_add_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_add_v.html">galax.function.e_add_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_div_u.html">galax.function.e_div_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_div_v.html">galax.function.e_div_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_dot_u.html">galax.function.e_dot_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_dot_v.html">galax.function.e_dot_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_mul_u.html">galax.function.e_mul_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_mul_v.html">galax.function.e_mul_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_u.html">galax.function.e_sub_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_v.html">galax.function.e_sub_v</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.function.segment_mean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_e.html">galax.function.u_add_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_v.html">galax.function.u_add_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_e.html">galax.function.u_div_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_v.html">galax.function.u_div_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_e.html">galax.function.u_dot_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_v.html">galax.function.u_dot_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_mul_e.html">galax.function.u_mul_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_mul_v.html">galax.function.u_mul_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_sub_e.html">galax.function.u_sub_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_sub_v.html">galax.function.u_sub_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_add_e.html">galax.function.v_add_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_add_u.html">galax.function.v_add_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_div_e.html">galax.function.v_div_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_div_u.html">galax.function.v_div_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_dot_e.html">galax.function.v_dot_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_dot_u.html">galax.function.v_dot_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_e.html">galax.function.v_mul_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_u.html">galax.function.v_mul_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_e.html">galax.function.v_sub_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_u.html">galax.function.v_sub_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.ReduceFunction.html">galax.function.ReduceFunction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="galax.core.html">galax.core</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">galax</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API Documentation</a> &raquo;</li>
+          <li><a href="galax.function.html">galax.function</a> &raquo;</li>
+      <li>galax.function.segment_mean</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autosummary/galax.function.segment_mean.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="galax-function-segment-mean">
+<h1>galax.function.segment_mean<a class="headerlink" href="#galax-function-segment-mean" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="galax.function.segment_mean">
+<span class="sig-prename descclassname"><span class="pre">galax.function.</span></span><span class="sig-name descname"><span class="pre">segment_mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_are_sorted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/function.html#segment_mean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.function.segment_mean" title="Permalink to this definition"></a></dt>
+<dd><p>Returns mean for each segment.</p>
+<ul class="simple">
+<li><p>Shamelessly stolen from jraph.utils</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>jnp.ndarray</em>) – the values which are averaged segment-wise.</p></li>
+<li><p><strong>segment_ids</strong> (<em>jnp.ndarray</em>) – indices for the segments.</p></li>
+<li><p><strong>num_segments</strong> (<em>Optional[int]</em>) – total number of segments.</p></li>
+<li><p><strong>indices_are_sorted</strong> (<em>bool=False</em>) – whether <code class="docutils literal notranslate"><span class="pre">segment_ids</span></code> is known to be sorted.</p></li>
+<li><p><strong>unique_indices</strong> (<em>bool=False</em>) – whether <code class="docutils literal notranslate"><span class="pre">segment_ids</span></code> is known to be free of duplicates.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The data after segmentation sum.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>jnp.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="galax.function.e_sub_v.html" class="btn btn-neutral float-left" title="galax.function.e_sub_v" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.function.u_add_e.html" class="btn btn-neutral float-right" title="galax.function.u_add_e" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yuanqing Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

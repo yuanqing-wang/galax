@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>galax.heterograph.HeteroGraph &mdash; galax  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="galax.heterograph.NodeSpace" href="galax.heterograph.NodeSpace.html" />
+    <link rel="prev" title="galax.heterograph.EdgeSpace" href="galax.heterograph.EdgeSpace.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> galax
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="galax.heterograph.html">galax.heterograph</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="galax.heterograph.graph.html">galax.heterograph.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.heterograph.EdgeSpace.html">galax.heterograph.EdgeSpace</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.heterograph.HeteroGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.heterograph.NodeSpace.html">galax.heterograph.NodeSpace</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="galax.function.html">galax.function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="galax.core.html">galax.core</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">galax</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API Documentation</a> &raquo;</li>
+          <li><a href="galax.heterograph.html">galax.heterograph</a> &raquo;</li>
+      <li>galax.heterograph.HeteroGraph</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autosummary/galax.heterograph.HeteroGraph.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="galax-heterograph-heterograph">
+<h1>galax.heterograph.HeteroGraph<a class="headerlink" href="#galax-heterograph-heterograph" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">galax.heterograph.</span></span><span class="sig-name descname"><span class="pre">HeteroGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gidx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">galax.heterograph_index.HeteroGraphIndex</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">NamedTuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">NamedTuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metamap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">flax.core.frozen_dict.FrozenDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<p>Class for storing graph structure and node/edge feature data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gidx</strong> (<em>Optional[HeteroGraphIndex]</em>) – Graph index object.</p></li>
+<li><p><strong>ntypes</strong> (<em>Optional[Sequence[str]]</em>) – Node type list. <code class="docutils literal notranslate"><span class="pre">ntypes[i]</span></code> stores the name of node type i.
+If a pair is given, the graph created is a
+uni-directional bipartite graph,
+and its SRC node types and DST node types are given as in the pair.</p></li>
+<li><p><strong>etypes</strong> (<em>Optional[Sequence[str]]</em>) – Edge type list. <code class="docutils literal notranslate"><span class="pre">etypes[i]</span></code> stores the name of edge type i.</p></li>
+<li><p><strong>node_frames</strong> (<em>list[Frame]</em>) – Node feature storage. If None, empty frame is created.
+Otherwise, <code class="docutils literal notranslate"><span class="pre">node_frames[i]</span></code> stores the node features
+of node type i. (default: None)</p></li>
+<li><p><strong>edge_frames</strong> (<em>list[Frame], optional</em>) – Edge feature storage. If None, empty frame is created.
+Otherwise, <code class="docutils literal notranslate"><span class="pre">edge_frames[i]</span></code> stores the edge features
+of edge type i. (default: None)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#galax.heterograph.HeteroGraph.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.__init__" title="galax.heterograph.HeteroGraph.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.add_edges" title="galax.heterograph.HeteroGraph.add_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_edges</span></code></a>(u, v[, data, etype, srctype, dsttype])</p></td>
+<td><p>Add multiple new edges for the specified edge type The i-th new edge will be from <code class="docutils literal notranslate"><span class="pre">u[i]</span></code> to <code class="docutils literal notranslate"><span class="pre">v[i]</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.add_nodes" title="galax.heterograph.HeteroGraph.add_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_nodes</span></code></a>(num[, data, ntype])</p></td>
+<td><p>Add new nodes of the same node type</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.adj" title="galax.heterograph.HeteroGraph.adj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">adj</span></code></a>([transpose, etype])</p></td>
+<td><p>Return the adjacency matrix of edges of the given edge type. By default, a row of returned adjacency matrix represents the source of an edge and the column represents the destination. When transpose is True, a row represents the destination and a column represents the source. :Parameters: * <strong>transpose</strong> (<em>bool, optional</em>) -- A flag to transpose the returned adjacency matrix. (Default: False)              * <strong>ctx</strong> (<em>context, optional</em>) -- The context of returned adjacency matrix. (Default: cpu)              * <strong>scipy_fmt</strong> (<em>str, optional</em>) -- If specified, return a scipy sparse matrix in the given format. Otherwise, return a backend dependent sparse tensor. (Default: None)              * <strong>etype</strong> (<em>str or (str, str, str), optional</em>) -- The type names of the edges. The allowed type name formats are:                * <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type. * or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a                  triplet format in the graph. Can be omitted if the graph has only one type of edges.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.adjacency_matrix" title="galax.heterograph.HeteroGraph.adjacency_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">adjacency_matrix</span></code></a>([transpose, etype])</p></td>
+<td><p>Return the adjacency matrix of edges of the given edge type. By default, a row of returned adjacency matrix represents the source of an edge and the column represents the destination. When transpose is True, a row represents the destination and a column represents the source. :Parameters: * <strong>transpose</strong> (<em>bool, optional</em>) -- A flag to transpose the returned adjacency matrix. (Default: False)              * <strong>ctx</strong> (<em>context, optional</em>) -- The context of returned adjacency matrix. (Default: cpu)              * <strong>scipy_fmt</strong> (<em>str, optional</em>) -- If specified, return a scipy sparse matrix in the given format. Otherwise, return a backend dependent sparse tensor. (Default: None)              * <strong>etype</strong> (<em>str or (str, str, str), optional</em>) -- The type names of the edges. The allowed type name formats are:                * <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type. * or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a                  triplet format in the graph. Can be omitted if the graph has only one type of edges.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_nodes</span></code>([ntype])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.canonical_etypes" title="galax.heterograph.HeteroGraph.canonical_etypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_etypes</span></code></a>()</p></td>
+<td><p>Return all the canonical edge types in the graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.count" title="galax.heterograph.HeteroGraph.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a>(value, /)</p></td>
+<td><p>Return number of occurrences of value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.find_edges" title="galax.heterograph.HeteroGraph.find_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_edges</span></code></a>(eid[, etype])</p></td>
+<td><p>Return the source and destination node ID(s) given the edge ID(s). :Parameters: * <strong>eid</strong> (<em>edge ID(s)</em>) -- The edge IDs. The allowed formats are:                * <code class="docutils literal notranslate"><span class="pre">int</span></code>: A single ID. * Int Tensor: Each element is an ID. The tensor must have the same device type                  and ID data type as the graph's. * iterable[int]: Each element is an ID. * <strong>etype</strong> (<em>str or (str, str, str), optional</em>) -- The type names of the edges. The allowed type name formats are:                * <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type. * or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a                  triplet format in the graph. Can be omitted if the graph has only one type of edges.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.get_etype_id" title="galax.heterograph.HeteroGraph.get_etype_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_etype_id</span></code></a>([etype])</p></td>
+<td><p>Return the id of the given edge type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_meta_edge</span></code>(eid)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.get_ntype_id" title="galax.heterograph.HeteroGraph.get_ntype_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_ntype_id</span></code></a>([ntype])</p></td>
+<td><p>Return the ID of the given node type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.has_edges_between" title="galax.heterograph.HeteroGraph.has_edges_between"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_edges_between</span></code></a>(u, v[, etype])</p></td>
+<td><p>Return whether the graph contains the given edges.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.has_nodes" title="galax.heterograph.HeteroGraph.has_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_nodes</span></code></a>(vid, ntype)</p></td>
+<td><p>Return whether the graph contains the given nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.in_degrees" title="galax.heterograph.HeteroGraph.in_degrees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">in_degrees</span></code></a>([v, etype])</p></td>
+<td><p>Return the in-degree(s) of the given nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.inc" title="galax.heterograph.HeteroGraph.inc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inc</span></code></a>(typestr[, etype])</p></td>
+<td><p>Return the incidence matrix representation of edges with the given edge type. An incidence matrix is an n-by-m sparse matrix, where n is the number of nodes and m is the number of edges. Each nnz value indicating whether the edge is incident to the node or not. There are three types of incidence matrices <span class="math notranslate nohighlight">\(I\)</span>: * <code class="docutils literal notranslate"><span class="pre">in</span></code>:     - <span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>       (or <span class="math notranslate nohighlight">\(v\)</span> is the dst node of <span class="math notranslate nohighlight">\(e\)</span>);     - <span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise. * <code class="docutils literal notranslate"><span class="pre">out</span></code>:     - <span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>       (or <span class="math notranslate nohighlight">\(v\)</span> is the src node of <span class="math notranslate nohighlight">\(e\)</span>);     - <span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise. * <code class="docutils literal notranslate"><span class="pre">both</span></code> (only if source and destination node type are the same):     - <span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>;     - <span class="math notranslate nohighlight">\(I[v, e] = -1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>;     - <span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise (including self-loop). :Parameters: * <strong>typestr</strong> (<em>str</em>) -- Can be either <code class="docutils literal notranslate"><span class="pre">in</span></code>, <code class="docutils literal notranslate"><span class="pre">out</span></code> or <code class="docutils literal notranslate"><span class="pre">both</span></code>              * <strong>ctx</strong> (<em>context, optional</em>) -- The context of returned incidence matrix. (Default: cpu)              * <strong>etype</strong> (<em>str or (str, str, str), optional</em>) -- The type names of the edges. The allowed type name formats are:                * <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type. * or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a                  triplet format in the graph. Can be omitted if the graph has only one type of edges.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.incidence_matrix" title="galax.heterograph.HeteroGraph.incidence_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">incidence_matrix</span></code></a>(typestr[, etype])</p></td>
+<td><p>Return the incidence matrix representation of edges with the given edge type. An incidence matrix is an n-by-m sparse matrix, where n is the number of nodes and m is the number of edges. Each nnz value indicating whether the edge is incident to the node or not. There are three types of incidence matrices <span class="math notranslate nohighlight">\(I\)</span>: * <code class="docutils literal notranslate"><span class="pre">in</span></code>:     - <span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>       (or <span class="math notranslate nohighlight">\(v\)</span> is the dst node of <span class="math notranslate nohighlight">\(e\)</span>);     - <span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise. * <code class="docutils literal notranslate"><span class="pre">out</span></code>:     - <span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>       (or <span class="math notranslate nohighlight">\(v\)</span> is the src node of <span class="math notranslate nohighlight">\(e\)</span>);     - <span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise. * <code class="docutils literal notranslate"><span class="pre">both</span></code> (only if source and destination node type are the same):     - <span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>;     - <span class="math notranslate nohighlight">\(I[v, e] = -1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>;     - <span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise (including self-loop). :Parameters: * <strong>typestr</strong> (<em>str</em>) -- Can be either <code class="docutils literal notranslate"><span class="pre">in</span></code>, <code class="docutils literal notranslate"><span class="pre">out</span></code> or <code class="docutils literal notranslate"><span class="pre">both</span></code>              * <strong>ctx</strong> (<em>context, optional</em>) -- The context of returned incidence matrix. (Default: cpu)              * <strong>etype</strong> (<em>str or (str, str, str), optional</em>) -- The type names of the edges. The allowed type name formats are:                * <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type. * or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a                  triplet format in the graph. Can be omitted if the graph has only one type of edges.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.index" title="galax.heterograph.HeteroGraph.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a>(value[, start, stop])</p></td>
+<td><p>Return first index of value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">init</span></code>([gidx, ntypes, etypes, node_frames, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.is_homogeneous" title="galax.heterograph.HeteroGraph.is_homogeneous"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_homogeneous</span></code></a>()</p></td>
+<td><p>Return whether the graph is a homogeneous graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.is_multigraph" title="galax.heterograph.HeteroGraph.is_multigraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_multigraph</span></code></a>()</p></td>
+<td><p>Return whether the graph is a multigraph with parallel edges.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.number_of_edges" title="galax.heterograph.HeteroGraph.number_of_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_edges</span></code></a>([etype])</p></td>
+<td><p>Return the number of nodes with ntype.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.number_of_nodes" title="galax.heterograph.HeteroGraph.number_of_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">number_of_nodes</span></code></a>([ntype])</p></td>
+<td><p>Return the number of nodes with ntype.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.out_degrees" title="galax.heterograph.HeteroGraph.out_degrees"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out_degrees</span></code></a>(u[, etype])</p></td>
+<td><p>Return the out-degree(s) of the given nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.remove_edges" title="galax.heterograph.HeteroGraph.remove_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_edges</span></code></a>([eids, etype])</p></td>
+<td><p>Remove multiple edges with the specified edge type Nodes will not be removed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.remove_nodes" title="galax.heterograph.HeteroGraph.remove_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_nodes</span></code></a>(nids[, ntype])</p></td>
+<td><p>Remove multiple nodes with the specified node type Edges that connect to the nodes will be removed as well.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_edata</span></code>(key, data[, etype])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_ndata</span></code>(key, data[, ntype])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.to_canonincal_etype" title="galax.heterograph.HeteroGraph.to_canonincal_etype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_canonincal_etype</span></code></a>(etype)</p></td>
+<td><p>Convert an edge type to the corresponding canonical edge type in the graph.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.dstdata" title="galax.heterograph.HeteroGraph.dstdata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dstdata</span></code></a></p></td>
+<td><p>Return a node data view for setting/getting destination node features.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edata</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.edge_frames" title="galax.heterograph.HeteroGraph.edge_frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">edge_frames</span></code></a></p></td>
+<td><p>Alias for field number 2</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">edges</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">etypes</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.gidx" title="galax.heterograph.HeteroGraph.gidx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gidx</span></code></a></p></td>
+<td><p>Alias for field number 0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.metamap" title="galax.heterograph.HeteroGraph.metamap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metamap</span></code></a></p></td>
+<td><p>Alias for field number 3</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndata</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.node_frames" title="galax.heterograph.HeteroGraph.node_frames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">node_frames</span></code></a></p></td>
+<td><p>Alias for field number 1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nodes</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ntypes</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.srcdata" title="galax.heterograph.HeteroGraph.srcdata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">srcdata</span></code></a></p></td>
+<td><p>Return a node data view for setting/getting source node features.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.add_edges">
+<span class="sig-name descname"><span class="pre">add_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.ndarray.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srctype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dsttype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.add_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.add_edges" title="Permalink to this definition"></a></dt>
+<dd><p>Add multiple new edges for the specified edge type
+The i-th new edge will be from <code class="docutils literal notranslate"><span class="pre">u[i]</span></code> to <code class="docutils literal notranslate"><span class="pre">v[i]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>jnp.ndarray</em>) – Source node IDs,
+<code class="docutils literal notranslate"><span class="pre">u[i]</span></code> gives the source node for the i-th new edge.</p></li>
+<li><p><strong>v</strong> (<em>jnp.ndarray</em>) – Destination node IDs, `
+<cite>v[i]`</cite> gives the destination node for the i-th new edge.</p></li>
+<li><p><strong>data</strong> (<em>dict, optional</em>) – Feature data of the added edges.
+The i-th row of the feature data
+corresponds to the i-th new edge.</p></li>
+<li><p><strong>etype</strong> (<em>str or tuple of str, optional</em>) – The type of the new edges. Can be omitted if there is
+only one edge type in the graph.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If the key of <code class="docutils literal notranslate"><span class="pre">data</span></code> does not contain some existing feature
+fields, those features for the new edges will be filled
+with zeros.</p></li>
+<li><p>If the key of <code class="docutils literal notranslate"><span class="pre">data</span></code> contains new feature fields,
+those features for the old edges will be filled with zeros.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">graph</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_edges</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">()</span>
+<span class="go">4</span>
+</pre></div>
+</div>
+<p>If the graph has some edge features and new edges are added without
+features, their features will be create.
+&gt;&gt;&gt; g = g.set_edata(“h”, jnp.ones((4, 1)))
+&gt;&gt;&gt; g = g.add_edges((1, ), (1, ))
+&gt;&gt;&gt; g.edata[‘h’].flatten().tolist()
+[1.0, 1.0, 1.0, 1.0, 0.0]</p>
+<p>We can also assign features for the new edges in adding new edges.
+&gt;&gt;&gt; g = g.add_edges(jnp.array([0, 0]), jnp.array([2, 2]),
+…     {‘h’: jnp.array([[1.], [2.]]), ‘w’: jnp.ones((2, 1))})
+&gt;&gt;&gt; g.edata[‘h’].flatten().tolist()
+[1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 2.0]</p>
+<p>Since <code class="docutils literal notranslate"><span class="pre">data</span></code> contains new feature fields, the features for old edges
+will be created.
+&gt;&gt;&gt; g.edata[‘w’].flatten().tolist()
+[0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0]</p>
+<p><strong>Heterogeneous Graphs with Multiple Edge Types</strong>
+&gt;&gt;&gt; g = graph({
+…     (‘user’, ‘plays’, ‘game’): ((0, 1, 1, 2),
+…                                 (0, 0, 1, 1)),
+…     (‘developer’, ‘develops’, ‘game’): ((0, 1),
+…                                         (0, 1))
+…     })
+&gt;&gt;&gt; g.number_of_edges(‘plays’)
+4
+&gt;&gt;&gt; g = g.add_edges(jnp.array([2]), jnp.array([1]), etype=’plays’)
+&gt;&gt;&gt; g.number_of_edges(‘plays’)
+5</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.add_nodes">
+<span class="sig-name descname"><span class="pre">add_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.add_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.add_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Add new nodes of the same node type</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num</strong> (<em>int</em>) – Number of nodes to add.</p></li>
+<li><p><strong>data</strong> (<em>Mapping, optional</em>) – Feature data of the added nodes.</p></li>
+<li><p><strong>ntype</strong> (<em>str, optional</em>) – The type of the new nodes. Can be omitted if there is
+only one node type in the graph.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p><strong>Homogeneous Graphs or Heterogeneous Graphs with A Single Node Type</strong>
+&gt;&gt;&gt; g = graph(((0, 1), (1, 2)))
+&gt;&gt;&gt; int(g.number_of_nodes())
+3
+&gt;&gt;&gt; g = g.add_nodes(2)
+&gt;&gt;&gt; int(g.number_of_nodes())
+5</p>
+<p>If the graph has some node features and new nodes are added without
+features, their features will be zeros.
+&gt;&gt;&gt; g = g.set_ndata(“h”, jnp.ones((5, 1)))
+&gt;&gt;&gt; g.ndata[“h”].flatten().tolist()
+[1.0, 1.0, 1.0, 1.0, 1.0]</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[1.0, 1.0, 1.0, 1.0, 1.0, 0.0]</span>
+</pre></div>
+</div>
+<p>We can also assign features for the new nodes in adding new nodes.
+&gt;&gt;&gt; g = g.add_nodes(1, {‘h’: jnp.ones((1, 1)), ‘w’: jnp.ones((1, 1))})
+&gt;&gt;&gt; g.ndata[‘h’].flatten().tolist()
+[1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0]
+&gt;&gt;&gt; g.ndata[‘w’].flatten().tolist()
+[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]</p>
+<p><strong>Heterogeneous Graphs with Multiple Node Types</strong>
+&gt;&gt;&gt; g = graph({
+…     (‘user’, ‘plays’, ‘game’): (jnp.array([0, 1, 1, 2]),
+…                                 jnp.array([0, 0, 1, 1])),
+…     (‘developer’, ‘develops’, ‘game’): (jnp.array([0, 1]),
+…                                         jnp.array([0, 1]))
+…     })
+&gt;&gt;&gt; g.number_of_nodes(“user”).item()
+3
+&gt;&gt;&gt; g = g.add_nodes(2, ntype=”user”)
+&gt;&gt;&gt; g.number_of_nodes(“user”).item()
+5</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.adj">
+<span class="sig-name descname"><span class="pre">adj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transpose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.heterograph.HeteroGraph.adj" title="Permalink to this definition"></a></dt>
+<dd><p>Return the adjacency matrix of edges of the given edge type.
+By default, a row of returned adjacency matrix represents the
+source of an edge and the column represents the destination.
+When transpose is True, a row represents the destination and a column
+represents the source.
+:Parameters: * <strong>transpose</strong> (<em>bool, optional</em>) – A flag to transpose the returned adjacency matrix. (Default: False)</p>
+<blockquote>
+<div><ul>
+<li><p><strong>ctx</strong> (<em>context, optional</em>) – The context of returned adjacency matrix. (Default: cpu)</p></li>
+<li><p><strong>scipy_fmt</strong> (<em>str, optional</em>) – If specified, return a scipy sparse matrix in the given format.
+Otherwise, return a backend dependent sparse tensor. (Default: None)</p></li>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type names of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type.
+* or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a</p>
+<blockquote>
+<div><p>triplet format in the graph.</p>
+</div></blockquote>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Adjacency matrix.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>SparseTensor or scipy.sparse.spmatrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.adjacency_matrix">
+<span class="sig-name descname"><span class="pre">adjacency_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transpose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.adjacency_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.adjacency_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Return the adjacency matrix of edges of the given edge type.
+By default, a row of returned adjacency matrix represents the
+source of an edge and the column represents the destination.
+When transpose is True, a row represents the destination and a column
+represents the source.
+:Parameters: * <strong>transpose</strong> (<em>bool, optional</em>) – A flag to transpose the returned adjacency matrix. (Default: False)</p>
+<blockquote>
+<div><ul>
+<li><p><strong>ctx</strong> (<em>context, optional</em>) – The context of returned adjacency matrix. (Default: cpu)</p></li>
+<li><p><strong>scipy_fmt</strong> (<em>str, optional</em>) – If specified, return a scipy sparse matrix in the given format.
+Otherwise, return a backend dependent sparse tensor. (Default: None)</p></li>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type names of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type.
+* or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a</p>
+<blockquote>
+<div><p>triplet format in the graph.</p>
+</div></blockquote>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Adjacency matrix.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>SparseTensor or scipy.sparse.spmatrix</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.canonical_etypes">
+<span class="sig-name descname"><span class="pre">canonical_etypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.canonical_etypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.canonical_etypes" title="Permalink to this definition"></a></dt>
+<dd><p>Return all the canonical edge types in the graph.</p>
+<p>A canonical edge type is a string triplet <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code>
+for source node type, edge type and destination node type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>All the canonical edge type triplets in a list.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list[(str, str, str)]</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>DGL internally assigns an integer ID for each edge type. The returned
+edge type names are sorted according to their IDs.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">etypes</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.heterograph.HeteroGraph.count" title="Permalink to this definition"></a></dt>
+<dd><p>Return number of occurrences of value.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.dstdata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dstdata</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.dstdata" title="Permalink to this definition"></a></dt>
+<dd><p>Return a node data view for setting/getting destination node features.
+Let <code class="docutils literal notranslate"><span class="pre">g</span></code> be a Graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>etype</strong> (<em>Optional[str]</em>) – Edge type.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">graph</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;plays&#39;</span><span class="p">,</span> <span class="s1">&#39;game&#39;</span><span class="p">):</span> <span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">set_ndata</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;game&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">dstdata</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[1.0, 1.0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.edge_frames">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edge_frames</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.edge_frames" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.find_edges">
+<span class="sig-name descname"><span class="pre">find_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.find_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.find_edges" title="Permalink to this definition"></a></dt>
+<dd><p>Return the source and destination node ID(s) given the edge ID(s).
+:Parameters: * <strong>eid</strong> (<em>edge ID(s)</em>) – The edge IDs. The allowed formats are:</p>
+<blockquote>
+<div><blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">int</span></code>: A single ID.</p></li>
+<li><p>Int Tensor: Each element is an ID. The tensor must have the same device type
+and ID data type as the graph’s.</p></li>
+<li><p>iterable[int]: Each element is an ID.</p></li>
+</ul>
+</div></blockquote>
+<ul>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type names of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type.
+* or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a</p>
+<blockquote>
+<div><p>triplet format in the graph.</p>
+</div></blockquote>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>Tensor</em> – The source node IDs of the edges. The i-th element is the source node ID of
+the i-th edge.</p></li>
+<li><p><em>Tensor</em> – The destination node IDs of the edges. The i-th element is the destination node
+ID of the i-th edge.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.get_etype_id">
+<span class="sig-name descname"><span class="pre">get_etype_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.get_etype_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.get_etype_id" title="Permalink to this definition"></a></dt>
+<dd><p>Return the id of the given edge type.
+etype can also be None. If so, there should be only one edge type in the
+graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>etype</strong> (<em>str or tuple of str</em>) – Edge type</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.get_ntype_id">
+<span class="sig-name descname"><span class="pre">get_ntype_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ntype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.get_ntype_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.get_ntype_id" title="Permalink to this definition"></a></dt>
+<dd><p>Return the ID of the given node type.
+ntype can also be None. If so, there should be only one node type in the
+graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ntype</strong> (<em>str</em>) – Node type</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.gidx">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gidx</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.gidx" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.has_edges_between">
+<span class="sig-name descname"><span class="pre">has_edges_between</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.has_edges_between"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.has_edges_between" title="Permalink to this definition"></a></dt>
+<dd><p>Return whether the graph contains the given edges.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>u</strong> (<em>node IDs</em>) – The source node IDs of the edges. The allowed formats are:
+* <code class="docutils literal notranslate"><span class="pre">int</span></code>: A single node.
+* Int Tensor: Each element is a node ID. The tensor must have the same device type</p>
+<blockquote>
+<div><p>and ID data type as the graph’s.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>iterable[int]: Each element is a node ID.</p></li>
+</ul>
+</li>
+<li><p><strong>v</strong> (<em>node IDs</em>) – The destination node IDs of the edges. The allowed formats are:
+* <code class="docutils literal notranslate"><span class="pre">int</span></code>: A single node.
+* Int Tensor: Each element is a node ID. The tensor must have the same device type</p>
+<blockquote>
+<div><p>and ID data type as the graph’s.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>iterable[int]: Each element is a node ID.</p></li>
+</ul>
+</li>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type names of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type.
+* or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a</p>
+<blockquote>
+<div><p>triplet format in the graph.</p>
+</div></blockquote>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tensor of bool flags where each element is True if the node is in the graph.
+If the input is a single node, return one bool value.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool or bool Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.has_nodes">
+<span class="sig-name descname"><span class="pre">has_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.has_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.has_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Return whether the graph contains the given nodes.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>vid</strong> (<em>node ID(s)</em>) – The nodes IDs. The allowed nodes ID formats are:
+* <code class="docutils literal notranslate"><span class="pre">int</span></code>: The ID of a single node.
+* Int Tensor: Each element is a node ID. The tensor must have the same device type</p>
+<blockquote>
+<div><p>and ID data type as the graph’s.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>iterable[int]: Each element is a node ID.</p></li>
+</ul>
+</li>
+<li><p><strong>ntype</strong> (<em>str, optional</em>) – The node type name. Can be omitted if there is
+only one type of nodes in the graph.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tensor of bool flags where each element is True if the node is in the graph.
+If the input is a single node, return one bool value.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool or bool Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.in_degrees">
+<span class="sig-name descname"><span class="pre">in_degrees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.ndarray.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.in_degrees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.in_degrees" title="Permalink to this definition"></a></dt>
+<dd><p>Return the in-degree(s) of the given nodes.
+It computes the in-degree(s) w.r.t. to the edges of the given edge type.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>v</strong> (<em>node IDs</em>) – The node IDs. The allowed formats are:
+* <code class="docutils literal notranslate"><span class="pre">int</span></code>: A single node.
+* Int Tensor: Each element is a node ID.</p>
+<blockquote>
+<div><p>The tensor must have the same device type
+and ID data type as the graph’s.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>iterable[int]: Each element is a node ID.</p></li>
+</ul>
+<p>If not given, return the in-degrees of all the nodes.</p>
+</li>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type name of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type,</p>
+<blockquote>
+<div><p>edge type and destination node type.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a
+triplet format in the graph.</p></li>
+</ul>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The in-degree(s) of the node(s) in a Tensor.
+The i-th element is the in-degree
+of the i-th input node. If <code class="xref py py-attr docutils literal notranslate"><span class="pre">v</span></code> is an <code class="docutils literal notranslate"><span class="pre">int</span></code>,
+return an <code class="docutils literal notranslate"><span class="pre">int</span></code> too.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int or Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.inc">
+<span class="sig-name descname"><span class="pre">inc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typestr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.heterograph.HeteroGraph.inc" title="Permalink to this definition"></a></dt>
+<dd><p>Return the incidence matrix representation of edges with the given
+edge type.
+An incidence matrix is an n-by-m sparse matrix, where n is
+the number of nodes and m is the number of edges. Each nnz
+value indicating whether the edge is incident to the node
+or not.
+There are three types of incidence matrices <span class="math notranslate nohighlight">\(I\)</span>:
+* <code class="docutils literal notranslate"><span class="pre">in</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>
+(or <span class="math notranslate nohighlight">\(v\)</span> is the dst node of <span class="math notranslate nohighlight">\(e\)</span>);</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">out</span></code>:</dt><dd><ul>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>
+(or <span class="math notranslate nohighlight">\(v\)</span> is the src node of <span class="math notranslate nohighlight">\(e\)</span>);</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">both</span></code> (only if source and destination node type are the same):</dt><dd><ul>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>;</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = -1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>;</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise (including self-loop).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>typestr</strong> (<em>str</em>) – Can be either <code class="docutils literal notranslate"><span class="pre">in</span></code>, <code class="docutils literal notranslate"><span class="pre">out</span></code> or <code class="docutils literal notranslate"><span class="pre">both</span></code></p></li>
+<li><p><strong>ctx</strong> (<em>context, optional</em>) – The context of returned incidence matrix. (Default: cpu)</p></li>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type names of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type.
+* or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a</p>
+<blockquote>
+<div><p>triplet format in the graph.</p>
+</div></blockquote>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The incidence matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Framework SparseTensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.incidence_matrix">
+<span class="sig-name descname"><span class="pre">incidence_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">typestr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.incidence_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.incidence_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Return the incidence matrix representation of edges with the given
+edge type.
+An incidence matrix is an n-by-m sparse matrix, where n is
+the number of nodes and m is the number of edges. Each nnz
+value indicating whether the edge is incident to the node
+or not.
+There are three types of incidence matrices <span class="math notranslate nohighlight">\(I\)</span>:
+* <code class="docutils literal notranslate"><span class="pre">in</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>
+(or <span class="math notranslate nohighlight">\(v\)</span> is the dst node of <span class="math notranslate nohighlight">\(e\)</span>);</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">out</span></code>:</dt><dd><ul>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>
+(or <span class="math notranslate nohighlight">\(v\)</span> is the src node of <span class="math notranslate nohighlight">\(e\)</span>);</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">both</span></code> (only if source and destination node type are the same):</dt><dd><ul>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the in-edge of <span class="math notranslate nohighlight">\(v\)</span>;</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = -1\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is the out-edge of <span class="math notranslate nohighlight">\(v\)</span>;</p></li>
+<li><p><span class="math notranslate nohighlight">\(I[v, e] = 0\)</span> otherwise (including self-loop).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>typestr</strong> (<em>str</em>) – Can be either <code class="docutils literal notranslate"><span class="pre">in</span></code>, <code class="docutils literal notranslate"><span class="pre">out</span></code> or <code class="docutils literal notranslate"><span class="pre">both</span></code></p></li>
+<li><p><strong>ctx</strong> (<em>context, optional</em>) – The context of returned incidence matrix. (Default: cpu)</p></li>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type names of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type.
+* or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a</p>
+<blockquote>
+<div><p>triplet format in the graph.</p>
+</div></blockquote>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The incidence matrix.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Framework SparseTensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop=9223372036854775807</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.heterograph.HeteroGraph.index" title="Permalink to this definition"></a></dt>
+<dd><p>Return first index of value.</p>
+<p>Raises ValueError if the value is not present.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.is_homogeneous">
+<span class="sig-name descname"><span class="pre">is_homogeneous</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.is_homogeneous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.is_homogeneous" title="Permalink to this definition"></a></dt>
+<dd><p>Return whether the graph is a homogeneous graph.
+A homogeneous graph only has one node type and one edge type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if the graph is a homogeneous graph.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.is_multigraph">
+<span class="sig-name descname"><span class="pre">is_multigraph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.is_multigraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.is_multigraph" title="Permalink to this definition"></a></dt>
+<dd><p>Return whether the graph is a multigraph with parallel edges.
+A multigraph has more than one edges between the same pair of nodes, called
+<em>parallel edges</em>.  For heterogeneous graphs, parallel edge further requires
+the canonical edge type to be the same (see <a class="reference internal" href="#galax.heterograph.HeteroGraph.canonical_etypes" title="galax.heterograph.HeteroGraph.canonical_etypes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">canonical_etypes()</span></code></a> for the
+definition).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if the graph is a multigraph.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.metamap">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metamap</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.metamap" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.node_frames">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">node_frames</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.node_frames" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.number_of_edges">
+<span class="sig-name descname"><span class="pre">number_of_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.number_of_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.number_of_edges" title="Permalink to this definition"></a></dt>
+<dd><p>Return the number of nodes with ntype.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>etype</strong> (<em>str</em>) – Edge type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Number of edges.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.number_of_nodes">
+<span class="sig-name descname"><span class="pre">number_of_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ntype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.number_of_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.number_of_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Return the number of nodes with ntype.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ntype</strong> (<em>str</em>) – Node type.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Number of nodes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.out_degrees">
+<span class="sig-name descname"><span class="pre">out_degrees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.out_degrees"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.out_degrees" title="Permalink to this definition"></a></dt>
+<dd><p>Return the out-degree(s) of the given nodes.
+It computes the out-degree(s) w.r.t. to the edges of the given edge type.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul>
+<li><p><strong>u</strong> (<em>node IDs</em>) – The node IDs. The allowed formats are:
+* <code class="docutils literal notranslate"><span class="pre">int</span></code>: A single node.
+* Int Tensor: Each element is a node ID.</p>
+<blockquote>
+<div><p>The tensor must have the same device type
+and ID data type as the graph’s.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>iterable[int]: Each element is a node ID.</p></li>
+</ul>
+<p>If not given, return the in-degrees of all the nodes.</p>
+</li>
+<li><p><strong>etype</strong> (<em>str or (str, str, str), optional</em>) – The type names of the edges. The allowed type name formats are:
+* <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type</p>
+<blockquote>
+<div><p>and destination node type.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a
+triplet format in the graph.</p></li>
+</ul>
+<p>Can be omitted if the graph has only one type of edges.</p>
+</li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The out-degree(s) of the node(s) in a Tensor.
+The i-th element is the out-degree
+of the i-th input node. If <code class="xref py py-attr docutils literal notranslate"><span class="pre">v</span></code> is an <code class="docutils literal notranslate"><span class="pre">int</span></code>,
+return an <code class="docutils literal notranslate"><span class="pre">int</span></code> too.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int or Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.remove_edges">
+<span class="sig-name descname"><span class="pre">remove_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">jax._src.numpy.lax_numpy.array</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.remove_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.remove_edges" title="Permalink to this definition"></a></dt>
+<dd><p>Remove multiple edges with the specified edge type
+Nodes will not be removed. After removing edges, the rest
+edges will be re-indexed using consecutive integers from 0,
+with their relative order preserved.
+The features for the removed edges will be removed accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eids</strong> (<em>int, tensor, numpy.ndarray, list</em>) – IDs for the edges to remove.</p></li>
+<li><p><strong>etype</strong> (<em>str or tuple of str, optional</em>) – The type of the edges to remove. Can be omitted if there is
+only one edge type in the graph.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">graph</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">set_edata</span><span class="p">(</span><span class="s2">&quot;he&quot;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">remove_edges</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">())</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+<p><strong>Heterogeneous Graphs with Multiple Edge Types</strong>
+&gt;&gt;&gt; g = graph({
+…     (‘user’, ‘plays’, ‘game’): ([0, 1, 1, 2], [0, 0, 1, 1]),
+…     (‘developer’, ‘develops’, ‘game’): ([0, 1], [0, 1]),
+…     })</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">remove_edges</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;plays&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">number_of_edges</span><span class="p">(</span><span class="s2">&quot;plays&quot;</span><span class="p">))</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.remove_nodes">
+<span class="sig-name descname"><span class="pre">remove_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.remove_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.remove_nodes" title="Permalink to this definition"></a></dt>
+<dd><p>Remove multiple nodes with the specified node type
+Edges that connect to the nodes will be removed as well. After removing
+nodes and edges, the rest nodes and edges will be re-indexed using
+consecutive integers from 0, with their relative order preserved.
+The features for the removed nodes/edges will be removed accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nids</strong> (<em>int, tensor, numpy.ndarray, list</em>) – Nodes to remove.</p></li>
+<li><p><strong>ntype</strong> (<em>str, optional</em>) – The type of the nodes to remove. Can be omitted if there is
+only one node type in the graph.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This does not remove the etype entirely.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<p><strong>Homogeneous Graphs or Heterogeneous Graphs with A Single Node Type</strong>
+&gt;&gt;&gt; g = graph(([0, 0, 2], [0, 1, 2]))
+&gt;&gt;&gt; g = g.set_ndata(“hv”, jnp.array([0.0, 1.0, 2.0]))
+&gt;&gt;&gt; g = g.set_edata(“he”, jnp.array([0.0, 1.0, 2.0]))
+&gt;&gt;&gt; g = g.remove_nodes((0, 1))
+&gt;&gt;&gt; int(g.number_of_nodes())
+1</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="s2">&quot;hv&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[2.0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">edata</span><span class="p">[</span><span class="s2">&quot;he&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[2.0]</span>
+</pre></div>
+</div>
+<p><strong>Heterogeneous Graphs with Multiple Node Types</strong>
+&gt;&gt;&gt; g = graph({
+…     (‘user’, ‘plays’, ‘game’): ([0, 1, 1, 2], [0, 0, 1, 1]),
+…     (‘developer’, ‘develops’, ‘game’): ([0, 1], [0, 1])
+…     })
+&gt;&gt;&gt; g = g.remove_nodes([0, 1], ntype=’game’)
+&gt;&gt;&gt; g.number_of_nodes(‘user’).item()
+3
+&gt;&gt;&gt; ‘game’ in g.ntypes
+False</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.srcdata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">srcdata</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.srcdata" title="Permalink to this definition"></a></dt>
+<dd><p>Return a node data view for setting/getting source node features.
+Let <code class="docutils literal notranslate"><span class="pre">g</span></code> be a Graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>etype</strong> (<em>Optional[str]</em>) – Edge type.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">graph</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;plays&#39;</span><span class="p">,</span> <span class="s1">&#39;game&#39;</span><span class="p">):</span> <span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">set_ndata</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="s2">&quot;user&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">srcdata</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[1.0, 1.0]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.to_canonincal_etype">
+<span class="sig-name descname"><span class="pre">to_canonincal_etype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.to_canonincal_etype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.to_canonincal_etype" title="Permalink to this definition"></a></dt>
+<dd><p>Convert an edge type to the corresponding canonical edge type in the graph.</p>
+<p>A canonical edge type is a string triplet <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code>
+for source node type, edge type and destination node type.
+The function expects the given edge type name can uniquely identify
+a canonical edge type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>etype</strong> (<em>str</em>) – If <code class="xref py py-attr docutils literal notranslate"><span class="pre">etype</span></code> is an edge type (str), it returns the corresponding canonical edge
+type in the graph.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The canonical edge type corresponding to the edge type.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(str, str, str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="galax.heterograph.EdgeSpace.html" class="btn btn-neutral float-left" title="galax.heterograph.EdgeSpace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.heterograph.NodeSpace.html" class="btn btn-neutral float-right" title="galax.heterograph.NodeSpace" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yuanqing Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

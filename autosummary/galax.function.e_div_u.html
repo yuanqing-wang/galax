@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>galax.function.e_div_u &mdash; galax  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="galax.function.e_div_v" href="galax.function.e_div_v.html" />
+    <link rel="prev" title="galax.function.e_add_v" href="galax.function.e_add_v.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> galax
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="galax.heterograph.html">galax.heterograph</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="galax.function.html">galax.function</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="galax.function.apply_edges.html">galax.function.apply_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.apply_nodes.html">galax.function.apply_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.copy_e.html">galax.function.copy_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.copy_u.html">galax.function.copy_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_add_u.html">galax.function.e_add_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_add_v.html">galax.function.e_add_v</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.function.e_div_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_div_v.html">galax.function.e_div_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_dot_u.html">galax.function.e_dot_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_dot_v.html">galax.function.e_dot_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_mul_u.html">galax.function.e_mul_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_mul_v.html">galax.function.e_mul_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_u.html">galax.function.e_sub_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_v.html">galax.function.e_sub_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.segment_mean.html">galax.function.segment_mean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_e.html">galax.function.u_add_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_v.html">galax.function.u_add_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_e.html">galax.function.u_div_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_v.html">galax.function.u_div_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_e.html">galax.function.u_dot_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_v.html">galax.function.u_dot_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_mul_e.html">galax.function.u_mul_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_mul_v.html">galax.function.u_mul_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_sub_e.html">galax.function.u_sub_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_sub_v.html">galax.function.u_sub_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_add_e.html">galax.function.v_add_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_add_u.html">galax.function.v_add_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_div_e.html">galax.function.v_div_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_div_u.html">galax.function.v_div_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_dot_e.html">galax.function.v_dot_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_dot_u.html">galax.function.v_dot_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_e.html">galax.function.v_mul_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_u.html">galax.function.v_mul_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_e.html">galax.function.v_sub_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_u.html">galax.function.v_sub_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.ReduceFunction.html">galax.function.ReduceFunction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="galax.core.html">galax.core</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">galax</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API Documentation</a> &raquo;</li>
+          <li><a href="galax.function.html">galax.function</a> &raquo;</li>
+      <li>galax.function.e_div_u</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autosummary/galax.function.e_div_u.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="galax-function-e-div-u">
+<h1>galax.function.e_div_u<a class="headerlink" href="#galax-function-e-div-u" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="galax.function.e_div_u">
+<span class="sig-prename descclassname"><span class="pre">galax.function.</span></span><span class="sig-name descname"><span class="pre">e_div_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.function.e_div_u" title="Permalink to this definition"></a></dt>
+<dd><p>Builtin message function that computes a message on an edge
+by performing element-wise div between features of edge and source
+if the features have the same shape; otherwise, it first broadcasts
+the features to a new shape and performs the element-wise operation.</p>
+<p>Broadcasting follows NumPy semantics. Please see
+<a class="reference external" href="https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html">https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html</a>
+for more details about the NumPy broadcasting semantics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lhs_field</strong> (<em>str</em>) – The feature field of edge.</p></li>
+<li><p><strong>rhs_field</strong> (<em>str</em>) – The feature field of source.</p></li>
+<li><p><strong>out</strong> (<em>str</em>) – The output message field.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="galax.function.e_add_v.html" class="btn btn-neutral float-left" title="galax.function.e_add_v" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.function.e_div_v.html" class="btn btn-neutral float-right" title="galax.function.e_div_v" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yuanqing Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

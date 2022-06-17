@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>galax.function &mdash; galax  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="galax.function.apply_edges" href="galax.function.apply_edges.html" />
+    <link rel="prev" title="galax.heterograph.NodeSpace" href="galax.heterograph.NodeSpace.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> galax
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="galax.heterograph.html">galax.heterograph</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">galax.function</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.apply_edges.html">galax.function.apply_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.apply_nodes.html">galax.function.apply_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.copy_e.html">galax.function.copy_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.copy_u.html">galax.function.copy_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_add_u.html">galax.function.e_add_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_add_v.html">galax.function.e_add_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_div_u.html">galax.function.e_div_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_div_v.html">galax.function.e_div_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_dot_u.html">galax.function.e_dot_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_dot_v.html">galax.function.e_dot_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_mul_u.html">galax.function.e_mul_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_mul_v.html">galax.function.e_mul_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_u.html">galax.function.e_sub_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_v.html">galax.function.e_sub_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.segment_mean.html">galax.function.segment_mean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_e.html">galax.function.u_add_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_v.html">galax.function.u_add_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_e.html">galax.function.u_div_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_v.html">galax.function.u_div_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_e.html">galax.function.u_dot_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_v.html">galax.function.u_dot_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_mul_e.html">galax.function.u_mul_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_mul_v.html">galax.function.u_mul_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_sub_e.html">galax.function.u_sub_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_sub_v.html">galax.function.u_sub_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_add_e.html">galax.function.v_add_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_add_u.html">galax.function.v_add_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_div_e.html">galax.function.v_div_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_div_u.html">galax.function.v_div_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_dot_e.html">galax.function.v_dot_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_dot_u.html">galax.function.v_dot_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_e.html">galax.function.v_mul_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_u.html">galax.function.v_mul_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_e.html">galax.function.v_sub_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_u.html">galax.function.v_sub_u</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.ReduceFunction.html">galax.function.ReduceFunction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="galax.core.html">galax.core</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">galax</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API Documentation</a> &raquo;</li>
+      <li>galax.function</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autosummary/galax.function.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-galax.function">
+<span id="galax-function"></span><h1>galax.function<a class="headerlink" href="#module-galax.function" title="Permalink to this headline"></a></h1>
+<p>Built-in functions.</p>
+<p class="rubric">Functions</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.apply_edges.html#galax.function.apply_edges" title="galax.function.apply_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_edges</span></code></a>(function[, in_field, out_field, ...])</p></td>
+<td><p>Apply a function to edge attributes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.apply_nodes.html#galax.function.apply_nodes" title="galax.function.apply_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_nodes</span></code></a>(function[, in_field, out_field, ...])</p></td>
+<td><p>Apply a function to node attributes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.copy_e.html#galax.function.copy_e" title="galax.function.copy_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_e</span></code></a>(e, out)</p></td>
+<td><p>Builtin message function that computes message using edge feature.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.copy_u.html#galax.function.copy_u" title="galax.function.copy_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy_u</span></code></a>(u, out)</p></td>
+<td><p>Builtin message function that computes message using source node feature.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.e_add_u.html#galax.function.e_add_u" title="galax.function.e_add_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_add_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise add between features of edge and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.e_add_v.html#galax.function.e_add_v" title="galax.function.e_add_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_add_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise add between features of edge and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.e_div_u.html#galax.function.e_div_u" title="galax.function.e_div_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_div_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise div between features of edge and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.e_div_v.html#galax.function.e_div_v" title="galax.function.e_div_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_div_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise div between features of edge and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.e_dot_u.html#galax.function.e_dot_u" title="galax.function.e_dot_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_dot_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise dot between features of edge and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.e_dot_v.html#galax.function.e_dot_v" title="galax.function.e_dot_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_dot_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise dot between features of edge and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.e_mul_u.html#galax.function.e_mul_u" title="galax.function.e_mul_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_mul_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise mul between features of edge and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.e_mul_v.html#galax.function.e_mul_v" title="galax.function.e_mul_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_mul_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise mul between features of edge and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.e_sub_u.html#galax.function.e_sub_u" title="galax.function.e_sub_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_sub_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise sub between features of edge and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.e_sub_v.html#galax.function.e_sub_v" title="galax.function.e_sub_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_sub_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise sub between features of edge and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.segment_mean.html#galax.function.segment_mean" title="galax.function.segment_mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_mean</span></code></a>(data, segment_ids[, ...])</p></td>
+<td><p>Returns mean for each segment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.u_add_e.html#galax.function.u_add_e" title="galax.function.u_add_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_add_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise add between features of source and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.u_add_v.html#galax.function.u_add_v" title="galax.function.u_add_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_add_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise add between features of source and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.u_div_e.html#galax.function.u_div_e" title="galax.function.u_div_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_div_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise div between features of source and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.u_div_v.html#galax.function.u_div_v" title="galax.function.u_div_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_div_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise div between features of source and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.u_dot_e.html#galax.function.u_dot_e" title="galax.function.u_dot_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_dot_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise dot between features of source and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.u_dot_v.html#galax.function.u_dot_v" title="galax.function.u_dot_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_dot_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise dot between features of source and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.u_mul_e.html#galax.function.u_mul_e" title="galax.function.u_mul_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_mul_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise mul between features of source and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.u_mul_v.html#galax.function.u_mul_v" title="galax.function.u_mul_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_mul_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise mul between features of source and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.u_sub_e.html#galax.function.u_sub_e" title="galax.function.u_sub_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_sub_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise sub between features of source and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.u_sub_v.html#galax.function.u_sub_v" title="galax.function.u_sub_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_sub_v</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise sub between features of source and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.v_add_e.html#galax.function.v_add_e" title="galax.function.v_add_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_add_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise add between features of destination and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.v_add_u.html#galax.function.v_add_u" title="galax.function.v_add_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_add_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise add between features of destination and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.v_div_e.html#galax.function.v_div_e" title="galax.function.v_div_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_div_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise div between features of destination and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.v_div_u.html#galax.function.v_div_u" title="galax.function.v_div_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_div_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise div between features of destination and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.v_dot_e.html#galax.function.v_dot_e" title="galax.function.v_dot_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_dot_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise dot between features of destination and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.v_dot_u.html#galax.function.v_dot_u" title="galax.function.v_dot_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_dot_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise dot between features of destination and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.v_mul_e.html#galax.function.v_mul_e" title="galax.function.v_mul_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_mul_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise mul between features of destination and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.v_mul_u.html#galax.function.v_mul_u" title="galax.function.v_mul_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_mul_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise mul between features of destination and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.v_sub_e.html#galax.function.v_sub_e" title="galax.function.v_sub_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_sub_e</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise sub between features of destination and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.v_sub_u.html#galax.function.v_sub_u" title="galax.function.v_sub_u"><code class="xref py py-obj docutils literal notranslate"><span class="pre">v_sub_u</span></code></a>(edge)</p></td>
+<td><p>Builtin message function that computes a message on an edge by performing element-wise sub between features of destination and source if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.ReduceFunction.html#galax.function.ReduceFunction" title="galax.function.ReduceFunction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReduceFunction</span></code></a>(op, msg_field, out_field)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="galax.heterograph.NodeSpace.html" class="btn btn-neutral float-left" title="galax.heterograph.NodeSpace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.function.apply_edges.html" class="btn btn-neutral float-right" title="galax.function.apply_edges" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yuanqing Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

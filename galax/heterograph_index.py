@@ -327,9 +327,9 @@ class HeteroGraphIndex(NamedTuple):
 
         >>> # partial remove
         >>> _g = g.remove_edges(etype=0, eids=jnp.array([0]))
-        >>> _g.edges[0].tolist()
+        >>> _g.edges[0][0].tolist()
         [1]
-        >>> _g.edges[1].tolist()
+        >>> _g.edges[0][1].tolist()
         [2]
 
         >>> # remove all
@@ -624,7 +624,7 @@ class HeteroGraphIndex(NamedTuple):
         >>> g = HeteroGraphIndex(
         ...     metagraph=metagraph, n_nodes=n_nodes, edges=edges,
         ... )
-        >>> g.number_of_nodes(0)
+        >>> int(g.number_of_nodes(0))
         3
 
         """

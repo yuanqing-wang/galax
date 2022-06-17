@@ -9,13 +9,14 @@ from .function import ReduceFunction
 import jax
 from jax.tree_util import tree_map
 
+
 def message_passing(
-        graph: HeteroGraph,
-        mfunc: Optional[Callable],
-        rfunc: Optional[ReduceFunction],
-        afunc: Optional[Callable]=None,
-        etype: Optional[Callable]=None,
-    ):
+    graph: HeteroGraph,
+    mfunc: Optional[Callable],
+    rfunc: Optional[ReduceFunction],
+    afunc: Optional[Callable] = None,
+    etype: Optional[Callable] = None,
+):
     """Invoke message passing computation on the whole graph.
 
     Parameters
@@ -52,7 +53,7 @@ def message_passing(
     # TODO(yuanqing-wang): change this restriction in near future
     # assert isinstance(rfunc, ReduceFunction), "Only built-in reduce supported. "
     if etype is None:
-         etype = graph.etypes[0]
+        etype = graph.etypes[0]
 
     # find the edge type
     etype_idx = graph.get_etype_id(etype)
@@ -82,7 +83,10 @@ def message_passing(
     node_frame = unfreeze(node_frame)
     node_frame.update(reduced)
     node_frame = freeze(node_frame)
-    node_frames = graph.node_frames[:dsttype_idx] + (node_frame, )\
-        + graph.node_frames[dsttype_idx+1:]
+    node_frames = (
+        graph.node_frames[:dsttype_idx]
+        + (node_frame,)
+        + graph.node_frames[dsttype_idx + 1 :]
+    )
 
     return graph._replace(node_frames=node_frames)

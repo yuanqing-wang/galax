@@ -226,14 +226,16 @@ class HeteroGraphIndex(NamedTuple):
             srctype, dsttype = metagraph.find_edge(etype)
             assert self.has_nodes(srctype, src).all(), "Node missing. "
             assert self.has_nodes(dsttype, dst).all(), "Node missing. "
-            edges = self.edges[:etype]\
+            edges = (
+                self.edges[:etype]
                 + (
                     (
                         jnp.concatenate([self.edges[etype][0], src]),
                         jnp.concatenate([self.edges[etype][1], dst]),
                     ),
-                )\
+                )
                 + self.edges[etype + 1 :]
+            )
 
         else:
             assert etype == len(self.edges), "Edges are sorted. "
@@ -241,7 +243,7 @@ class HeteroGraphIndex(NamedTuple):
             assert (src < self.n_nodes[srctype]).all(), "Node missing. "
             assert (dst < self.n_nodes[dsttype]).all(), "Node missing. "
             metagraph = self.metagraph.add_edge(srctype, dsttype)
-            edges = self.edges + ((src, dst), )
+            edges = self.edges + ((src, dst),)
 
         return self.__class__(
             metagraph=metagraph,
@@ -344,7 +346,9 @@ class HeteroGraphIndex(NamedTuple):
         dst = jnp.delete(original_dst, eids)
 
         if len(src) > 0:  # partially remove
-            edges = self.edges[:etype] + ((src, dst),) + self.edges[etype + 1 :]
+            edges = (
+                self.edges[:etype] + ((src, dst),) + self.edges[etype + 1 :]
+            )
             return self.__class__(
                 metagraph=self.metagraph,
                 n_nodes=self.n_nodes,
@@ -624,7 +628,7 @@ class HeteroGraphIndex(NamedTuple):
         3
 
         """
-        return self.n_nodes[ntype]# .item()
+        return self.n_nodes[ntype]  # .item()
 
     def number_of_edges(self, etype: int) -> int:
         """Return the number of edges.
@@ -693,8 +697,11 @@ class HeteroGraphIndex(NamedTuple):
         return 1 * (vids < self.n_nodes[ntype])
 
     def has_edges_between(
-            self, etype: int, u: jnp.ndarray, v: jnp.ndarray,
-        ) -> bool:
+        self,
+        etype: int,
+        u: jnp.ndarray,
+        v: jnp.ndarray,
+    ) -> bool:
         """Return true if the edge exists.
 
         Parameters

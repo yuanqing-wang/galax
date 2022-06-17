@@ -1,4 +1,13 @@
-from typing import Any, Iterable, Mapping, Union, Optional, Tuple, Sequence, NamedTuple
+from typing import (
+    Any,
+    Iterable,
+    Mapping,
+    Union,
+    Optional,
+    Tuple,
+    Sequence,
+    NamedTuple,
+)
 from dataclasses import dataclass, field, replace
 from collections import namedtuple
 from functools import partial
@@ -13,6 +22,7 @@ from jax.tree_util import register_pytree_node_class
 
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data"])
+
 
 class HeteroGraph(NamedTuple):
     """Class for storing graph structure and node/edge feature data.
@@ -46,13 +56,13 @@ class HeteroGraph(NamedTuple):
 
     @classmethod
     def init(
-            cls,
-            gidx: Optional[HeteroGraphIndex]=None,
-            ntypes: Optional[Sequence[str]]=("N_", ),
-            etypes: Optional[Sequence[str]]=("E_", ),
-            node_frames: Optional[NamedTuple]=None,
-            edge_frames: Optional[NamedTuple]=None,
-        ):
+        cls,
+        gidx: Optional[HeteroGraphIndex] = None,
+        ntypes: Optional[Sequence[str]] = ("N_",),
+        etypes: Optional[Sequence[str]] = ("E_",),
+        node_frames: Optional[NamedTuple] = None,
+        edge_frames: Optional[NamedTuple] = None,
+    ):
         if gidx is None:
             gidx = HeteroGraphIndex()
 
@@ -77,7 +87,8 @@ class HeteroGraph(NamedTuple):
         metamap = FrozenDict(metamap)
         return HeteroGraph(
             gidx=gidx,
-            node_frames=node_frames, edge_frames=edge_frames,
+            node_frames=node_frames,
+            edge_frames=edge_frames,
             metamap=metamap,
         )
 
@@ -168,7 +179,7 @@ class HeteroGraph(NamedTuple):
             assert len(self.ntypes) == 1, "Please specify node types. "
             ntype = self.ntypes[0]
 
-        if ntype not in self.ntypes: # new node
+        if ntype not in self.ntypes:  # new node
             gidx = self.gidx.add_nodes(ntype=len(self.ntypes), num=num)
             ntypes = self.ntypes + (ntype,)
             etypes = self.etypes
@@ -179,7 +190,7 @@ class HeteroGraph(NamedTuple):
                 node_frames = self.node_frames + (None,)
             edge_frames = self.edge_frames
 
-        else: # existing node
+        else:  # existing node
             ntype_idx = self._ntype_invmap[ntype]
             gidx = self.gidx.add_nodes(ntype=ntype_idx, num=num)
             ntypes = self.ntypes
@@ -195,7 +206,7 @@ class HeteroGraph(NamedTuple):
                                 [
                                     original_data[key],
                                     jnp.zeros(
-                                        (num, ) + original_data[key].shape[1:]
+                                        (num,) + original_data[key].shape[1:]
                                     ),
                                 ]
                             )
@@ -223,7 +234,7 @@ class HeteroGraph(NamedTuple):
                         )
                     else:
                         placeholder = jnp.zeros(
-                            (num, ) + original_data[key].shape[1:]
+                            (num,) + original_data[key].shape[1:]
                         )
 
                         value = jnp.concatenate(
@@ -238,8 +249,8 @@ class HeteroGraph(NamedTuple):
                 for key in data:
                     if key not in original_data:
                         placeholder = jnp.zeros(
-                            (self.number_of_nodes(ntype), ) +\
-                                data[key].shape[1:]
+                            (self.number_of_nodes(ntype),)
+                            + data[key].shape[1:]
                         )
                         value = jnp.concatenate(
                             [
@@ -249,7 +260,6 @@ class HeteroGraph(NamedTuple):
                         )
 
                         new_data[key] = value
-
 
                 new_data = FrozenDict(new_data)
 
@@ -358,7 +368,7 @@ class HeteroGraph(NamedTuple):
         if not isinstance(v, jnp.ndarray):
             v = jnp.array(v)
 
-        if etype not in self.etypes: # new node
+        if etype not in self.etypes:  # new node
             etype_idx = len(self.etypes)
             gidx = self.gidx.add_edges(
                 etype=etype_idx,
@@ -368,7 +378,7 @@ class HeteroGraph(NamedTuple):
                 dsttype=dsttype,
             )
             ntypes = self.ntypes
-            etypes = self.etypes + (etype, )
+            etypes = self.etypes + (etype,)
             if data is not None:
                 data = FrozenDict(data)
                 edge_frames = self.edge_frames + (data,)
@@ -376,7 +386,7 @@ class HeteroGraph(NamedTuple):
                 edge_frames = self.edge_frames + (None,)
             node_frames = self.node_frames
 
-        else: # existing node
+        else:  # existing node
             etype_idx = self._etype_invmap[etype]
             gidx = self.gidx.add_edges(etype=etype_idx, src=u, dst=v)
             ntypes = self.ntypes
@@ -392,7 +402,8 @@ class HeteroGraph(NamedTuple):
                                 [
                                     original_data[key],
                                     jnp.zeros(
-                                        (len(u),) + original_data[key].shape[1:]
+                                        (len(u),)
+                                        + original_data[key].shape[1:]
                                     ),
                                 ]
                             )
@@ -420,7 +431,7 @@ class HeteroGraph(NamedTuple):
                         )
                     else:
                         placeholder = jnp.zeros(
-                            (num, ) + original_data[key].shape[1:]
+                            (num,) + original_data[key].shape[1:]
                         )
 
                         value = jnp.concatenate(
@@ -435,8 +446,8 @@ class HeteroGraph(NamedTuple):
                 for key in data:
                     if key not in original_data:
                         placeholder = jnp.zeros(
-                            (self.number_of_edges(etype), ) +\
-                                data[key].shape[1:]
+                            (self.number_of_edges(etype),)
+                            + data[key].shape[1:]
                         )
                         value = jnp.concatenate(
                             [
@@ -446,7 +457,6 @@ class HeteroGraph(NamedTuple):
                         )
 
                         new_data[key] = value
-
 
                 new_data = FrozenDict(new_data)
 
@@ -467,8 +477,8 @@ class HeteroGraph(NamedTuple):
         )
 
     def remove_edges(
-            self, eids: Optional[jnp.array]=None, etype: Optional[str] = None
-        ):
+        self, eids: Optional[jnp.array] = None, etype: Optional[str] = None
+    ):
 
         """Remove multiple edges with the specified edge type
         Nodes will not be removed. After removing edges, the rest
@@ -501,9 +511,9 @@ class HeteroGraph(NamedTuple):
 
         """
 
-        etype_idx = self.get_etype_id(etype) # get the id of the edge type
+        etype_idx = self.get_etype_id(etype)  # get the id of the edge type
 
-        if not isinstance(eids, jnp.ndarray): # make eid into array
+        if not isinstance(eids, jnp.ndarray):  # make eid into array
             eids = jnp.array(eids)
 
         assert len(eids) <= self.number_of_edges(etype), "Not enough edges. "
@@ -512,14 +522,14 @@ class HeteroGraph(NamedTuple):
         else:
             complete = False
 
-        if complete: # delete etype entirely
+        if complete:  # delete etype entirely
             etypes = self.etypes[:etype_idx] + self.etypes[etype_idx + 1 :]
             edge_frames = (
                 self.edge_frames[:etype_idx]
                 + self.edge_frames[etype_idx + 1 :]
             )
 
-        else: # partially delete
+        else:  # partially delete
             etypes = self.etypes
             edge_frames = self.edge_frames
             sub_edge_frame = edge_frames[etype_idx]
@@ -533,7 +543,7 @@ class HeteroGraph(NamedTuple):
 
                 edge_frames = (
                     self.edge_frames[:etype_idx]
-                    + (sub_edge_frame, )
+                    + (sub_edge_frame,)
                     + self.edge_frames[etype_idx + 1 :]
                 )
 
@@ -591,9 +601,9 @@ class HeteroGraph(NamedTuple):
         False
 
         """
-        ntype_idx = self.get_ntype_id(ntype) # get ntype
+        ntype_idx = self.get_ntype_id(ntype)  # get ntype
 
-        if not isinstance(nids, jnp.ndarray): # make nid into array
+        if not isinstance(nids, jnp.ndarray):  # make nid into array
             nids = jnp.array(nids)
 
         assert len(nids) <= self.number_of_nodes(ntype), "Not enough edges. "
@@ -602,14 +612,14 @@ class HeteroGraph(NamedTuple):
         else:
             complete = False
 
-        if complete: # delete etype entirely
+        if complete:  # delete etype entirely
             ntypes = self.ntypes[:ntype_idx] + self.ntypes[ntype_idx + 1 :]
             node_frames = (
                 self.node_frames[:ntype_idx]
                 + self.node_frames[ntype_idx + 1 :]
             )
 
-        else: # partially delete
+        else:  # partially delete
             ntypes = self.ntypes
             node_frames = self.node_frames
             sub_node_frame = node_frames[ntype_idx]
@@ -623,7 +633,7 @@ class HeteroGraph(NamedTuple):
 
                 node_frames = (
                     self.node_frames[:ntype_idx]
-                    + (sub_node_frame, )
+                    + (sub_node_frame,)
                     + self.node_frames[ntype_idx + 1 :]
                 )
 
@@ -643,12 +653,12 @@ class HeteroGraph(NamedTuple):
                         continue
                     else:
                         src, dst = self.gidx.edges[edge_type]
-                        v_is_src = jnp.expand_dims(src, -1) == jnp.expand_dims(
-                            nids, 0
-                        )
-                        v_is_dst = jnp.expand_dims(dst, -1) == jnp.expand_dims(
-                            nids, 0
-                        )
+                        v_is_src = jnp.expand_dims(
+                            src, -1
+                        ) == jnp.expand_dims(nids, 0)
+                        v_is_dst = jnp.expand_dims(
+                            dst, -1
+                        ) == jnp.expand_dims(nids, 0)
                         v_in_edge = (v_is_src + v_is_dst).any(-1)
                         edge_frames[edge_type] = FrozenDict(
                             {
@@ -663,9 +673,9 @@ class HeteroGraph(NamedTuple):
                         continue
                     else:
                         src, dst = self.gidx.edges[edge_type]
-                        v_is_dst = jnp.expand_dims(dst, -1) == jnp.expand_dims(
-                            nids, 0
-                        )
+                        v_is_dst = jnp.expand_dims(
+                            dst, -1
+                        ) == jnp.expand_dims(nids, 0)
                         v_in_edge = v_is_dst
                         edge_frames[edge_type] = FrozenDict(
                             {
@@ -681,9 +691,9 @@ class HeteroGraph(NamedTuple):
                         continue
                     else:
                         src, dst = self.gidx.edges[edge_type]
-                        v_is_src = jnp.expand_dims(src, -1) == jnp.expand_dims(
-                            nids, 0
-                        )
+                        v_is_src = jnp.expand_dims(
+                            src, -1
+                        ) == jnp.expand_dims(nids, 0)
                         v_in_edge = v_is_src
                         edge_frames[edge_type] = FrozenDict(
                             {
@@ -1125,7 +1135,6 @@ class HeteroGraph(NamedTuple):
         edge_frames = self.edge_frames._replace(**{etype: edge_frame})
         return self._replace(edge_frames=edge_frames)
 
-
     @property
     def edata(self):
         return self.edge_frames[0]
@@ -1135,7 +1144,7 @@ class HeteroGraph(NamedTuple):
         return self.node_frames[0]
 
     @property
-    def srcdata(self, etype: Optional[str]=None):
+    def srcdata(self, etype: Optional[str] = None):
         """Return a node data view for setting/getting source node features.
         Let ``g`` be a Graph.
 
@@ -1158,10 +1167,7 @@ class HeteroGraph(NamedTuple):
         src, _ = self.gidx.edges[etype_idx]
         node_frame = self.node_frames[srctype_idx]
         _node_frame = FrozenDict(
-            {
-                key: value[src]
-                for key, value in node_frame.items()
-            }
+            {key: value[src] for key, value in node_frame.items()}
         )
 
         return _node_frame
@@ -1191,19 +1197,17 @@ class HeteroGraph(NamedTuple):
         _, dst = self.gidx.edges[etype_idx]
         node_frame = self.node_frames[dsttype_idx]
         _node_frame = FrozenDict(
-            {
-                key: value[dst]
-                for key, value in node_frame.items()
-            }
+            {key: value[dst] for key, value in node_frame.items()}
         )
 
         return _node_frame
 
+
 def graph(
-        data: Any,
-        n_nodes: Optional[Union[Mapping, int]]=None,
+    data: Any,
+    n_nodes: Optional[Union[Mapping, int]] = None,
 ):
-    """ Create a heterogeneous graph and return.
+    """Create a heterogeneous graph and return.
 
     Parameters
     ----------
@@ -1251,7 +1255,7 @@ def graph(
     2
 
     """
-    if isinstance(data, tuple): # single node type, single edge type
+    if isinstance(data, tuple):  # single node type, single edge type
         metagraph = GraphIndex(
             n_nodes=1, src=jnp.array([0]), dst=jnp.array([0])
         )
@@ -1263,22 +1267,27 @@ def graph(
         if not isinstance(dst, jnp.ndarray):
             dst = jnp.array(dst)
 
-        edges = ((src, dst), )
+        edges = ((src, dst),)
         inferred_n_nodes = max(max(edges[0][0]), max(edges[0][1])).item() + 1
-        if n_nodes is None: # infer n_nodes
+        if n_nodes is None:  # infer n_nodes
             n_nodes = inferred_n_nodes
         else:
             assert isinstance(n_nodes, int), "Single node type."
-            assert n_nodes >= inferred_n_nodes, "Edge with non-existing nodes. "
+            assert (
+                n_nodes >= inferred_n_nodes
+            ), "Edge with non-existing nodes. "
         n_nodes = jnp.array([n_nodes])
         gidx = HeteroGraphIndex(
-            metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+            metagraph=metagraph,
+            n_nodes=n_nodes,
+            edges=edges,
         )
         return HeteroGraph.init(gidx=gidx)
 
     elif isinstance(data, Mapping):
         metagraph = GraphIndex()
         from collections import OrderedDict
+
         _ntype_invmap = OrderedDict()
         _etype_invmap = OrderedDict()
 
@@ -1318,15 +1327,12 @@ def graph(
             edges.append((src, dst))
 
             inferred_n_nodes[srctype_idx] = max(
-                inferred_n_nodes[srctype_idx],
-                max(src).item() + 1
+                inferred_n_nodes[srctype_idx], max(src).item() + 1
             )
 
             inferred_n_nodes[dsttype_idx] = max(
-                inferred_n_nodes[dsttype_idx],
-                max(dst).item() + 1
+                inferred_n_nodes[dsttype_idx], max(dst).item() + 1
             )
-
 
         inferred_n_nodes = jnp.array(inferred_n_nodes)
 
@@ -1337,7 +1343,6 @@ def graph(
             srctype, etype, dsttype = key
             src, dst = value
 
-
         # custom n_nodes
         if n_nodes is not None:
             assert (n_nodes >= inferred_n_nodes).all()
@@ -1347,7 +1352,9 @@ def graph(
 
         # organize gidx
         gidx = HeteroGraphIndex(
-            metagraph=metagraph, n_nodes=n_nodes, edges=edges,
+            metagraph=metagraph,
+            n_nodes=n_nodes,
+            edges=edges,
         )
 
         # extract ntypes and etypes from ordered dict
@@ -1355,5 +1362,7 @@ def graph(
         etypes = tuple(_etype_invmap.keys())
 
         return HeteroGraph.init(
-            gidx=gidx, ntypes=ntypes, etypes=etypes,
+            gidx=gidx,
+            ntypes=ntypes,
+            etypes=etypes,
         )

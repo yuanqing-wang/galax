@@ -13,6 +13,7 @@ from flax.core import freeze, unfreeze
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data", "srcdata", "dstdata"])
 
+
 class NodeView(object):
     def __init__(self, graph):
         self.graph = graph
@@ -25,6 +26,7 @@ class NodeView(object):
                 ntype_idx=ntype_idx,
             ),
         )
+
 
 class EdgeView(object):
     def __init__(self, graph):
@@ -51,6 +53,7 @@ class EdgeView(object):
             ),
         )
 
+
 class NodeDataView(object):
     def __init__(self, graph, ntype_idx, idxs=None):
         self.graph = graph
@@ -66,6 +69,7 @@ class NodeDataView(object):
     def set(self, key, data):
         ntype = self.ntypes[self.ntype_idx]
         return self.graph.set_ndata(key=key, data=data, ntype=ntype)
+
 
 class EdgeDataView(object):
     def __init__(self, graph, etype_idx, idxs=None):

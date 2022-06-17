@@ -138,10 +138,10 @@ class HeteroGraph(NamedTuple):
         --------
         **Homogeneous Graphs or Heterogeneous Graphs with A Single Node Type**
         >>> g = graph(((0, 1), (1, 2)))
-        >>> g.number_of_nodes()
+        >>> int(g.number_of_nodes())
         3
         >>> g = g.add_nodes(2)
-        >>> g.number_of_nodes()
+        >>> int(g.number_of_nodes())
         5
 
         If the graph has some node features and new nodes are added without
@@ -168,10 +168,10 @@ class HeteroGraph(NamedTuple):
         ...     ('developer', 'develops', 'game'): (jnp.array([0, 1]),
         ...                                         jnp.array([0, 1]))
         ...     })
-        >>> g.number_of_nodes("user")
+        >>> g.number_of_nodes("user").item()
         3
         >>> g = g.add_nodes(2, ntype="user")
-        >>> g.number_of_nodes("user")
+        >>> g.number_of_nodes("user").item()
         5
 
         """
@@ -499,6 +499,8 @@ class HeteroGraph(NamedTuple):
         >>> g = graph(((0, 0, 2), (0, 1, 2)))
         >>> g = g.set_edata("he", jnp.array([0.0, 1.0, 2.0]))
         >>> g = g.remove_edges((0, 1))
+        >>> int(g.number_of_edges())
+        1
 
         **Heterogeneous Graphs with Multiple Edge Types**
         >>> g = graph({
@@ -507,6 +509,8 @@ class HeteroGraph(NamedTuple):
         ...     })
 
         >>> g = g.remove_edges([0, 1], 'plays')
+        >>> int(g.number_of_edges("plays"))
+        2
 
 
         """
@@ -582,8 +586,9 @@ class HeteroGraph(NamedTuple):
         >>> g = g.set_ndata("hv", jnp.array([0.0, 1.0, 2.0]))
         >>> g = g.set_edata("he", jnp.array([0.0, 1.0, 2.0]))
         >>> g = g.remove_nodes((0, 1))
-        >>> g.number_of_nodes()
+        >>> int(g.number_of_nodes())
         1
+
         >>> g.ndata["hv"].flatten().tolist()
         [2.0]
         >>> g.edata["he"].flatten().tolist()
@@ -595,7 +600,7 @@ class HeteroGraph(NamedTuple):
         ...     ('developer', 'develops', 'game'): ([0, 1], [0, 1])
         ...     })
         >>> g = g.remove_nodes([0, 1], ntype='game')
-        >>> g.number_of_nodes('user')
+        >>> g.number_of_nodes('user').item()
         3
         >>> 'game' in g.ntypes
         False
@@ -820,9 +825,37 @@ class HeteroGraph(NamedTuple):
             return self._etype_invmap[etype]
 
     def number_of_nodes(self, ntype: Optional[str] = None):
+        """Return the number of nodes with ntype.
+
+        Parameters
+        ----------
+        ntype : str
+            Node type.
+
+        Return
+        ------
+        int
+            Number of nodes.
+
+        Examples
+        --------
+
+        """
         return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
 
     def number_of_edges(self, etype: Optional[str] = None):
+        """Return the number of nodes with ntype.
+
+        Parameters
+        ----------
+        etype : str
+            Edge type.
+
+        Return
+        ------
+        int
+            Number of edges.
+        """
         return self.gidx.number_of_edges(self.get_etype_id(etype))
 
     def is_multigraph(self):
@@ -1227,9 +1260,9 @@ def graph(
     >>> # Destination nodes for edges (2, 1), (3, 2), (4, 3)
     >>> dst_ids = jnp.array([1, 2, 3])
     >>> g = graph((src_ids, dst_ids))
-    >>> g.number_of_nodes()
+    >>> int(g.number_of_nodes())
     5
-    >>> g.number_of_edges()
+    >>> int(g.number_of_edges())
     3
     >>> g.ntypes
     ('N_',)
@@ -1238,9 +1271,9 @@ def graph(
 
     Explicitly specify the number of nodes in the graph.
     >>> g = graph((src_ids, dst_ids), n_nodes=2666)
-    >>> g.number_of_nodes()
+    >>> int(g.number_of_nodes())
     2666
-    >>> g.number_of_edges()
+    >>> int(g.number_of_edges())
     3
 
     >>> data_dict = {
@@ -1249,9 +1282,9 @@ def graph(
     ...     ('user', 'plays', 'game'): ((0, 3), (3, 4)),
     ... }
     >>> g = graph(data_dict)
-    >>> g.number_of_nodes('user')
+    >>> g.number_of_nodes('user').item()
     4
-    >>> g.number_of_edges('follows')
+    >>> int(g.number_of_edges('follows'))
     2
 
     """

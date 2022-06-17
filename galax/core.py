@@ -1,11 +1,10 @@
 """Implementation for core graph computation."""
-from .heterograph import HeteroGraph
 from typing import Callable, Optional
-from flax.core import freeze, unfreeze
 from functools import partial
+from flax.core import freeze, unfreeze
+from .heterograph import HeteroGraph
 from . import function
 from .function import ReduceFunction
-import jax
 
 
 def message_passing(
@@ -47,7 +46,6 @@ def message_passing(
     [0.0, 1.0, 1.0]
 
     """
-
     # TODO(yuanqing-wang): change this restriction in near future
     # assert isinstance(rfunc, ReduceFunction), "Only built-in reduce supported. "
     if etype is None:
@@ -57,14 +55,14 @@ def message_passing(
     etype_idx = graph.get_etype_id(etype)
 
     # get number of nodes
-    srctype_idx, dsttype_idx = graph.get_meta_edge(etype_idx)
+    _, dsttype_idx = graph.get_meta_edge(etype_idx)
     n_dst = next(iter(graph.node_frames[dsttype_idx].values())).shape[0]
 
     # extract the message
     message = mfunc(graph.edges[etype])
 
     # reduce by calling jax.ops.segment_
-    _rfunc = getattr(function, "segment_%s" % rfunc.op)
+    _rfunc = getattr(function, f"segment_{rfunc.op}")
     _rfunc = partial(
         _rfunc,
         segment_ids=graph.gidx.edges[0][1],
@@ -84,7 +82,7 @@ def message_passing(
     node_frames = (
         graph.node_frames[:dsttype_idx]
         + (node_frame,)
-        + graph.node_frames[dsttype_idx + 1 :]
+        + graph.node_frames[dsttype_idx + 1:]
     )
 
     return graph._replace(node_frames=node_frames)

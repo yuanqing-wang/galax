@@ -1,6 +1,6 @@
 """Built-in functions."""
 import sys
-from typing import Optional, Any, Callable
+from typing import Optional, Callable
 from functools import partial
 from itertools import product
 from collections import namedtuple
@@ -132,7 +132,6 @@ segment_sum = jax.ops.segment_sum
 segment_max = jax.ops.segment_max
 segment_min = jax.ops.segment_min
 
-
 def segment_mean(
     data: jnp.ndarray,
     segment_ids: jnp.ndarray,
@@ -185,9 +184,9 @@ def segment_mean(
 # =============================================================================
 def apply_nodes(
     function: Callable,
-    in_field: str="h",
-    out_field: Optional[str]=None,
-    ntype: Optional[str]=None,
+    in_field: str = "h",
+    out_field: Optional[str] = None,
+    ntype: Optional[str] = None,
 ):
     """Apply a function to node attributes.
 
@@ -221,6 +220,7 @@ def apply_nodes(
     """
     if out_field is None:
         out_field = in_field
+
     def _fn(graph, in_field=in_field, out_field=out_field, ntype=ntype):
         ntype_idx = graph.get_ntype_id(ntype)
         if ntype is None:
@@ -234,9 +234,9 @@ def apply_nodes(
 
 def apply_edges(
     function: Callable,
-    in_field: str="h",
-    out_field: Optional[str]=None,
-    etype: Optional[str]=None,
+    in_field: str = "h",
+    out_field: Optional[str] = None,
+    etype: Optional[str] = None,
 ):
     """Apply a function to edge attributes.
 
@@ -270,6 +270,7 @@ def apply_edges(
     """
     if out_field is None:
         out_field = in_field
+        
     def _fn(graph, in_field=in_field, out_field=out_field, etype=etype):
         etype_idx = graph.get_etype_id(etype)
         if etype is None:

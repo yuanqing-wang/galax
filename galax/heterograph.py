@@ -1,6 +1,7 @@
+"""Module for heterograph definition."""
+
 from typing import (
     Any,
-    Iterable,
     Mapping,
     Union,
     Optional,
@@ -8,17 +9,13 @@ from typing import (
     Sequence,
     NamedTuple,
 )
-from dataclasses import dataclass, field, replace
 from collections import namedtuple
-from functools import partial
 import jax
 import jax.numpy as jnp
+from flax.core import FrozenDict, freeze, unfreeze
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
 from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
-from flax.core import FrozenDict, freeze, unfreeze
-from flax import struct
-from jax.tree_util import register_pytree_node_class
 
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data"])
@@ -214,7 +211,7 @@ class HeteroGraph(NamedTuple):
                     node_frames = (
                         self.node_frames[:ntype_idx]
                         + (new_data,)
-                        + self.node_frames[ntype_idx + 1 :]
+                        + self.node_frames[ntype_idx + 1:]
                     )
 
             else:
@@ -460,7 +457,7 @@ class HeteroGraph(NamedTuple):
                 edge_frames = (
                     self.edge_frames[:etype_idx]
                     + (new_data,)
-                    + self.edge_frames[etype_idx + 1 :]
+                    + self.edge_frames[etype_idx + 1:]
                 )
 
             node_frames = self.node_frames

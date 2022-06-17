@@ -1,14 +1,12 @@
 """Module for graph index class definition.
-Inspired by: dgl.graph_index.
 
+Inspired by: dgl.graph_index.
 """
-from typing import Any, NamedTuple, Iterable, Mapping, Union, Optional, Tuple
+from typing import NamedTuple, Optional, Tuple
 import jax
 import jax.numpy as jnp
 import numpy as onp
 from jax.experimental.sparse import BCOO
-from jax.tree_util import register_pytree_node_class
-from dataclasses import field
 
 # @register_pytree_node_class
 class GraphIndex(NamedTuple):
@@ -738,17 +736,17 @@ class GraphIndex(NamedTuple):
 
         if fmt is not "coo":
             raise NotImplementedError
-        else:
-            n = self.number_of_nodes()
-            m = self.number_of_edges()
-            if transpose:
-                row, col = onp.array(self.src), onp.array(self.dst)
-            else:
-                row, col = onp.array(self.dst), onp.array(self.src)
-            data = onp.arange(0, m) if return_edge_ids else onp.ones_like(row)
-            import scipy
 
-            return scipy.sparse.coo_matrix((data, (row, col)), shape=(n, n))
+        n = self.number_of_nodes()
+        m = self.number_of_edges()
+        if transpose:
+            row, col = onp.array(self.src), onp.array(self.dst)
+        else:
+            row, col = onp.array(self.dst), onp.array(self.src)
+        data = onp.arange(0, m) if return_edge_ids else onp.ones_like(row)
+        import scipy
+
+        return scipy.sparse.coo_matrix((data, (row, col)), shape=(n, n))
 
     def adjacency_matrix(
         self,

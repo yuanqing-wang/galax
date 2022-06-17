@@ -1,25 +1,21 @@
 """Module for heterogeneous graph index class definition.
-Inspired by dgl.heterograph_index
 
+Inspired by dgl.heterograph_index
 """
 from typing import (
-    Any,
     NamedTuple,
     Iterable,
-    Mapping,
-    Union,
     Optional,
     Tuple,
     List,
-    Dict,
 )
-from .graph_index import GraphIndex, from_coo
+
 import jax
 import jax.numpy as jnp
 from jax.experimental.sparse import BCOO
-from jax.tree_util import register_pytree_node_class
+from .graph_index import GraphIndex, from_coo
 
-# @register_pytree_node_class
+
 class HeteroGraphIndex(NamedTuple):
     """HeteroGraph index object.
 
@@ -63,16 +59,6 @@ class HeteroGraphIndex(NamedTuple):
         n_nodes = jnp.array([])
     if edges is None:
         edges = ()
-
-    # def tree_flatten(self):
-    #     children = (self.metagraph, self.n_nodes, self.edges)
-    #     aux_data = None
-    #     return (children, aux_data)
-    #
-    # @classmethod
-    # def tree_unflatten(cls, aux_data, children):
-    #     metagraph, n_nodes, edges = children
-    #     return cls(metagraph=metagraph, n_nodes=n_nodes, edges=edges)
 
     def number_of_ntypes(self):
         """Return the number of node types.
@@ -347,23 +333,23 @@ class HeteroGraphIndex(NamedTuple):
 
         if len(src) > 0:  # partially remove
             edges = (
-                self.edges[:etype] + ((src, dst),) + self.edges[etype + 1 :]
+                self.edges[:etype] + ((src, dst),) + self.edges[etype + 1:]
             )
             return self.__class__(
                 metagraph=self.metagraph,
                 n_nodes=self.n_nodes,
                 edges=edges,
             )
-        else:  # completely remove
-            edges = self.edges[:etype] + self.edges[etype + 1 :]
-            metagraph = self.metagraph.remove_edge(etype)
-            return self.__class__(
-                metagraph=metagraph,
-                n_nodes=self.n_nodes,
-                edges=edges,
-            )
+        # completely remove
+        edges = self.edges[:etype] + self.edges[etype + 1:]
+        metagraph = self.metagraph.remove_edge(etype)
+        return self.__class__(
+            metagraph=metagraph,
+            n_nodes=self.n_nodes,
+            edges=edges,
+        )
 
-    def remove_edge(self, etype: int, src: int, dst: int):
+    def remove_edge(self, etype: int, eid: int):
         """Removes many edges.
 
         Parameters
@@ -420,8 +406,8 @@ class HeteroGraphIndex(NamedTuple):
         []
         """
         if ntype is None:
-            assert len(self.ntypes) == 1, "Ntype needs to be specified. "
-            ntype = self.ntypes[ntype]
+            assert len(self.n_nodes) == 1, "Ntype needs to be specified. "
+            ntype = 0
 
         if nids is None:
             nids = jnp.arange(self.n_nodes[ntype])
@@ -455,7 +441,7 @@ class HeteroGraphIndex(NamedTuple):
                 [
                     self.n_nodes[:ntype],
                     jnp.array([self.n_nodes[ntype] - len(nids)]),
-                    self.n_nodes[ntype + 1 :],
+                    self.n_nodes[ntype + 1:],
                 ]
             )
 
@@ -463,8 +449,8 @@ class HeteroGraphIndex(NamedTuple):
             for etype, src_and_dst in enumerate(self.edges):
                 if len(src_and_dst) == 0:
                     continue
-                else:
-                    src, dst = src_and_dst
+
+                src, dst = src_and_dst
 
                 v_is_src = jnp.expand_dims(src, -1) == jnp.expand_dims(
                     nids, 0

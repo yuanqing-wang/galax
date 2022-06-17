@@ -1,18 +1,12 @@
 """Views of Graph.
+
 Inspired by dgl.view
 """
 
 from collections import namedtuple
-from dataclasses import replace
-from functools import partial
-from typing import Optional
-import jax
-import jax.numpy as jnp
-from flax.core import freeze, unfreeze
 
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data", "src", "dst"])
-
 
 class NodeView(object):
     def __init__(self, graph):
@@ -69,6 +63,7 @@ class NodeDataView(object):
     def set(self, key, data):
         ntype = self.graph.ntypes[self.ntype_idx]
         return self.graph.set_ndata(key=key, data=data, ntype=ntype)
+
 
 class EdgeDataView(object):
     def __init__(self, graph, etype_idx, idxs=None):

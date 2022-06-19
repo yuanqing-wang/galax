@@ -203,12 +203,9 @@ def segment_mean(
     )
 
 
-
 # =============================================================================
 # APPLY FUNCTIONS
 # =============================================================================
-
-
 def apply_nodes(
     function: Callable,
     in_field: str = "h",
@@ -250,12 +247,11 @@ def apply_nodes(
 
     def _fn(graph, in_field=in_field, out_field=out_field, ntype=ntype):
         ntype_idx = graph.get_ntype_id(ntype)
-        if ntype is None:
-            ntype = graph.ntypes[0]
         node_frame = unfreeze(graph.node_frames[ntype_idx])
         node_frame[out_field] = function(node_frame[in_field])
         node_frame = freeze(node_frame)
-        node_frames = graph.node_frames._replace(**{ntype: node_frame})
+        node_frames = graph.node_frames[:ntype_idx] + (node_frame,)\
+            + graph.node_frames[ntype_idx+1:]
         return graph._replace(node_frames=node_frames)
 
     return _fn
@@ -302,12 +298,11 @@ def apply_edges(
 
     def _fn(graph, in_field=in_field, out_field=out_field, etype=etype):
         etype_idx = graph.get_etype_id(etype)
-        if etype is None:
-            etype = graph.etypes[0]
         edge_frame = unfreeze(graph.edge_frames[etype_idx])
         edge_frame[out_field] = function(edge_frame[in_field])
         edge_frame = freeze(edge_frame)
-        edge_frames = graph.edge_frames._replace(**{etype: edge_frame})
+        edge_frames = graph.edge_frames[:etype_idx] + (edge_frame, )\
+            + graph.edge_frames[etype_idx+1:]
         return graph._replace(edge_frames=edge_frames)
 
     return _fn

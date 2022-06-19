@@ -794,7 +794,7 @@ class HeteroGraph(NamedTuple):
         int
         """
         if ntype is None:
-            assert len(self.ntypes) == 1, "Ntype needs to be specified. "
+            # assert len(self.ntypes) == 1, "Ntype needs to be specified. "
             return 0
         else:
             assert ntype in self._ntype_invmap, "No such ntype %s. " % ntype
@@ -815,7 +815,7 @@ class HeteroGraph(NamedTuple):
         int
         """
         if etype is None:
-            assert len(self.etypes) == 1, "Etype needs to be specified. "
+            # assert len(self.etypes) == 1, "Etype needs to be specified. "
             return 0
         else:
             assert etype in self._etype_invmap, "No such etype %s. " % etype
@@ -1026,7 +1026,11 @@ class HeteroGraph(NamedTuple):
             etype=etype_idx,
         )
 
-    def out_degrees(self, u: jnp.ndarray, etype: Optional[str] = None):
+    def out_degrees(
+            self,
+            u: Optional[jnp.ndarray] = None,
+            etype: Optional[str] = None
+    ):
         """Return the out-degree(s) of the given nodes.
         It computes the out-degree(s) w.r.t. to the edges of the given edge type.
 
@@ -1065,7 +1069,7 @@ class HeteroGraph(NamedTuple):
                 self.gidx.n_nodes[self.gidx.metagraph.src[etype_idx]]
             )
 
-        return self.gidx.in_degrees(
+        return self.gidx.out_degrees(
             u=u,
             etype=etype_idx,
         )

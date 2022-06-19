@@ -57,7 +57,9 @@
 <li class="toctree-l3"><a class="reference internal" href="galax.function.e_mul_v.html">galax.function.e_mul_v</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_u.html">galax.function.e_sub_u</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.e_sub_v.html">galax.function.e_sub_v</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.segment_max.html">galax.function.segment_max</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.segment_mean.html">galax.function.segment_mean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.segment_min.html">galax.function.segment_min</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_e.html">galax.function.u_add_e</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_v.html">galax.function.u_add_v</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_e.html">galax.function.u_div_e</a></li>
@@ -163,8 +165,14 @@
 <tr class="row-even"><td><p><a class="reference internal" href="galax.function.e_sub_v.html#galax.function.e_sub_v" title="galax.function.e_sub_v"><code class="xref py py-obj docutils literal notranslate"><span class="pre">e_sub_v</span></code></a>(lhs_field, rhs_field, out)</p></td>
 <td><p>Builtin message function that computes a message on an edge by performing element-wise sub between features of edge and destination if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.segment_mean.html#galax.function.segment_mean" title="galax.function.segment_mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_mean</span></code></a>(data, segment_ids[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.segment_max.html#galax.function.segment_max" title="galax.function.segment_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_max</span></code></a>(*args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="galax.function.segment_mean.html#galax.function.segment_mean" title="galax.function.segment_mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_mean</span></code></a>(data, segment_ids[, ...])</p></td>
 <td><p>Returns mean for each segment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.function.segment_min.html#galax.function.segment_min" title="galax.function.segment_min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment_min</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Computes the minimum within segments of an array.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="galax.function.u_add_e.html#galax.function.u_add_e" title="galax.function.u_add_e"><code class="xref py py-obj docutils literal notranslate"><span class="pre">u_add_e</span></code></a>(lhs_field, rhs_field, out)</p></td>
 <td><p>Builtin message function that computes a message on an edge by performing element-wise add between features of source and edge if the features have the same shape; otherwise, it first broadcasts the features to a new shape and performs the element-wise operation.</p></td>

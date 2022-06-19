@@ -201,9 +201,24 @@
 <span class="nb">min</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">ReduceFunction</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">)</span>
 
 <span class="n">segment_sum</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_sum</span>
-<span class="n">segment_max</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_max</span>
-<span class="n">segment_min</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_min</span>
 
+<div class="viewcode-block" id="segment_max"><a class="viewcode-back" href="../../autosummary/galax.function.segment_max.html#galax.function.segment_max">[docs]</a><span class="k">def</span> <span class="nf">segment_max</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span>
+        <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_max</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+        <span class="n">nan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">posinf</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">neginf</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span></div>
+<span class="n">segment_max</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">==</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_max</span><span class="o">.</span><span class="vm">__doc__</span>
+
+<div class="viewcode-block" id="segment_min"><a class="viewcode-back" href="../../autosummary/galax.function.segment_min.html#galax.function.segment_min">[docs]</a><span class="k">def</span> <span class="nf">segment_min</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span>
+        <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_min</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+        <span class="n">nan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">posinf</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">neginf</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">)</span></div>
+<span class="n">segment_min</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_min</span><span class="o">.</span><span class="vm">__doc__</span>
 
 <div class="viewcode-block" id="segment_mean"><a class="viewcode-back" href="../../autosummary/galax.function.segment_mean.html#galax.function.segment_mean">[docs]</a><span class="k">def</span> <span class="nf">segment_mean</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>

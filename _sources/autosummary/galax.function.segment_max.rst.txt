@@ -1,0 +1,6 @@
+galax.function.segment\_max
+===========================
+
+.. currentmodule:: galax.function
+
+.. autofunction:: segment_max

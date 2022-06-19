@@ -1,0 +1,6 @@
+galax.function.segment\_min
+===========================
+
+.. currentmodule:: galax.function
+
+.. autofunction:: segment_min

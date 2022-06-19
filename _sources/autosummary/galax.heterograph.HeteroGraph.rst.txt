@@ -19,6 +19,7 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.__init__
       ~HeteroGraph.add_edges
       ~HeteroGraph.add_nodes
+      ~HeteroGraph.add_self_loop
       ~HeteroGraph.adj
       ~HeteroGraph.adjacency_matrix
       ~HeteroGraph.apply_edges
@@ -44,6 +45,7 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.out_degrees
       ~HeteroGraph.remove_edges
       ~HeteroGraph.remove_nodes
+      ~HeteroGraph.remove_self_loop
       ~HeteroGraph.set_edata
       ~HeteroGraph.set_ndata
       ~HeteroGraph.to_canonincal_etype

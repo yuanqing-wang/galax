@@ -1,14 +1,13 @@
 """Implementation for core graph computation."""
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 from functools import partial
 from flax.core import freeze, unfreeze
-from .heterograph import HeteroGraph
 from . import function
 from .function import ReduceFunction
 
 
 def message_passing(
-    graph: HeteroGraph,
+    graph: Any,
     mfunc: Optional[Callable],
     rfunc: Optional[ReduceFunction],
     afunc: Optional[Callable] = None,

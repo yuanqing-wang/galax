@@ -26,9 +26,9 @@ CODE2OP = {
 }
 
 CODE2DATA = {
-    "u": "srcdata",
+    "u": "src",
     "e": "data",
-    "v": "dstdata",
+    "v": "dst",
 }
 
 
@@ -91,10 +91,15 @@ def _gen_message_builtin(lhs, rhs, binary_op):
     lhs_data, rhs_data = CODE2DATA[lhs], CODE2DATA[rhs]
 
     # define function
-    func = lambda edge: CODE2OP[binary_op](
-        getattr(edge, lhs_data),
-        getattr(edge, rhs_data),
-    )
+    def func(lhs_field, rhs_field, out):
+        def fn(edges):
+            return {out:
+                    CODE2OP[binary_op](
+                        getattr(edges, lhs_data)[lhs_field],
+                        getattr(edges, rhs_data)[rhs_field],
+                        )
+                    }
+        return fn
 
     # attach name and doc
     func.__name__ = name
@@ -131,6 +136,7 @@ min = partial(ReduceFunction, "min")
 segment_sum = jax.ops.segment_sum
 segment_max = jax.ops.segment_max
 segment_min = jax.ops.segment_min
+
 
 def segment_mean(
     data: jnp.ndarray,
@@ -178,6 +184,7 @@ def segment_mean(
         unique_indices=unique_indices)
     return nominator / jnp.maximum(denominator,
                                  jnp.ones(shape=[], dtype=denominator.dtype))
+
 
 # =============================================================================
 # APPLY FUNCTIONS
@@ -232,6 +239,7 @@ def apply_nodes(
         return graph._replace(node_frames=node_frames)
     return _fn
 
+
 def apply_edges(
     function: Callable,
     in_field: str = "h",
@@ -270,7 +278,7 @@ def apply_edges(
     """
     if out_field is None:
         out_field = in_field
-        
+
     def _fn(graph, in_field=in_field, out_field=out_field, etype=etype):
         etype_idx = graph.get_etype_id(etype)
         if etype is None:

@@ -136,23 +136,22 @@ min = partial(ReduceFunction, "min")
 segment_sum = jax.ops.segment_sum
 
 def segment_max(*args, **kwargs):
+    """Alias of jax.ops.segment_max with nan_to_num."""
     return jnp.nan_to_num(
         jax.ops.segment_max(*args, **kwargs),
         nan=0.0,
         posinf=0.0,
         neginf=0.0,
     )
-segment_max.__doc__ == jax.ops.segment_max.__doc__
 
 def segment_min(*args, **kwargs):
+    """Alias of jax.ops.segment_min with nan_to_num."""
     return jnp.nan_to_num(
         jax.ops.segment_min(*args, **kwargs),
         nan=0.0,
         posinf=0.0,
         neginf=0.0,
     )
-segment_min.__doc__ = jax.ops.segment_min.__doc__
-
 
 def segment_mean(
     data: jnp.ndarray,

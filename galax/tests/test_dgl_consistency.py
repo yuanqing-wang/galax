@@ -69,7 +69,7 @@ def test_apply_nodes(g, shape):
     g.apply_nodes(lambda nodes: {'h': fn(nodes.data['h'])})
     y = g.ndata['h'].detach().numpy()
 
-    assert onp.allclose(y, _y, rtol=1e-3)
+    assert onp.allclose(y, _y, rtol=1e-2, atol=1e-2)
 
 @pytest.mark.parametrize("g", graphs)
 @pytest.mark.parametrize("shape", tensor_shapes)
@@ -103,7 +103,7 @@ def test_apply_edges(g, shape):
     g.apply_edges(lambda edges: {'h': fn(edges.data['h'])})
     y = g.edata['h'].detach().numpy()
 
-    assert onp.allclose(y, _y, rtol=1e-2)
+    assert onp.allclose(y, _y, rtol=1e-2, atol=1e-2)
 
 
 @pytest.mark.parametrize('g', graphs)
@@ -157,4 +157,4 @@ def test_message_passing(g, shp, msg, reducer):
     y_dgl = g.ndata['v'].detach().numpy()
     y_glx = onp.array(_g.ndata['v'])
 
-    assert onp.allclose(y_dgl, y_glx, rtol=1e-2)
+    assert onp.allclose(y_dgl, y_glx, rtol=1e-2, atol=1e-2)

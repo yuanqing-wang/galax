@@ -755,7 +755,8 @@ class HeteroGraph(NamedTuple):
         ]
 
     def to_canonincal_etype(self, etype: str) -> Tuple[str]:
-        """Convert an edge type to the corresponding canonical edge type in the graph.
+        """Convert an edge type to the corresponding canonical
+        edge type in the graph.
 
         A canonical edge type is a string triplet ``(str, str, str)``
         for source node type, edge type and destination node type.
@@ -765,8 +766,8 @@ class HeteroGraph(NamedTuple):
         Parameters
         ----------
         etype : str
-            If :attr:`etype` is an edge type (str), it returns the corresponding canonical edge
-            type in the graph.
+            If :attr:`etype` is an edge type (str),
+            it returns the corresponding canonical edge type in the graph.
 
         Returns
         -------
@@ -856,9 +857,11 @@ class HeteroGraph(NamedTuple):
 
     def is_multigraph(self):
         """Return whether the graph is a multigraph with parallel edges.
-        A multigraph has more than one edges between the same pair of nodes, called
-        *parallel edges*.  For heterogeneous graphs, parallel edge further requires
-        the canonical edge type to be the same (see :meth:`canonical_etypes` for the
+        A multigraph has more than one edges between the same pair of nodes,
+        called *parallel edges*.
+        For heterogeneous graphs, parallel edge further requires
+        the canonical edge type to be the same
+        (see :meth:`canonical_etypes` for the
         definition).
 
         Returns
@@ -891,8 +894,7 @@ class HeteroGraph(NamedTuple):
         vid : node ID(s)
             The nodes IDs. The allowed nodes ID formats are:
             * ``int``: The ID of a single node.
-            * Int Tensor: Each element is a node ID. The tensor must have the same device type
-              and ID data type as the graph's.
+            * Int Tensor: Each element is a node ID.
             * iterable[int]: Each element is a node ID.
         ntype : str, optional
             The node type name. Can be omitted if there is
@@ -901,7 +903,8 @@ class HeteroGraph(NamedTuple):
         Returns
         -------
         bool or bool Tensor
-            A tensor of bool flags where each element is True if the node is in the graph.
+            A tensor of bool flags where each element is
+            True if the node is in the graph.
             If the input is a single node, return one bool value.
 
         """
@@ -921,25 +924,25 @@ class HeteroGraph(NamedTuple):
         u : node IDs
             The source node IDs of the edges. The allowed formats are:
             * ``int``: A single node.
-            * Int Tensor: Each element is a node ID. The tensor must have the same device type
-              and ID data type as the graph's.
+            * Int Tensor: Each element is a node ID.
             * iterable[int]: Each element is a node ID.
         v : node IDs
             The destination node IDs of the edges. The allowed formats are:
             * ``int``: A single node.
-            * Int Tensor: Each element is a node ID. The tensor must have the same device type
-              and ID data type as the graph's.
+            * Int Tensor: Each element is a node ID.
             * iterable[int]: Each element is a node ID.
         etype : str or (str, str, str), optional
             The type names of the edges. The allowed type name formats are:
-            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * ``(str, str, str)`` for source node type,
+              edge type and destination node type.
             * or one ``str`` edge type name if the name can uniquely identify a
               triplet format in the graph.
             Can be omitted if the graph has only one type of edges.
         Returns
         -------
         bool or bool Tensor
-            A tensor of bool flags where each element is True if the node is in the graph.
+            A tensor of bool flags where each element is True
+            if the node is in the graph.
             If the input is a single node, return one bool value.
 
         """
@@ -953,23 +956,25 @@ class HeteroGraph(NamedTuple):
         eid : edge ID(s)
             The edge IDs. The allowed formats are:
             * ``int``: A single ID.
-            * Int Tensor: Each element is an ID. The tensor must have the same device type
+            * Int Tensor: Each element is an ID.
+              The tensor must have the same device type
               and ID data type as the graph's.
             * iterable[int]: Each element is an ID.
         etype : str or (str, str, str), optional
             The type names of the edges. The allowed type name formats are:
-            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * ``(str, str, str)`` for source node type,
+              edge type and destination node type.
             * or one ``str`` edge type name if the name can uniquely identify a
               triplet format in the graph.
             Can be omitted if the graph has only one type of edges.
         Returns
         -------
         Tensor
-            The source node IDs of the edges. The i-th element is the source node ID of
-            the i-th edge.
+            The source node IDs of the edges.
+            The i-th element is the source node ID of the i-th edge.
         Tensor
-            The destination node IDs of the edges. The i-th element is the destination node
-            ID of the i-th edge.
+            The destination node IDs of the edges.
+            The i-th element is the destination node ID of the i-th edge.
 
         """
         return self.gidx.find_edges(eid=eid, etype=self.get_etype_id(etype))
@@ -1086,10 +1091,12 @@ class HeteroGraph(NamedTuple):
             Otherwise, return a backend dependent sparse tensor. (Default: None)
         etype : str or (str, str, str), optional
             The type names of the edges. The allowed type name formats are:
-            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * ``(str, str, str)`` for source node type,
+              edge type and destination node type.
             * or one ``str`` edge type name if the name can uniquely identify a
               triplet format in the graph.
             Can be omitted if the graph has only one type of edges.
+
         Returns
         -------
         SparseTensor or scipy.sparse.spmatrix
@@ -1131,7 +1138,8 @@ class HeteroGraph(NamedTuple):
             The context of returned incidence matrix. (Default: cpu)
         etype : str or (str, str, str), optional
             The type names of the edges. The allowed type name formats are:
-            * ``(str, str, str)`` for source node type, edge type and destination node type.
+            * ``(str, str, str)`` for source node type,
+              edge type and destination node type.
             * or one ``str`` edge type name if the name can uniquely identify a
               triplet format in the graph.
             Can be omitted if the graph has only one type of edges.
@@ -1149,6 +1157,27 @@ class HeteroGraph(NamedTuple):
     inc = incidence_matrix
 
     def set_ndata(self, key, data, ntype=None):
+        """Set node data.
+
+        Parameters
+        ----------
+        key : str
+            Name of the data field.
+        data : jnp.array
+            Node data.
+        ntype : str
+            Node type.
+
+        Returns
+        -------
+        HeteroGraph
+            A new graph with ndata.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> g = g.set_ndata('h', jnp.zeros(3))
+        """
         if ntype is None:
             ntype = self.ntypes[0]
         node_frame = getattr(self.node_frames, ntype)
@@ -1161,6 +1190,27 @@ class HeteroGraph(NamedTuple):
         return self._replace(node_frames=node_frames)
 
     def set_edata(self, key, data, etype=None):
+        """Set edge data.
+
+        Parameters
+        ----------
+        key : str
+            Name of the data field.
+        data : jnp.array
+            Node data.
+        etype : str
+            Edge type.
+
+        Returns
+        -------
+        HeteroGraph
+            A new graph with ndata.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> g = g.set_edata('h', jnp.zeros(3))
+        """
         if etype is None:
             etype = self.etypes[0]
         edge_frame = getattr(self.edge_frames, etype)
@@ -1174,10 +1224,12 @@ class HeteroGraph(NamedTuple):
 
     @property
     def edata(self):
+        """Edge data."""
         return EdgeDataView(self, 0)
 
     @property
     def ndata(self):
+        """Node data."""
         return NodeDataView(self, 0)
 
     @property
@@ -1340,7 +1392,7 @@ class HeteroGraph(NamedTuple):
         >>> g = g.ndata.set("h", jnp.ones(3))
         >>> mfunc = galax.function.copy_u("h", "m")
         >>> rfunc = galax.function.sum("m", "h1")
-        >>> _g = g.update_all(g, mfunc, rfunc)
+        >>> _g = g.update_all(mfunc, rfunc)
         >>> _g.ndata['h1'].flatten().tolist()
         [0.0, 1.0, 1.0]
 

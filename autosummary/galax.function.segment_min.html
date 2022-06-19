@@ -119,54 +119,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="galax.function.segment_min">
 <span class="sig-prename descclassname"><span class="pre">galax.function.</span></span><span class="sig-name descname"><span class="pre">segment_min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/function.html#segment_min"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.function.segment_min" title="Permalink to this definition"></a></dt>
-<dd><p>Computes the minimum within segments of an array.</p>
-<p>Similar to TensorFlow’s <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/math/segment_min">segment_min</a></p>
-<dl>
-<dt>Args:</dt><dd><p>data: an array with the values to be reduced.
-segment_ids: an array with integer dtype that indicates the segments of</p>
-<blockquote>
-<div><p><cite>data</cite> (along its leading axis) to be reduced. Values can be repeated and
-need not be sorted. Values outside of the range [0, num_segments) are
-dropped and do not contribute to the result.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>num_segments: optional, an int with nonnegative value indicating the number</dt><dd><p>of segments. The default is set to be the minimum number of segments that
-would support all indices in <code class="docutils literal notranslate"><span class="pre">segment_ids</span></code>, calculated as
-<code class="docutils literal notranslate"><span class="pre">max(segment_ids)</span> <span class="pre">+</span> <span class="pre">1</span></code>.
-Since <cite>num_segments</cite> determines the size of the output, a static value
-must be provided to use <code class="docutils literal notranslate"><span class="pre">segment_min</span></code> in a <code class="docutils literal notranslate"><span class="pre">jit</span></code>-compiled function.</p>
-</dd>
-</dl>
-<p>indices_are_sorted: whether <code class="docutils literal notranslate"><span class="pre">segment_ids</span></code> is known to be sorted.
-unique_indices: whether <cite>segment_ids</cite> is known to be free of duplicates.
-bucket_size: size of bucket to group indices into. <code class="docutils literal notranslate"><span class="pre">segment_min</span></code> is</p>
-<blockquote>
-<div><p>performed on each bucket separately. Default <code class="docutils literal notranslate"><span class="pre">None</span></code> means no bucketing.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>mode: a <code class="xref py py-class docutils literal notranslate"><span class="pre">jax.lax.GatherScatterMode</span></code> value describing how</dt><dd><p>out-of-bounds indices should be handled. By default, values outside of the
-range [0, num_segments) are dropped and do not contribute to the sum.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><p>An array with shape <code class="code docutils literal notranslate"><span class="pre">(num_segments,)</span> <span class="pre">+</span> <span class="pre">data.shape[1:]</span></code> representing the
-segment minimums.</p>
-</dd>
-<dt>Examples:</dt><dd><p>Simple 1D segment min:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segment_ids</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">segment_min</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">segment_ids</span><span class="p">)</span>
-<span class="go">DeviceArray([0, 2, 4], dtype=int32)</span>
-</pre></div>
-</div>
-<p>Using JIT requires static <cite>num_segments</cite>:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">jax</span> <span class="kn">import</span> <span class="n">jit</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">jit</span><span class="p">(</span><span class="n">segment_min</span><span class="p">,</span> <span class="n">static_argnums</span><span class="o">=</span><span class="mi">2</span><span class="p">)(</span><span class="n">data</span><span class="p">,</span> <span class="n">segment_ids</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="go">DeviceArray([0, 2, 4], dtype=int32)</span>
-</pre></div>
-</div>
-</dd>
-</dl>
+<dd><p>Alias of jax.ops.segment_min with nan_to_num.</p>
 </dd></dl>
 
 </section>

@@ -43,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="galax.heterograph.html">galax.heterograph</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="galax.heterograph.from_dgl.html">galax.heterograph.from_dgl</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.heterograph.graph.html">galax.heterograph.graph</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.heterograph.EdgeSpace.html">galax.heterograph.EdgeSpace</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">galax.heterograph.HeteroGraph</a></li>
@@ -133,17 +134,23 @@ of edge type i. (default: None)</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.adjacency_matrix" title="galax.heterograph.HeteroGraph.adjacency_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">adjacency_matrix</span></code></a>([transpose, etype])</p></td>
 <td><p>Return the adjacency matrix of edges of the given edge type. By default, a row of returned adjacency matrix represents the source of an edge and the column represents the destination. When transpose is True, a row represents the destination and a column represents the source. :Parameters: * <strong>transpose</strong> (<em>bool, optional</em>) -- A flag to transpose the returned adjacency matrix. (Default: False)              * <strong>ctx</strong> (<em>context, optional</em>) -- The context of returned adjacency matrix. (Default: cpu)              * <strong>scipy_fmt</strong> (<em>str, optional</em>) -- If specified, return a scipy sparse matrix in the given format. Otherwise, return a backend dependent sparse tensor. (Default: None)              * <strong>etype</strong> (<em>str or (str, str, str), optional</em>) -- The type names of the edges. The allowed type name formats are:                * <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type. * or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a                  triplet format in the graph. Can be omitted if the graph has only one type of edges.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_nodes</span></code>(function[, ntype])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_edges</span></code>(apply_function[, in_field, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.canonical_etypes" title="galax.heterograph.HeteroGraph.canonical_etypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_etypes</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_nodes</span></code>(apply_function[, in_field, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.canonical_etypes" title="galax.heterograph.HeteroGraph.canonical_etypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">canonical_etypes</span></code></a>()</p></td>
 <td><p>Return all the canonical edge types in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.count" title="galax.heterograph.HeteroGraph.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a>(value, /)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.count" title="galax.heterograph.HeteroGraph.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a>(value, /)</p></td>
 <td><p>Return number of occurrences of value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.find_edges" title="galax.heterograph.HeteroGraph.find_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_edges</span></code></a>(eid[, etype])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.find_edges" title="galax.heterograph.HeteroGraph.find_edges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_edges</span></code></a>(eid[, etype])</p></td>
 <td><p>Return the source and destination node ID(s) given the edge ID(s). :Parameters: * <strong>eid</strong> (<em>edge ID(s)</em>) -- The edge IDs. The allowed formats are:                * <code class="docutils literal notranslate"><span class="pre">int</span></code>: A single ID. * Int Tensor: Each element is an ID. The tensor must have the same device type                  and ID data type as the graph's. * iterable[int]: Each element is an ID. * <strong>etype</strong> (<em>str or (str, str, str), optional</em>) -- The type names of the edges. The allowed type name formats are:                * <code class="docutils literal notranslate"><span class="pre">(str,</span> <span class="pre">str,</span> <span class="pre">str)</span></code> for source node type, edge type and destination node type. * or one <code class="docutils literal notranslate"><span class="pre">str</span></code> edge type name if the name can uniquely identify a                  triplet format in the graph. Can be omitted if the graph has only one type of edges.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dgl</span></code>(graph)</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.get_etype_id" title="galax.heterograph.HeteroGraph.get_etype_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_etype_id</span></code></a>([etype])</p></td>
 <td><p>Return the id of the given edge type.</p></td>
@@ -204,6 +211,9 @@ of edge type i. (default: None)</p></li>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.to_canonincal_etype" title="galax.heterograph.HeteroGraph.to_canonincal_etype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_canonincal_etype</span></code></a>(etype)</p></td>
 <td><p>Convert an edge type to the corresponding canonical edge type in the graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_all</span></code>(mfunc, rfunc[, afunc, etype])</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>

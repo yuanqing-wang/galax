@@ -1,0 +1,6 @@
+galax.heterograph.from\_dgl
+===========================
+
+.. currentmodule:: galax.heterograph
+
+.. autofunction:: from_dgl

@@ -21,10 +21,12 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.add_nodes
       ~HeteroGraph.adj
       ~HeteroGraph.adjacency_matrix
+      ~HeteroGraph.apply_edges
       ~HeteroGraph.apply_nodes
       ~HeteroGraph.canonical_etypes
       ~HeteroGraph.count
       ~HeteroGraph.find_edges
+      ~HeteroGraph.from_dgl
       ~HeteroGraph.get_etype_id
       ~HeteroGraph.get_meta_edge
       ~HeteroGraph.get_ntype_id
@@ -45,6 +47,7 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.set_edata
       ~HeteroGraph.set_ndata
       ~HeteroGraph.to_canonincal_etype
+      ~HeteroGraph.update_all
    
    
 

@@ -93,9 +93,9 @@
 <span class="p">}</span>
 
 <span class="n">CODE2DATA</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="s2">&quot;srcdata&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;u&quot;</span><span class="p">:</span> <span class="s2">&quot;src&quot;</span><span class="p">,</span>
     <span class="s2">&quot;e&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="s2">&quot;dstdata&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="s2">&quot;dst&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -158,10 +158,15 @@
     <span class="n">lhs_data</span><span class="p">,</span> <span class="n">rhs_data</span> <span class="o">=</span> <span class="n">CODE2DATA</span><span class="p">[</span><span class="n">lhs</span><span class="p">],</span> <span class="n">CODE2DATA</span><span class="p">[</span><span class="n">rhs</span><span class="p">]</span>
 
     <span class="c1"># define function</span>
-    <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">edge</span><span class="p">:</span> <span class="n">CODE2OP</span><span class="p">[</span><span class="n">binary_op</span><span class="p">](</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">lhs_data</span><span class="p">),</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">rhs_data</span><span class="p">),</span>
-    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">lhs_field</span><span class="p">,</span> <span class="n">rhs_field</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">out</span><span class="p">:</span>
+                    <span class="n">CODE2OP</span><span class="p">[</span><span class="n">binary_op</span><span class="p">](</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">lhs_data</span><span class="p">)[</span><span class="n">lhs_field</span><span class="p">],</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">rhs_data</span><span class="p">)[</span><span class="n">rhs_field</span><span class="p">],</span>
+                        <span class="p">)</span>
+                    <span class="p">}</span>
+        <span class="k">return</span> <span class="n">fn</span>
 
     <span class="c1"># attach name and doc</span>
     <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">name</span>
@@ -198,6 +203,7 @@
 <span class="n">segment_sum</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_sum</span>
 <span class="n">segment_max</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_max</span>
 <span class="n">segment_min</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">segment_min</span>
+
 
 <div class="viewcode-block" id="segment_mean"><a class="viewcode-back" href="../../autosummary/galax.function.segment_mean.html#galax.function.segment_mean">[docs]</a><span class="k">def</span> <span class="nf">segment_mean</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -245,6 +251,7 @@
         <span class="n">unique_indices</span><span class="o">=</span><span class="n">unique_indices</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">nominator</span> <span class="o">/</span> <span class="n">jnp</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">denominator</span><span class="p">,</span>
                                  <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">denominator</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span></div>
+
 
 <span class="c1"># =============================================================================</span>
 <span class="c1"># APPLY FUNCTIONS</span>
@@ -299,6 +306,7 @@
         <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">node_frames</span><span class="o">=</span><span class="n">node_frames</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_fn</span></div>
 
+
 <div class="viewcode-block" id="apply_edges"><a class="viewcode-back" href="../../autosummary/galax.function.apply_edges.html#galax.function.apply_edges">[docs]</a><span class="k">def</span> <span class="nf">apply_edges</span><span class="p">(</span>
     <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span>
@@ -337,7 +345,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">out_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">out_field</span> <span class="o">=</span> <span class="n">in_field</span>
-        
+
     <span class="k">def</span> <span class="nf">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span> <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="n">etype</span><span class="p">):</span>
         <span class="n">etype_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_etype_id</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">etype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

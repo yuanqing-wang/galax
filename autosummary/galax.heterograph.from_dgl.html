@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>galax.heterograph &mdash; galax  documentation</title>
+  <title>galax.heterograph.from_dgl &mdash; galax  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="galax.heterograph.from_dgl" href="galax.heterograph.from_dgl.html" />
-    <link rel="prev" title="API Documentation" href="../api.html" /> 
+    <link rel="next" title="galax.heterograph.graph" href="galax.heterograph.graph.html" />
+    <link rel="prev" title="galax.heterograph" href="galax.heterograph.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,8 +41,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">galax.heterograph</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="galax.heterograph.from_dgl.html">galax.heterograph.from_dgl</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="galax.heterograph.html">galax.heterograph</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.heterograph.from_dgl</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.heterograph.graph.html">galax.heterograph.graph</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.heterograph.EdgeSpace.html">galax.heterograph.EdgeSpace</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.heterograph.HeteroGraph.html">galax.heterograph.HeteroGraph</a></li>
@@ -70,9 +70,10 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API Documentation</a> &raquo;</li>
-      <li>galax.heterograph</li>
+          <li><a href="galax.heterograph.html">galax.heterograph</a> &raquo;</li>
+      <li>galax.heterograph.from_dgl</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/autosummary/galax.heterograph.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/autosummary/galax.heterograph.from_dgl.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -80,50 +81,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-galax.heterograph">
-<span id="galax-heterograph"></span><h1>galax.heterograph<a class="headerlink" href="#module-galax.heterograph" title="Permalink to this headline"></a></h1>
-<p>Module for heterograph definition.</p>
-<p class="rubric">Functions</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="galax.heterograph.from_dgl.html#galax.heterograph.from_dgl" title="galax.heterograph.from_dgl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dgl</span></code></a>(graph)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="galax.heterograph.graph.html#galax.heterograph.graph" title="galax.heterograph.graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph</span></code></a>(data[, n_nodes])</p></td>
-<td><p>Create a heterogeneous graph and return.</p></td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Classes</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="galax.heterograph.EdgeSpace.html#galax.heterograph.EdgeSpace" title="galax.heterograph.EdgeSpace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EdgeSpace</span></code></a>(data)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph" title="galax.heterograph.HeteroGraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HeteroGraph</span></code></a>([gidx, node_frames, ...])</p></td>
-<td><p>Class for storing graph structure and node/edge feature data.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="galax.heterograph.NodeSpace.html#galax.heterograph.NodeSpace" title="galax.heterograph.NodeSpace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NodeSpace</span></code></a>(data)</p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
+  <section id="galax-heterograph-from-dgl">
+<h1>galax.heterograph.from_dgl<a class="headerlink" href="#galax-heterograph-from-dgl" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="galax.heterograph.from_dgl">
+<span class="sig-prename descclassname"><span class="pre">galax.heterograph.</span></span><span class="sig-name descname"><span class="pre">from_dgl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#from_dgl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.from_dgl" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../api.html" class="btn btn-neutral float-left" title="API Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="galax.heterograph.from_dgl.html" class="btn btn-neutral float-right" title="galax.heterograph.from_dgl" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="galax.heterograph.html" class="btn btn-neutral float-left" title="galax.heterograph" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.heterograph.graph.html" class="btn btn-neutral float-right" title="galax.heterograph.graph" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

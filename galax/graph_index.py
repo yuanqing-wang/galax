@@ -941,6 +941,13 @@ class GraphIndex(NamedTuple):
             dst=self.src,
         )
 
+    @classmethod
+    def from_dgl(cls, graph):
+        src, dst, _ = graph.edges()
+        n_nodes = int(graph.number_of_nodes())
+        src, dst = jnp.array(src), jnp.array(dst)
+        return cls(n_nodes=n_nodes, src=src, dst=dst)
+
 
 def from_coo(
     num_nodes: int, src: jnp.ndarray, dst: jnp.ndarray

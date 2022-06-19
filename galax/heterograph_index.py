@@ -1073,6 +1073,26 @@ class HeteroGraphIndex(NamedTuple):
             edges=tuple((dst, src) for src, dst in self.edges),
         )
 
+    @classmethod
+    def from_dgl(cls, graph):
+        metagraph = GraphIndex.from_dgl(graph.metagraph)
+        number_of_ntypes = metagraph.number_of_nodes()
+        number_of_etypes = metagraph.number_of_edges()
+
+        edges = []
+        for idx in range(number_of_etypes):
+            src, dst, _ = graph.edges(idx)
+            src, dst = jnp.array(src), jnp.array(dst)
+            edges.append((src, dst))
+        edges = tuple(edges)
+
+        n_nodes = []
+        for idx in range(number_of_ntypes):
+            n_nodes.append(graph.number_of_nodes(idx))
+
+        n_nodes = jnp.array(n_nodes)
+        return cls(metagraph=metagraph, n_nodes=n_nodes, edges=edges)
+
 
 def create_metagraph_index(
     ntypes: Iterable[str],

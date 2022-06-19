@@ -8,6 +8,7 @@ from typing import (
     Tuple,
     Sequence,
     NamedTuple,
+    Callable,
 )
 from collections import namedtuple
 import jax
@@ -16,6 +17,8 @@ from flax.core import FrozenDict, freeze, unfreeze
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
 from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
+from .function import apply_edges, apply_nodes, ReduceFunction
+from .core import message_passing
 
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data"])
@@ -1236,8 +1239,70 @@ class HeteroGraph(NamedTuple):
 
         return _node_frame
 
-    def apply_nodes(self, function, ntype=None):
-        raise NotImplementedError
+    @classmethod
+    def from_dgl(cls, graph):
+        heterograph_index = HeteroGraphIndex.from_dgl(graph._graph)
+        ntypes = graph.ntypes
+        etypes = graph.etypes
+
+        ntypes = [ntype.replace("_N", "N_") for ntype in ntypes]
+        etypes = [etype.replace("_E", "E_") for etype in etypes]
+
+        node_frames = [dict(frame) for frame in graph._node_frames]
+        edge_frames = [dict(frame) for frame in graph._edge_frames]
+
+        return cls.init(
+            gidx=heterograph_index,
+            ntypes=ntypes,
+            etypes=etypes,
+            node_frames=node_frames,
+            edge_frames=edge_frames,
+        )
+
+    def apply_nodes(
+            self,
+            apply_function: Callable,
+            in_field: Optional[str] = "h",
+            out_field: Optional[str] = None,
+            ntype: Optional[str] = None,
+    ):
+
+        apply_function = apply_nodes(
+            apply_function,
+            in_field=in_field,
+            out_field=out_field,
+            ntype=ntype,
+        )
+        return apply_function(self)
+
+    def apply_edges(
+            self,
+            apply_function: Callable,
+            in_field: Optional[str] = "h",
+            out_field: Optional[str] = None,
+            etype: Optional[str] = None,
+    ):
+
+        apply_function = apply_edges(
+            apply_function,
+            in_field=in_field,
+            out_field=out_field,
+            etype=etype,
+        )
+        return apply_function(self)
+
+    def update_all(
+        self,
+        mfunc: Optional[Callable],
+        rfunc: Optional[ReduceFunction],
+        afunc: Optional[Callable] = None,
+        etype: Optional[Callable] = None,
+    ):
+
+        return message_passing(
+            graph=self, mfunc=mfunc, rfunc=rfunc, afunc=afunc, etype=etype,
+        )
+
 
 
 def graph(
@@ -1403,3 +1468,6 @@ def graph(
             ntypes=ntypes,
             etypes=etypes,
         )
+
+def from_dgl(graph):
+    return HeteroGraph.from_dgl(graph)

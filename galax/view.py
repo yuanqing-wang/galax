@@ -4,6 +4,7 @@ Inspired by dgl.view
 """
 
 from collections import namedtuple
+import jax.numpy as jnp
 
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data", "src", "dst"])
@@ -21,7 +22,6 @@ class NodeView(object):
                 ntype_idx=ntype_idx,
             ),
         )
-
 
 class EdgeView(object):
     def __init__(self, graph):
@@ -48,6 +48,10 @@ class EdgeView(object):
             ),
         )
 
+    def __call__(self, key=None):
+        etype_idx = self.graph.get_etype_id(key)
+        src, dst = self.graph.gidx.edges[etype_idx]
+        return src, dst
 
 class NodeDataView(object):
     def __init__(self, graph, ntype_idx, idxs=None):
@@ -58,13 +62,12 @@ class NodeDataView(object):
     def __getitem__(self, key):
         res = self.graph.node_frames[self.ntype_idx][key]
         if self.idxs is not None:
-            res = res[self.idxs]
+            res = jnp.take(res, self.idxs, 0)
         return res
 
     def set(self, key, data):
         ntype = self.graph.ntypes[self.ntype_idx]
         return self.graph.set_ndata(key=key, data=data, ntype=ntype)
-
 
 class EdgeDataView(object):
     def __init__(self, graph, etype_idx, idxs=None):
@@ -75,7 +78,8 @@ class EdgeDataView(object):
     def __getitem__(self, key):
         res = self.graph.edge_frames[self.etype_idx][key]
         if self.idxs is not None:
-            res = res[self.idxs]
+            # res = res[self.idxs]
+            res = jnp.take(res, self.idxs, 0)
         return res
 
     def set(self, key, data):

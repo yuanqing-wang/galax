@@ -1241,13 +1241,29 @@ class HeteroGraph(NamedTuple):
 
     @classmethod
     def from_dgl(cls, graph):
+        """Construct a heterograph from dgl.DGLGraph
+
+        Parameters
+        ----------
+        graph : dgl.DGLGraph
+            Input graph.
+
+        Returns
+        -------
+        HeteroGraph
+            The resulting graph.
+
+        """
+        # resursively construct the heterograph index object
         heterograph_index = HeteroGraphIndex.from_dgl(graph._graph)
         ntypes = graph.ntypes
         etypes = graph.etypes
 
+        # replace node and edge type so that it doesn't error for namedtuple
         ntypes = [ntype.replace("_N", "N_") for ntype in ntypes]
         etypes = [etype.replace("_E", "E_") for etype in etypes]
 
+        # copy frames
         node_frames = [dict(frame) for frame in graph._node_frames]
         edge_frames = [dict(frame) for frame in graph._edge_frames]
 
@@ -1266,6 +1282,7 @@ class HeteroGraph(NamedTuple):
             out_field: Optional[str] = None,
             ntype: Optional[str] = None,
     ):
+        """Alias to function.apply_nodes."""
 
         apply_function = apply_nodes(
             apply_function,
@@ -1282,7 +1299,7 @@ class HeteroGraph(NamedTuple):
             out_field: Optional[str] = None,
             etype: Optional[str] = None,
     ):
-
+        """Alias to function.apply_edges."""
         apply_function = apply_edges(
             apply_function,
             in_field=in_field,
@@ -1298,7 +1315,36 @@ class HeteroGraph(NamedTuple):
         afunc: Optional[Callable] = None,
         etype: Optional[Callable] = None,
     ):
+        """Alias to core.message_passing.
 
+        Parameters
+        ----------
+        mfunc : Callable
+            Message function.
+        rfunc : Callable
+            Reduce function.
+        afunc : Callable
+            Apply function.
+
+        Returns
+        -------
+        HeteroGraph
+            The resulting graph.
+
+        Examples
+        --------
+        >>> import galax
+        >>> import jax
+        >>> import jax.numpy as jnp
+        >>> g = galax.graph(((0, 1), (1, 2)))
+        >>> g = g.ndata.set("h", jnp.ones(3))
+        >>> mfunc = galax.function.copy_u("h", "m")
+        >>> rfunc = galax.function.sum("m", "h1")
+        >>> _g = g.update_all(g, mfunc, rfunc)
+        >>> _g.ndata['h1'].flatten().tolist()
+        [0.0, 1.0, 1.0]
+
+        """
         return message_passing(
             graph=self, mfunc=mfunc, rfunc=rfunc, afunc=afunc, etype=etype,
         )
@@ -1470,4 +1516,17 @@ def graph(
         )
 
 def from_dgl(graph):
+    """Construct a heterograph from dgl.DGLGraph
+
+    Parameters
+    ----------
+    graph : dgl.DGLGraph
+        Input graph.
+
+    Returns
+    -------
+    HeteroGraph
+        The resulting graph.
+
+    """
     return HeteroGraph.from_dgl(graph)

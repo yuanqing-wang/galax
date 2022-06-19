@@ -861,7 +861,7 @@
 <span class="sd">        int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ntype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntypes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Ntype needs to be specified. &quot;</span>
+            <span class="c1"># assert len(self.ntypes) == 1, &quot;Ntype needs to be specified. &quot;</span>
             <span class="k">return</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">ntype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ntype_invmap</span><span class="p">,</span> <span class="s2">&quot;No such ntype </span><span class="si">%s</span><span class="s2">. &quot;</span> <span class="o">%</span> <span class="n">ntype</span>
@@ -882,7 +882,7 @@
 <span class="sd">        int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">etype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">etypes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Etype needs to be specified. &quot;</span>
+            <span class="c1"># assert len(self.etypes) == 1, &quot;Etype needs to be specified. &quot;</span>
             <span class="k">return</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">etype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_etype_invmap</span><span class="p">,</span> <span class="s2">&quot;No such etype </span><span class="si">%s</span><span class="s2">. &quot;</span> <span class="o">%</span> <span class="n">etype</span>
@@ -1093,7 +1093,11 @@
             <span class="n">etype</span><span class="o">=</span><span class="n">etype_idx</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="HeteroGraph.out_degrees"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.out_degrees">[docs]</a>    <span class="k">def</span> <span class="nf">out_degrees</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">etype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="HeteroGraph.out_degrees"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.out_degrees">[docs]</a>    <span class="k">def</span> <span class="nf">out_degrees</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">u</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">etype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the out-degree(s) of the given nodes.</span>
 <span class="sd">        It computes the out-degree(s) w.r.t. to the edges of the given edge type.</span>
 
@@ -1132,7 +1136,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">n_nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">metagraph</span><span class="o">.</span><span class="n">src</span><span class="p">[</span><span class="n">etype_idx</span><span class="p">]]</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">in_degrees</span><span class="p">(</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">out_degrees</span><span class="p">(</span>
             <span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span>
             <span class="n">etype</span><span class="o">=</span><span class="n">etype_idx</span><span class="p">,</span>
         <span class="p">)</span></div>

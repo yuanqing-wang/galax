@@ -270,12 +270,9 @@
     <span class="p">)</span></div>
 
 
-
 <span class="c1"># =============================================================================</span>
 <span class="c1"># APPLY FUNCTIONS</span>
 <span class="c1"># =============================================================================</span>
-
-
 <div class="viewcode-block" id="apply_nodes"><a class="viewcode-back" href="../../autosummary/galax.function.apply_nodes.html#galax.function.apply_nodes">[docs]</a><span class="k">def</span> <span class="nf">apply_nodes</span><span class="p">(</span>
     <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">in_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span>
@@ -317,12 +314,11 @@
 
     <span class="k">def</span> <span class="nf">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span> <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span> <span class="n">ntype</span><span class="o">=</span><span class="n">ntype</span><span class="p">):</span>
         <span class="n">ntype_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_ntype_id</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ntype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ntype</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ntypes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">node_frame</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[</span><span class="n">ntype_idx</span><span class="p">])</span>
         <span class="n">node_frame</span><span class="p">[</span><span class="n">out_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">node_frame</span><span class="p">[</span><span class="n">in_field</span><span class="p">])</span>
         <span class="n">node_frame</span> <span class="o">=</span> <span class="n">freeze</span><span class="p">(</span><span class="n">node_frame</span><span class="p">)</span>
-        <span class="n">node_frames</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">node_frames</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">ntype</span><span class="p">:</span> <span class="n">node_frame</span><span class="p">})</span>
+        <span class="n">node_frames</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[:</span><span class="n">ntype_idx</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">node_frame</span><span class="p">,)</span>\
+            <span class="o">+</span> <span class="n">graph</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[</span><span class="n">ntype_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">node_frames</span><span class="o">=</span><span class="n">node_frames</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_fn</span></div>
@@ -369,12 +365,11 @@
 
     <span class="k">def</span> <span class="nf">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span> <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="n">etype</span><span class="p">):</span>
         <span class="n">etype_idx</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_etype_id</span><span class="p">(</span><span class="n">etype</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">etype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">etype</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">etypes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">edge_frame</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[</span><span class="n">etype_idx</span><span class="p">])</span>
         <span class="n">edge_frame</span><span class="p">[</span><span class="n">out_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">edge_frame</span><span class="p">[</span><span class="n">in_field</span><span class="p">])</span>
         <span class="n">edge_frame</span> <span class="o">=</span> <span class="n">freeze</span><span class="p">(</span><span class="n">edge_frame</span><span class="p">)</span>
-        <span class="n">edge_frames</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_frames</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">etype</span><span class="p">:</span> <span class="n">edge_frame</span><span class="p">})</span>
+        <span class="n">edge_frames</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[:</span><span class="n">etype_idx</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">edge_frame</span><span class="p">,</span> <span class="p">)</span>\
+            <span class="o">+</span> <span class="n">graph</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[</span><span class="n">etype_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">edge_frames</span><span class="o">=</span><span class="n">edge_frames</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_fn</span></div>

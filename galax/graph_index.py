@@ -9,6 +9,8 @@ import numpy as onp
 from jax.experimental.sparse import BCOO
 
 # @register_pytree_node_class
+
+
 class GraphIndex(NamedTuple):
     """Graph index object.
 

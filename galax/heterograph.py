@@ -211,7 +211,7 @@ class HeteroGraph(NamedTuple):
                     node_frames = (
                         self.node_frames[:ntype_idx]
                         + (new_data,)
-                        + self.node_frames[ntype_idx + 1:]
+                        + self.node_frames[ntype_idx + 1 :]
                     )
 
             else:
@@ -457,7 +457,7 @@ class HeteroGraph(NamedTuple):
                 edge_frames = (
                     self.edge_frames[:etype_idx]
                     + (new_data,)
-                    + self.edge_frames[etype_idx + 1:]
+                    + self.edge_frames[etype_idx + 1 :]
                 )
 
             node_frames = self.node_frames
@@ -473,7 +473,6 @@ class HeteroGraph(NamedTuple):
     def remove_edges(
         self, eids: Optional[jnp.array] = None, etype: Optional[str] = None
     ):
-
         """Remove multiple edges with the specified edge type
         Nodes will not be removed. After removing edges, the rest
         edges will be re-indexed using consecutive integers from 0,
@@ -1239,6 +1238,7 @@ class HeteroGraph(NamedTuple):
 
     def apply_nodes(self, function, ntype=None):
         raise NotImplementedError
+
 
 def graph(
     data: Any,

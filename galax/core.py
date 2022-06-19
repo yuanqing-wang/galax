@@ -82,7 +82,7 @@ def message_passing(
     node_frames = (
         graph.node_frames[:dsttype_idx]
         + (node_frame,)
-        + graph.node_frames[dsttype_idx + 1:]
+        + graph.node_frames[dsttype_idx + 1 :]
     )
 
     return graph._replace(node_frames=node_frames)

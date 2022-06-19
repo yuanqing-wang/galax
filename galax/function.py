@@ -91,10 +91,11 @@ def _gen_message_builtin(lhs, rhs, binary_op):
     lhs_data, rhs_data = CODE2DATA[lhs], CODE2DATA[rhs]
 
     # define function
-    func = lambda edge: CODE2OP[binary_op](
-        getattr(edge, lhs_data),
-        getattr(edge, rhs_data),
-    )
+    def func(edge):
+        return CODE2OP[binary_op](
+            getattr(edge, lhs_data),
+            getattr(edge, rhs_data),
+        )
 
     # attach name and doc
     func.__name__ = name
@@ -131,6 +132,7 @@ min = partial(ReduceFunction, "min")
 segment_sum = jax.ops.segment_sum
 segment_max = jax.ops.segment_max
 segment_min = jax.ops.segment_min
+
 
 def segment_mean(
     data: jnp.ndarray,
@@ -175,13 +177,18 @@ def segment_mean(
         segment_ids,
         num_segments,
         indices_are_sorted=indices_are_sorted,
-        unique_indices=unique_indices)
-    return nominator / jnp.maximum(denominator,
-                                 jnp.ones(shape=[], dtype=denominator.dtype))
+        unique_indices=unique_indices,
+    )
+    return nominator / jnp.maximum(
+        denominator, jnp.ones(shape=[], dtype=denominator.dtype)
+    )
+
 
 # =============================================================================
 # APPLY FUNCTIONS
 # =============================================================================
+
+
 def apply_nodes(
     function: Callable,
     in_field: str = "h",
@@ -230,7 +237,9 @@ def apply_nodes(
         node_frame = freeze(node_frame)
         node_frames = graph.node_frames._replace(**{ntype: node_frame})
         return graph._replace(node_frames=node_frames)
+
     return _fn
+
 
 def apply_edges(
     function: Callable,
@@ -270,7 +279,7 @@ def apply_edges(
     """
     if out_field is None:
         out_field = in_field
-        
+
     def _fn(graph, in_field=in_field, out_field=out_field, etype=etype):
         etype_idx = graph.get_etype_id(etype)
         if etype is None:
@@ -280,4 +289,5 @@ def apply_edges(
         edge_frame = freeze(edge_frame)
         edge_frames = graph.edge_frames._replace(**{etype: edge_frame})
         return graph._replace(edge_frames=edge_frames)
+
     return _fn

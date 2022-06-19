@@ -8,6 +8,7 @@ from collections import namedtuple
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data", "src", "dst"])
 
+
 class NodeView(object):
     def __init__(self, graph):
         self.graph = graph

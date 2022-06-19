@@ -281,7 +281,7 @@
                     <span class="n">node_frames</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[:</span><span class="n">ntype_idx</span><span class="p">]</span>
                         <span class="o">+</span> <span class="p">(</span><span class="n">new_data</span><span class="p">,)</span>
-                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[</span><span class="n">ntype_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                        <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[</span><span class="n">ntype_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
                     <span class="p">)</span>
 
             <span class="k">else</span><span class="p">:</span>
@@ -527,7 +527,7 @@
                 <span class="n">edge_frames</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[:</span><span class="n">etype_idx</span><span class="p">]</span>
                     <span class="o">+</span> <span class="p">(</span><span class="n">new_data</span><span class="p">,)</span>
-                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[</span><span class="n">etype_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[</span><span class="n">etype_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
                 <span class="p">)</span>
 
             <span class="n">node_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span>
@@ -543,7 +543,6 @@
 <div class="viewcode-block" id="HeteroGraph.remove_edges"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.remove_edges">[docs]</a>    <span class="k">def</span> <span class="nf">remove_edges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">eids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">etype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
-
         <span class="sd">&quot;&quot;&quot;Remove multiple edges with the specified edge type</span>
 <span class="sd">        Nodes will not be removed. After removing edges, the rest</span>
 <span class="sd">        edges will be re-indexed using consecutive integers from 0,</span>
@@ -1370,6 +1369,7 @@
         <span class="k">return</span> <span class="n">message_passing</span><span class="p">(</span>
             <span class="n">graph</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mfunc</span><span class="o">=</span><span class="n">mfunc</span><span class="p">,</span> <span class="n">rfunc</span><span class="o">=</span><span class="n">rfunc</span><span class="p">,</span> <span class="n">afunc</span><span class="o">=</span><span class="n">afunc</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="n">etype</span><span class="p">,</span>
         <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="graph"><a class="viewcode-back" href="../../autosummary/galax.heterograph.graph.html#galax.heterograph.graph">[docs]</a><span class="k">def</span> <span class="nf">graph</span><span class="p">(</span>

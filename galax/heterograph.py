@@ -1291,6 +1291,70 @@ class HeteroGraph(NamedTuple):
 
         return _node_frame
 
+    def add_self_loop(self, etype: Optional[str] = None):
+        """Add self loop given etype.
+
+        Parameters
+        ----------
+        etype : Optional[str] = None
+            Edge type.
+
+        Returns
+        -------
+        HeteroGraph
+            The resulting graph.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> g = g.add_self_loop()
+        >>> g.number_of_edges()
+        5
+        >>> src, dst = g.edges()
+        >>> src.tolist(), dst.tolist()
+        ([0, 1, 0, 1, 2], [1, 2, 0, 1, 2])
+
+        """
+        etype_idx = self.get_etype_id(etype)
+        srctype_idx, dsttype_idx = self.gidx.metagraph.find_edge(etype_idx)
+        assert srctype_idx == dsttype_idx
+        n_nodes = self.gidx.n_nodes[srctype_idx]
+        return self.add_edges(
+            jnp.arange(n_nodes), jnp.arange(n_nodes), etype=etype,
+        )
+
+
+    def remove_self_loop(self, etype: Optional[str] = None):
+        """Add self loop given etype.
+
+        Parameters
+        ----------
+        etype : Optional[str] = None
+            Edge type.
+
+        Returns
+        -------
+        HeteroGraph
+            The resulting graph.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1, 0, 1, 2), (1, 2, 0, 1, 2)))
+        >>> g = g.remove_self_loop()
+        >>> g.number_of_edges()
+        2
+        >>> src, dst = g.edges()
+        >>> src.tolist(), dst.tolist()
+        ([0, 1], [1, 2])
+
+        """
+        etype_idx = self.get_etype_id(etype)
+        srctype_idx, dsttype_idx = self.gidx.metagraph.find_edge(etype_idx)
+        assert srctype_idx == dsttype_idx
+        src, dst = self.gidx.edges[etype_idx]
+        eid = jnp.where(src == dst)[0]
+        return self.remove_edges(eid, etype=etype)
+
     @classmethod
     def from_dgl(cls, graph):
         """Construct a heterograph from dgl.DGLGraph
@@ -1516,7 +1580,6 @@ def graph(
             assert etype not in _etype_invmap, "Etype has to be unique. "
             _etype_invmap[etype] = len(_etype_invmap)
             metagraph = metagraph.add_edge(srctype_idx, dsttype_idx)
-            etype_idx = _etype_invmap[etype]
 
             assert len(value) == 2, "Only need src and dst. "
             src, dst = value

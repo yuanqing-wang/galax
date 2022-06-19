@@ -1,9 +1,10 @@
+"""Graph Convolutional network.<https://arxiv.org/abs/1609.02907>`__"""
+
 from typing import Optional
 from flax import linen as nn
 
-
 class GCN(nn.Module):
-    """Graph convolutional layer from
+    r"""Graph convolutional layer from
     `Semi-Supervised Classification with Graph Convolutional
     Networks <https://arxiv.org/abs/1609.02907>`__
 

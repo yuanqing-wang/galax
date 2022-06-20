@@ -14,13 +14,13 @@ Galax is a graph-centric, high-performance library for graph modeling with JAX.
 ```
 
 ## Design principle
-* Pure JAX, end-to-end differentiable and jittable.
+* Pure JAX: end-to-end differentiable and jittable.
 * Graphs (including heterographs with multiple node types), metagraphs, and node and edge data are simply pytrees (or more precisely, namedtuples), **and are thus immutable**.
 * All transforms (including neural networks inhereted from [flax](https://github.com/google/flax)) takes and returns graphs.
 * Grammar highly resembles [DGL](https://www.dgl.ai), except being purely functional.
 
 ## Quick start
-Implement graph convolution in **six** lines:
+Implement a simple graph convolution in six lines.
 ```python
 >>> import jax.numpy as jnp; import galax
 >>> g = galax.graph(([0, 1], [1, 2]))
@@ -29,5 +29,6 @@ Implement graph convolution in **six** lines:
 >>> W = jnp.random.normal(key=jax.random.PRNGKey(2666), shape=(16, 16))
 >>> g = g.apply_nodes(lambda node: {"h": node.data["h"] @ W}) 
 ```
+
 
 

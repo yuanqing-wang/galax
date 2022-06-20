@@ -841,6 +841,8 @@ class HeteroGraph(NamedTuple):
         ntype_idx = self.get_ntype_id(ntype)
         if self.node_frames[ntype_idx] is None:
             return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
+        elif len(self.node_frames[ntype_idx]) == 0:
+            return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
         else:
             return len(next(iter(self.node_frames[ntype_idx].values())))
 
@@ -859,6 +861,8 @@ class HeteroGraph(NamedTuple):
         """
         etype_idx = self.get_etype_id(etype)
         if self.edge_frames[etype_idx] is None:
+            return self.gidx.number_of_edges(self.get_etype_id(etype))
+        elif len(self.edge_frames[etype_idx]) == 0:
             return self.gidx.number_of_edges(self.get_etype_id(etype))
         else:
             return len(next(iter(self.edge_frames[etype_idx].values())))

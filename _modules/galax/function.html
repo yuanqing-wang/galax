@@ -74,6 +74,7 @@
 <span class="kn">import</span> <span class="nn">jax</span>
 <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 <span class="kn">from</span> <span class="nn">flax.core</span> <span class="kn">import</span> <span class="n">freeze</span><span class="p">,</span> <span class="n">unfreeze</span>
+<span class="kn">from</span> <span class="nn">flax</span> <span class="kn">import</span> <span class="n">linen</span> <span class="k">as</span> <span class="n">nn</span>
 
 <span class="c1"># =============================================================================</span>
 <span class="c1"># MESSAGE FUNCTIONS</span>
@@ -322,7 +323,6 @@
         <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">node_frames</span><span class="o">=</span><span class="n">node_frames</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_fn</span></div>
-
 
 <div class="viewcode-block" id="apply_edges"><a class="viewcode-back" href="../../autosummary/galax.function.apply_edges.html#galax.function.apply_edges">[docs]</a><span class="k">def</span> <span class="nf">apply_edges</span><span class="p">(</span>
     <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>

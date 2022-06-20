@@ -20,17 +20,21 @@ try:
 except:
     long_description = "\n".join(short_description[2:])
 
+def local_scheme(version):
+    return ""
 
 setup(
     # Self-descriptive entries which should always be present
-    name='galax',
+    name='g3x',
     author='Yuanqing Wang',
     author_email='wangyq@wangyq.net',
     description=short_description[0],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    # use_scm_version={"local_scheme": local_scheme},
+    # version=versioneer.get_version(),
+    version="0.0",
+    # cmdclass=versioneer.get_cmdclass(),
     license='MIT',
 
     # Which Python importable modules should be included when your package is installed

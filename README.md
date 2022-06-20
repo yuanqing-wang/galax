@@ -3,7 +3,7 @@ Graph Learning with JAX
 [//]: # (Badges)
 [![CI](https://github.com/yuanqing-wang/galax/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/yuanqing-wang/galax/actions/workflows/CI.yml)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/yuanqing-wang/galax.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/yuanqing-wang/galax/context:python)
-![pypi](https://img.shields.io/pypi/v/g3x.svg)
+[![pypi](https://img.shields.io/pypi/v/g3x.svg)(https://pypi.org/project/g3x/)]
 [![docs stable](https://img.shields.io/badge/docs-stable-5077AB.svg?logo=read%20the%20docs)](https://galax.wangyq.net/)
 
 Galax is a graph-centric, high-performance library for graph modeling with JAX.

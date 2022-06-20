@@ -50,7 +50,7 @@ class GCN(nn.Module):
     (6, 2)
     """
     features: int
-    use_bias: bool = True
+    use_bias: bool = False
     activation: Optional[Callable] = jax.nn.relu
 
     @nn.compact

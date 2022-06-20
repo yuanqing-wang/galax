@@ -12,3 +12,19 @@ def cora():
     del g.ndata['feat']
     g = galax.from_dgl(g)
     return g
+
+def citeseer():
+    from dgl.data import CiteseerGraphDataset
+    g = CiteseerGraphDataset()[0]
+    g.ndata['h'] = g.ndata['feat']
+    del g.ndata['feat']
+    g = galax.from_dgl(g)
+    return g
+
+def pubmed():
+    from dgl.data import PubmedGraphDataset
+    g = PubmedGraphDataset()[0]
+    g.ndata['h'] = g.ndata['feat']
+    del g.ndata['feat']
+    g = galax.from_dgl(g)
+    return g

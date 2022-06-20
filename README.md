@@ -21,7 +21,7 @@ Galax is a graph-centric, high-performance library for graph modeling with JAX.
 
 ## Quick start
 Implement graph convolution in **five** lines:
-```
+```python
 >>> import jax.numpy as jnp; import galax
 >>> g = galax.graph(([0, 1], [1, 2]))
 >>> g = g.ndata.set('h', jnp.ones(3, 16))

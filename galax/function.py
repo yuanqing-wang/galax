@@ -7,6 +7,7 @@ from collections import namedtuple
 import jax
 import jax.numpy as jnp
 from flax.core import freeze, unfreeze
+from flax import linen as nn
 
 # =============================================================================
 # MESSAGE FUNCTIONS
@@ -255,7 +256,6 @@ def apply_nodes(
         return graph._replace(node_frames=node_frames)
 
     return _fn
-
 
 def apply_edges(
     function: Callable,

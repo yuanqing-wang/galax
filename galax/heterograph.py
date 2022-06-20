@@ -838,7 +838,11 @@ class HeteroGraph(NamedTuple):
         --------
 
         """
-        return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
+        ntype_idx = self.get_ntype_id(ntype)
+        if self.node_frames[ntype_idx] is None:
+            return self.gidx.number_of_nodes(self.get_ntype_id(ntype))
+        else:
+            return len(next(iter(self.node_frames[ntype_idx].values())))
 
     def number_of_edges(self, etype: Optional[str] = None):
         """Return the number of nodes with ntype.
@@ -853,7 +857,11 @@ class HeteroGraph(NamedTuple):
         int
             Number of edges.
         """
-        return self.gidx.number_of_edges(self.get_etype_id(etype))
+        etype_idx = self.get_etype_id(etype)
+        if self.edge_frames[etype_idx] is None:
+            return self.gidx.number_of_edges(self.get_etype_id(etype))
+        else:
+            return len(next(iter(self.edge_frames[etype_idx].values())))
 
     def is_multigraph(self):
         """Return whether the graph is a multigraph with parallel edges.
@@ -1065,9 +1073,7 @@ class HeteroGraph(NamedTuple):
         etype_idx = self.get_etype_id(etype)
 
         if u is None:
-            u = jnp.arange(
-                self.gidx.n_nodes[self.gidx.metagraph.src[etype_idx]]
-            )
+            u = jnp.arange(self.number_of_nodes(etype))
 
         return self.gidx.out_degrees(
             u=u,
@@ -1383,9 +1389,15 @@ class HeteroGraph(NamedTuple):
         ntypes = [ntype.replace("_N", "N_") for ntype in ntypes]
         etypes = [etype.replace("_E", "E_") for etype in etypes]
 
+        to_jnp = lambda frame: {
+            key: jnp.array(value)
+            if not isinstance(value, jnp.ndarray) else value
+            for key, value in frame.items()
+        }
+
         # copy frames
-        node_frames = [dict(frame) for frame in graph._node_frames]
-        edge_frames = [dict(frame) for frame in graph._edge_frames]
+        node_frames = [to_jnp(dict(frame)) for frame in graph._node_frames]
+        edge_frames = [to_jnp(dict(frame)) for frame in graph._edge_frames]
 
         return cls.init(
             gidx=heterograph_index,
@@ -1468,8 +1480,6 @@ class HeteroGraph(NamedTuple):
         return message_passing(
             graph=self, mfunc=mfunc, rfunc=rfunc, afunc=afunc, etype=etype,
         )
-
-
 
 def graph(
     data: Any,

@@ -1,14 +1,13 @@
 from functools import partial
 import jax
-import jax.numpy as jnp
 from flax import linen as nn
 import optax
 import galax
 
-def run(args):
+
+def run():
     from galax.data.datasets.nodes.planetoid import cora
     G = cora()
-    G = G.remove_self_loop()
     G = G.add_self_loop()
     Y_REF = jax.nn.one_hot(G.ndata['label'], 7)
 
@@ -16,7 +15,7 @@ def run(args):
     model = galax.nn.Sequential(
         (
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=False)),
-            GCN(args.features, activation=jax.nn.relu),
+            GCN(16, activation=jax.nn.relu),
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=False)),
             GCN(7, activation=None),
         ),
@@ -25,7 +24,7 @@ def run(args):
     model_eval = galax.nn.Sequential(
         (
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=True)),
-            GCN(args.features, activation=jax.nn.relu),
+            GCN(16, activation=jax.nn.relu),
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=True)),
             GCN(7, activation=None),
         ),
@@ -43,7 +42,7 @@ def run(args):
                 "layers_1": {"kernel": True, "bias": False},
                 "layers_3": False,
             },
-        }
+        },
     )
 
     optimizer = optax.chain(
@@ -78,7 +77,8 @@ def run(args):
         g = model_eval.apply(params, G)
         y = g.ndata['h']
         accuracy_vl = (Y_REF[g.ndata['val_mask']].argmax(-1) ==
-            y[g.ndata['val_mask']].argmax(-1)).sum() / g.ndata['val_mask'].sum()
+                y[g.ndata['val_mask']].argmax(-1)).sum() /\
+                g.ndata['val_mask'].sum()
         loss_vl = optax.softmax_cross_entropy(
             y[g.ndata['val_mask']],
             Y_REF[g.ndata['val_mask']],
@@ -91,7 +91,8 @@ def run(args):
         g = model_eval.apply(params, G)
         y = g.ndata['h']
         accuracy_te = (Y_REF[g.ndata['test_mask']].argmax(-1) ==
-            y[g.ndata['test_mask']].argmax(-1)).sum() / g.ndata['test_mask'].sum()
+            y[g.ndata['test_mask']].argmax(-1)).sum() /\
+            g.ndata['test_mask'].sum()
         loss_te = optax.softmax_cross_entropy(
             y[g.ndata['test_mask']],
             Y_REF[g.ndata['test_mask']],
@@ -110,11 +111,8 @@ def run(args):
             break
 
     accuracy_te, _ = test(state)
-    print(f"Accuracy: {accuracy_te}"")
+    print(f"Accuracy: {accuracy_te:.3f}")
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--features", type=int, default=16)
-    args = parser.parse_args()
-    run(args)
+    run()

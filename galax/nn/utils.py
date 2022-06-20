@@ -1,3 +1,5 @@
+
+
 class EarlyStopping(object):
     """Early stopping.
 
@@ -9,7 +11,7 @@ class EarlyStopping(object):
     """
 
     best_losses = None
-    best_state = None
+    params = None
     counter = 0
 
     def __init__(self, patience: int = 10):
@@ -28,7 +30,7 @@ class EarlyStopping(object):
                 loss <= best_loss
                 for loss, best_loss in zip(losses, self.best_losses)
             ):
-                self.best_state = params
+                self.params = params
             self.best_losses = [
                 min(loss, best_loss)
                 for loss, best_loss in zip(losses, self.best_losses)

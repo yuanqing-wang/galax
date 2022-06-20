@@ -2,7 +2,6 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 from flax import linen as nn
-from flax.training.train_state import TrainState
 import optax
 import galax
 
@@ -26,9 +25,9 @@ def run(args):
     model_eval = galax.nn.Sequential(
         (
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=True)),
-            GCN(args.features),
+            GCN(args.features, activation=jax.nn.relu),
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=True)),
-            GCN(7),
+            GCN(7, activation=None),
         ),
     )
 
@@ -38,13 +37,21 @@ def run(args):
     params = model.init({"params": key, "dropout": key_dropout}, G)
 
     from flax.core import FrozenDict
-    mask = FrozenDict({"params": {"layers_1": True, "layers_3": False}})
+    mask = FrozenDict(
+        {"params":
+            {
+                "layers_1": {"kernel": True, "bias": False},
+                "layers_3": False,
+            },
+        }
+    )
 
     optimizer = optax.chain(
         optax.additive_weight_decay(5e-4, mask=mask),
         optax.adam(1e-2),
     )
 
+    from flax.training.train_state import TrainState
     state = TrainState.create(
         apply_fn=model.apply, params=params, tx=optimizer,
     )
@@ -69,18 +76,41 @@ def run(args):
     def eval(state):
         params = state.params
         g = model_eval.apply(params, G)
-        y = g.ndata['h'].argmax(-1)
+        y = g.ndata['h']
         accuracy_vl = (Y_REF[g.ndata['val_mask']].argmax(-1) ==
-                y[g.ndata['val_mask']]).sum() / g.ndata['val_mask'].sum()
+            y[g.ndata['val_mask']].argmax(-1)).sum() / g.ndata['val_mask'].sum()
+        loss_vl = optax.softmax_cross_entropy(
+            y[g.ndata['val_mask']],
+            Y_REF[g.ndata['val_mask']],
+        ).mean()
+        return accuracy_vl, loss_vl
+
+    @jax.jit
+    def test(state):
+        params = state.params
+        g = model_eval.apply(params, G)
+        y = g.ndata['h']
         accuracy_te = (Y_REF[g.ndata['test_mask']].argmax(-1) ==
-                y[g.ndata['test_mask']]).sum() / g.ndata['test_mask'].sum()
-        return accuracy_vl, accuracy_te
+            y[g.ndata['test_mask']].argmax(-1)).sum() / g.ndata['test_mask'].sum()
+        loss_te = optax.softmax_cross_entropy(
+            y[g.ndata['test_mask']],
+            Y_REF[g.ndata['test_mask']],
+        ).mean()
+        return accuracy_te, loss_te
+
+    from galax.nn.utils import EarlyStopping
+    early_stopping = EarlyStopping(10)
 
     import tqdm
-    for _ in (pbar := tqdm.tqdm(range(500))):
+    for _ in tqdm.tqdm(range(1000)):
         state, key = step(state, key)
-        accuracy_vl, accuracy_te = eval(state)
-        pbar.set_description(f"{accuracy_vl:.2f}, {accuracy_te:.2f}")
+        accuracy_vl, loss_vl = eval(state)
+        if early_stopping((-accuracy_vl, loss_vl), state.params):
+            state = state.replace(params=early_stopping.params)
+            break
+
+    accuracy_te, _ = test(state)
+    print(f"Accuracy: {accuracy_te}"")
 
 if __name__ == "__main__":
     import argparse

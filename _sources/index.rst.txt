@@ -12,7 +12,6 @@ GALAX: Graph Learning with JAX
    :maxdepth: 2
    :caption: Contents:
 
-   getting_started
    api
 
 

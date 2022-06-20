@@ -52,6 +52,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.extlinks',
     'sphinx.ext.coverage',
+    'm2r2',
     # 'numpydoc',
 ]
 

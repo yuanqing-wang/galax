@@ -68,6 +68,41 @@
              
   <section id="galax-graph-learning-with-jax">
 <h1>GALAX: Graph Learning with JAX<a class="headerlink" href="#galax-graph-learning-with-jax" title="Permalink to this headline"></a></h1>
+</section>
+<section id="graph-learning-with-jax">
+<h1>Graph Learning with JAX<a class="headerlink" href="#graph-learning-with-jax" title="Permalink to this headline"></a></h1>
+<a class="reference external image-reference" href="https://github.com/yuanqing-wang/galax/actions/workflows/CI.yml"><img alt="CI" src="https://github.com/yuanqing-wang/galax/actions/workflows/CI.yml/badge.svg?branch=main" /></a>
+<a class="reference external image-reference" href="https://lgtm.com/projects/g/yuanqing-wang/galax/context:python"><img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/yuanqing-wang/galax.svg?logo=lgtm&amp;logoWidth=18" /></a>
+<a class="reference external image-reference" href="(https://pypi.org/project/g3x/"><img alt="pypi" src="https://img.shields.io/pypi/v/g3x.svg" /></a>
+<p>)</p>
+<a class="reference external image-reference" href="https://galax.wangyq.net/"><img alt="docs stable" src="https://img.shields.io/badge/docs-stable-5077AB.svg?logo=read%20the%20docs" /></a>
+<p>Galax is a graph-centric, high-performance library for graph modeling with JAX.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">g3x</span>
+</pre></div>
+</div>
+</section>
+<section id="design-principle">
+<h2>Design principle<a class="headerlink" href="#design-principle" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Pure JAX: end-to-end differentiable and jittable.</p></li>
+<li><p>Graphs (including heterographs with multiple node types), metagraphs, and node and edge data are simply pytrees (or more precisely, namedtuples), <strong>and are thus immutable</strong>.</p></li>
+<li><p>All transforms (including neural networks inhereted from <a class="reference external" href="https://github.com/google/flax">flax</a>) takes and returns graphs.</p></li>
+<li><p>Grammar highly resembles <a class="reference external" href="https://www.dgl.ai">DGL</a>, except being purely functional.</p></li>
+</ul>
+</section>
+<section id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline"></a></h2>
+<p>Implement a simple graph convolution in six lines.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span><span class="p">;</span> <span class="kn">import</span> <span class="nn">galax</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">galax</span><span class="o">.</span><span class="n">graph</span><span class="p">(([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">ndata</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">16</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span><span class="n">galax</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">copy_u</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">),</span> <span class="n">galax</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">W</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">2666</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">apply_nodes</span><span class="p">(</span><span class="k">lambda</span> <span class="n">node</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">node</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">]</span> <span class="o">@</span> <span class="n">W</span><span class="p">})</span>
+</pre></div>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -80,6 +115,7 @@
 </li>
 </ul>
 </div>
+</section>
 </section>
 <section id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>

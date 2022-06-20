@@ -6,6 +6,8 @@
 GALAX: Graph Learning with JAX
 =========================================================
 
+.. mdinclude:: ../README.md
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

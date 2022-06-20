@@ -1,6 +1,6 @@
 """Graph Convolutional network.<https://arxiv.org/abs/1609.02907>`__"""
 
-from typing import Callable
+from typing import Callable, Optional
 import jax
 import jax.numpy as jnp
 from flax import linen as nn
@@ -51,7 +51,7 @@ class GCN(nn.Module):
     """
     features: int
     use_bias: bool = False
-    activation: Callable = jax.nn.relu
+    activation: Optional[Callable] = jax.nn.relu
 
     @nn.compact
     def uno(self, h, norm=1.0):
@@ -71,7 +71,10 @@ class GCN(nn.Module):
         else:
             bias = 0.0
 
-        return (h @ kernel) * norm + bias
+        activation = self.activation
+        if activation is None:
+            activation = lambda x: x
+        return activation((h @ kernel) * norm + bias)
 
     def __call__(self, graph, field="h"):
         # propergate

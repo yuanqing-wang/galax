@@ -9,15 +9,17 @@ import galax
 def run(args):
     from galax.data.datasets.nodes.planetoid import cora
     G = cora()
+    G = G.remove_self_loop()
+    G = G.add_self_loop()
     Y_REF = jax.nn.one_hot(G.ndata['label'], 7)
 
     from galax.nn.zoo.gcn import GCN
     model = galax.nn.Sequential(
         (
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=False)),
-            GCN(args.features),
+            GCN(args.features, activation=jax.nn.relu),
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=False)),
-            GCN(7),
+            GCN(7, activation=None),
         ),
     )
 
@@ -30,19 +32,17 @@ def run(args):
         ),
     )
 
-
     key = jax.random.PRNGKey(2666)
     key, key_dropout = jax.random.split(key)
 
-    params = model.init(
-        {"params": key, "dropout": key_dropout},
-        G,
-        method=model.uno,
-    )
+    params = model.init({"params": key, "dropout": key_dropout}, G)
+
+    from flax.core import FrozenDict
+    mask = FrozenDict({"params": {"layers_1": True, "layers_3": False}})
 
     optimizer = optax.chain(
+        optax.additive_weight_decay(5e-4, mask=mask),
         optax.adam(1e-2),
-        optax.additive_weight_decay(5e-4),
     )
 
     state = TrainState.create(
@@ -85,6 +85,6 @@ def run(args):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--features", type=int, default=64)
+    parser.add_argument("--features", type=int, default=16)
     args = parser.parse_args()
     run(args)

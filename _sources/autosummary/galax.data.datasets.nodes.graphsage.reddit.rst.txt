@@ -1,0 +1,6 @@
+galax.data.datasets.nodes.graphsage.reddit
+==========================================
+
+.. currentmodule:: galax.data.datasets.nodes.graphsage
+
+.. autofunction:: reddit

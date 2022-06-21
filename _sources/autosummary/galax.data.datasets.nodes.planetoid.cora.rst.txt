@@ -1,0 +1,6 @@
+galax.data.datasets.nodes.planetoid.cora
+========================================
+
+.. currentmodule:: galax.data.datasets.nodes.planetoid
+
+.. autofunction:: cora

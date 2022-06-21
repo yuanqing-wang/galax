@@ -1,0 +1,6 @@
+galax.data.datasets.nodes.planetoid.citeseer
+============================================
+
+.. currentmodule:: galax.data.datasets.nodes.planetoid
+
+.. autofunction:: citeseer

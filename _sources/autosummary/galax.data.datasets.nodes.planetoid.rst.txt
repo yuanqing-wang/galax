@@ -1,0 +1,32 @@
+galax.data.datasets.nodes.planetoid
+===================================
+
+.. automodule:: galax.data.datasets.nodes.planetoid
+  
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      citeseer
+      cora
+      pubmed
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

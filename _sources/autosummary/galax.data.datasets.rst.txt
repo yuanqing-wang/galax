@@ -1,7 +1,7 @@
-﻿galax.data
-==========
+galax.data.datasets
+===================
 
-.. automodule:: galax.data
+.. automodule:: galax.data.datasets
   
    
    
@@ -29,5 +29,5 @@
    :recursive:
 
 
-   galax.data.datasets
+   galax.data.datasets.nodes
 

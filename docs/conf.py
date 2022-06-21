@@ -148,8 +148,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'malt.tex', 'malt Documentation',
-     'malt', 'manual'),
+    (master_doc, 'galax.tex', 'galax Documentation',
+     'galax', 'manual'),
 ]
 
 
@@ -158,7 +158,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'malt', 'malt Documentation',
+    (master_doc, 'galax', 'galax Documentation',
      [author], 1)
 ]
 

@@ -13,14 +13,6 @@ galax.nn.utils
 
    
    
-   .. rubric:: Classes
-
-   .. autosummary::
-      :toctree:
-      :template: custom-class-template.rst
-   
-      EarlyStopping
-   
    
 
    
@@ -28,4 +20,14 @@ galax.nn.utils
    
 
 
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+
+   galax.nn.utils.early_stopping
 

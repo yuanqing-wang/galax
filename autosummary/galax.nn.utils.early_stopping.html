@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>galax.nn.utils.EarlyStopping &mdash; galax  documentation</title>
+  <title>galax.nn.utils.early_stopping &mdash; galax  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,7 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="galax.nn.zoo" href="galax.nn.zoo.html" />
+    <link rel="next" title="galax.nn.utils.early_stopping.EarlyStopping" href="galax.nn.utils.early_stopping.EarlyStopping.html" />
     <link rel="prev" title="galax.nn.utils" href="galax.nn.utils.html" /> 
 </head>
 
@@ -47,7 +47,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="galax.nn.html">galax.nn</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="galax.nn.module.html">galax.nn.module</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="galax.nn.utils.html">galax.nn.utils</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">galax.nn.utils.EarlyStopping</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">galax.nn.utils.early_stopping</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="galax.nn.zoo.html">galax.nn.zoo</a></li>
@@ -74,9 +74,9 @@
           <li><a href="../api.html">API Documentation</a> &raquo;</li>
           <li><a href="galax.nn.html">galax.nn</a> &raquo;</li>
           <li><a href="galax.nn.utils.html">galax.nn.utils</a> &raquo;</li>
-      <li>galax.nn.utils.EarlyStopping</li>
+      <li>galax.nn.utils.early_stopping</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/autosummary/galax.nn.utils.EarlyStopping.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/autosummary/galax.nn.utils.early_stopping.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -84,55 +84,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="galax-nn-utils-earlystopping">
-<h1>galax.nn.utils.EarlyStopping<a class="headerlink" href="#galax-nn-utils-earlystopping" title="Permalink to this headline"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="galax.nn.utils.EarlyStopping">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">galax.nn.utils.</span></span><span class="sig-name descname"><span class="pre">EarlyStopping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/nn/utils.html#EarlyStopping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.nn.utils.EarlyStopping" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Early stopping.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>patience</strong> (<em>int = 10</em>) – Patience for early stopping.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="galax.nn.utils.EarlyStopping.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/nn/utils.html#EarlyStopping.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.nn.utils.EarlyStopping.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Methods</p>
+  <section id="module-galax.nn.utils.early_stopping">
+<span id="galax-nn-utils-early-stopping"></span><h1>galax.nn.utils.early_stopping<a class="headerlink" href="#module-galax.nn.utils.early_stopping" title="Permalink to this headline"></a></h1>
+<p class="rubric">Classes</p>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#galax.nn.utils.EarlyStopping.__init__" title="galax.nn.utils.EarlyStopping.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([patience])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.nn.utils.early_stopping.EarlyStopping.html#galax.nn.utils.early_stopping.EarlyStopping" title="galax.nn.utils.early_stopping.EarlyStopping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EarlyStopping</span></code></a>([patience])</p></td>
+<td><p>Early stopping.</p></td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Attributes</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">best_losses</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">counter</span></code></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">params</span></code></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </section>
 
 
@@ -140,7 +105,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="galax.nn.utils.html" class="btn btn-neutral float-left" title="galax.nn.utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="galax.nn.zoo.html" class="btn btn-neutral float-right" title="galax.nn.zoo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="galax.nn.utils.early_stopping.EarlyStopping.html" class="btn btn-neutral float-right" title="galax.nn.utils.early_stopping.EarlyStopping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,7 +1,7 @@
-galax.nn.utils.EarlyStopping
-============================
+galax.nn.utils.early\_stopping.EarlyStopping
+============================================
 
-.. currentmodule:: galax.nn.utils
+.. currentmodule:: galax.nn.utils.early_stopping
 
 .. autoclass:: EarlyStopping
    :members:
@@ -27,7 +27,7 @@ galax.nn.utils.EarlyStopping
    .. autosummary::
    
       ~EarlyStopping.best_losses
+      ~EarlyStopping.best_state
       ~EarlyStopping.counter
-      ~EarlyStopping.params
    
    

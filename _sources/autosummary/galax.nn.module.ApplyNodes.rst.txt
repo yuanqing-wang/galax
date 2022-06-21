@@ -1,0 +1,52 @@
+galax.nn.module.ApplyNodes
+==========================
+
+.. currentmodule:: galax.nn.module
+
+.. autoclass:: ApplyNodes
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ApplyNodes.__init__
+      ~ApplyNodes.apply
+      ~ApplyNodes.bind
+      ~ApplyNodes.clone
+      ~ApplyNodes.get_variable
+      ~ApplyNodes.has_rng
+      ~ApplyNodes.has_variable
+      ~ApplyNodes.init
+      ~ApplyNodes.init_with_output
+      ~ApplyNodes.is_mutable_collection
+      ~ApplyNodes.make_rng
+      ~ApplyNodes.param
+      ~ApplyNodes.put_variable
+      ~ApplyNodes.setup
+      ~ApplyNodes.sow
+      ~ApplyNodes.tabulate
+      ~ApplyNodes.uno
+      ~ApplyNodes.variable
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ApplyNodes.name
+      ~ApplyNodes.parent
+      ~ApplyNodes.scope
+      ~ApplyNodes.variables
+      ~ApplyNodes.layer
+   
+   

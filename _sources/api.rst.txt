@@ -9,3 +9,5 @@ API Documentation
    galax.heterograph
    galax.function
    galax.core
+   galax.data
+   galax.nn

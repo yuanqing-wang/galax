@@ -1,0 +1,51 @@
+galax.nn.module.Module
+======================
+
+.. currentmodule:: galax.nn.module
+
+.. autoclass:: Module
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Module.__init__
+      ~Module.apply
+      ~Module.bind
+      ~Module.clone
+      ~Module.get_variable
+      ~Module.has_rng
+      ~Module.has_variable
+      ~Module.init
+      ~Module.init_with_output
+      ~Module.is_mutable_collection
+      ~Module.make_rng
+      ~Module.param
+      ~Module.put_variable
+      ~Module.setup
+      ~Module.sow
+      ~Module.tabulate
+      ~Module.uno
+      ~Module.variable
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Module.name
+      ~Module.parent
+      ~Module.scope
+      ~Module.variables
+   
+   

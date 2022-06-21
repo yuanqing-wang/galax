@@ -1,0 +1,33 @@
+galax.nn.utils.EarlyStopping
+============================
+
+.. currentmodule:: galax.nn.utils
+
+.. autoclass:: EarlyStopping
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EarlyStopping.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EarlyStopping.best_losses
+      ~EarlyStopping.counter
+      ~EarlyStopping.params
+   
+   

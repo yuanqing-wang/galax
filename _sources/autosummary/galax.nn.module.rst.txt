@@ -1,0 +1,33 @@
+galax.nn.module
+===============
+
+.. automodule:: galax.nn.module
+  
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      ApplyNodes
+      Module
+      Sequential
+   
+   
+
+   
+   
+   
+
+
+

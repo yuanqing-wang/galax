@@ -1,0 +1,54 @@
+galax.nn.zoo.gcn.GCN
+====================
+
+.. currentmodule:: galax.nn.zoo.gcn
+
+.. autoclass:: GCN
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GCN.__init__
+      ~GCN.apply
+      ~GCN.bind
+      ~GCN.clone
+      ~GCN.get_variable
+      ~GCN.has_rng
+      ~GCN.has_variable
+      ~GCN.init
+      ~GCN.init_with_output
+      ~GCN.is_mutable_collection
+      ~GCN.make_rng
+      ~GCN.param
+      ~GCN.put_variable
+      ~GCN.setup
+      ~GCN.sow
+      ~GCN.tabulate
+      ~GCN.uno
+      ~GCN.variable
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GCN.activation
+      ~GCN.name
+      ~GCN.parent
+      ~GCN.scope
+      ~GCN.use_bias
+      ~GCN.variables
+      ~GCN.features
+   
+   

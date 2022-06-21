@@ -1,0 +1,33 @@
+galax.nn.zoo
+============
+
+.. automodule:: galax.nn.zoo
+  
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+
+   galax.nn.zoo.gcn
+

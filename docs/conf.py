@@ -19,7 +19,7 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 import galax
-from galax import heterograph, function, core
+from galax import heterograph, function, core, nn, data
 
 
 # -- Project information -----------------------------------------------------

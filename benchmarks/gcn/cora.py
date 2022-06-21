@@ -1,3 +1,5 @@
+"""Reference: 81.5; Reproduction: 81.8"""
+
 from functools import partial
 import jax
 from flax import linen as nn
@@ -39,7 +41,7 @@ def run():
     mask = FrozenDict(
         {"params":
             {
-                "layers_1": {"kernel": True, "bias": False},
+                "layers_1": True,
                 "layers_3": False,
             },
         },
@@ -111,7 +113,7 @@ def run():
             break
 
     accuracy_te, _ = test(state)
-    print(f"Accuracy: {accuracy_te:.3f}")
+    print(accuracy_te)
 
 if __name__ == "__main__":
     import argparse

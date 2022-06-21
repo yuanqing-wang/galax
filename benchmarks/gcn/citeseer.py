@@ -1,3 +1,5 @@
+"""Reference: 70.3; Reproduction: 71.4"""
+
 from functools import partial
 import jax
 from flax import linen as nn
@@ -111,7 +113,8 @@ def run():
             break
 
     accuracy_te, _ = test(state)
-    print(f"Accuracy: {accuracy_te:.3f}")
+    print(accuracy_te)
+
 
 if __name__ == "__main__":
     import argparse

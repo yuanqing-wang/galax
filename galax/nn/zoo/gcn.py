@@ -74,7 +74,7 @@ class GCN(nn.Module):
         activation = self.activation
         if activation is None:
             activation = lambda x: x
-        return activation((h @ kernel) * norm + bias)
+        return activation((norm * h @ kernel) * norm + bias)
 
     def __call__(self, graph, field="h"):
         # propergate

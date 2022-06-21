@@ -111,7 +111,7 @@ def run():
             break
 
     accuracy_te, _ = test(state)
-    print(f"Accuracy: {accuracy_te:.3f}")
+    print(accuracy_te)
 
 if __name__ == "__main__":
     import argparse

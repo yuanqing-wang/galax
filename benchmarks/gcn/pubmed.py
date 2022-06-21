@@ -1,3 +1,5 @@
+"""Reference: 79.0; Reproduction: 78.8"""
+
 from functools import partial
 import jax
 from flax import linen as nn

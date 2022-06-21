@@ -1,1 +1,1 @@
-"""Neural network utility."""
+"""Neural networks utilities."""

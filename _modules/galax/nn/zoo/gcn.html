@@ -110,7 +110,7 @@
 <span class="sd">    &gt;&gt;&gt; g = g.add_self_loop()</span>
 <span class="sd">    &gt;&gt;&gt; g = g.set_ndata(&quot;h&quot;, jnp.ones((6, 10)))</span>
 <span class="sd">    &gt;&gt;&gt; gcn = GCN(2, use_bias=True)</span>
-<span class="sd">    &gt;&gt;&gt; params = gcn.init(jax.random.PRNGKey(2666), g)</span>
+<span class="sd">    &gt;&gt;&gt; params = gcn.init(jax.random.PRNGKey(2666), g.ndata[&#39;h&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; g = gcn.apply(params, g)</span>
 <span class="sd">    &gt;&gt;&gt; x = g.ndata[&#39;h&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; x.shape</span>

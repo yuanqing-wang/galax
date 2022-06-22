@@ -130,3 +130,6 @@ dmypy.json
 
 # Cache
 .DS_Store
+
+# data
+ogbn_*

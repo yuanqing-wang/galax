@@ -1,3 +1,4 @@
+import ogb
 import time
 import numpy as onp
 import jax
@@ -16,16 +17,16 @@ def bench_spmm(G, binary_op, reduce_op):
         g = G.edata.set("h", efeat)
         accum_time = 0
 
-        # @jax.jit
+        @jax.jit
         def fn(g):
             fn_msg = getattr(galax.function, binary_op)("h", "m")
             fn_rdc = getattr(galax.function, reduce_op)("m", "h")
             _g = g.update_all(fn_msg, fn_rdc)
-            return _g
+            return _g.ndata['h']
 
         for n_times in range(10):
             time0 = time.time()
-            _g = fn(G).block_until_read()
+            _g = fn(G).block_until_ready()
             time1 = time.time()
             if n_times >= n_cold_start:
                 accum_time += (time1 - time0)
@@ -45,6 +46,6 @@ if __name__ == '__main__':
     from galax.data.datasets.nodes.ogb import arxiv
     G = arxiv()
     print(G)
+
     # SPMM
     bench_spmm(G, args.spmm_binary, args.spmm_reduce)
-    del g

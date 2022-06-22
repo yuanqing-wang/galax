@@ -42,8 +42,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # for dataset in ['reddit', 'arxiv', 'proteins']:
-    from galax.data.datasets.nodes.graphsage import reddit
-    G = reddit()
+    from galax.data.datasets.nodes.ogb import arxiv
+    G = arxiv()
     print(G)
     # SPMM
     bench_spmm(G, args.spmm_binary, args.spmm_reduce)

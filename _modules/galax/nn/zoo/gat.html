@@ -155,10 +155,9 @@
         <span class="n">er</span> <span class="o">=</span> <span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_r</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">e</span> <span class="o">=</span> <span class="n">el</span> <span class="o">*</span> <span class="n">er</span>
         <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_attn</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">h</span><span class="p">,</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="n">h</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
-        <span class="n">etype</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">etypes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="s2">&quot;E_&quot;</span><span class="p">):</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_feat</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
@@ -178,7 +177,8 @@
             <span class="n">fn</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">graph</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">apply_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">)(</span><span class="n">graph</span><span class="p">)</span>
+            <span class="n">_fn</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">apply_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">)</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">_fn</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">graph</span></div>
 </pre></div>
 

@@ -1480,35 +1480,28 @@
 <div class="viewcode-block" id="HeteroGraph.apply_nodes"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.apply_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">apply_nodes</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">apply_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
-            <span class="n">in_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span>
-            <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">ntype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Alias to function.apply_nodes.&quot;&quot;&quot;</span>
-
-        <span class="n">apply_function</span> <span class="o">=</span> <span class="n">apply_nodes</span><span class="p">(</span>
-            <span class="n">apply_function</span><span class="p">,</span>
-            <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span>
-            <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span>
-            <span class="n">ntype</span><span class="o">=</span><span class="n">ntype</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">apply_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">ntype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ntype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ntypes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">apply_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">ntype</span><span class="p">])</span>
+        <span class="n">node_frames</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">)</span>
+        <span class="n">node_frames</span> <span class="o">=</span> <span class="n">node_frames</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">node_frames</span><span class="o">=</span><span class="n">node_frames</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HeteroGraph.apply_edges"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.apply_edges">[docs]</a>    <span class="k">def</span> <span class="nf">apply_edges</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">apply_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
-            <span class="n">in_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span>
-            <span class="n">out_field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">etype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Alias to function.apply_edges.&quot;&quot;&quot;</span>
-        <span class="n">apply_function</span> <span class="o">=</span> <span class="n">apply_edges</span><span class="p">(</span>
-            <span class="n">apply_function</span><span class="p">,</span>
-            <span class="n">in_field</span><span class="o">=</span><span class="n">in_field</span><span class="p">,</span>
-            <span class="n">out_field</span><span class="o">=</span><span class="n">out_field</span><span class="p">,</span>
-            <span class="n">etype</span><span class="o">=</span><span class="n">etype</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">apply_function</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">etype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">etype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">etypes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">apply_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">etype</span><span class="p">])</span>
+        <span class="n">edge_frames</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">)</span>
+        <span class="n">edge_frames</span> <span class="o">=</span> <span class="n">edge_frames</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update</span><span class="p">(</span><span class="n">edge_frames</span><span class="o">=</span><span class="n">edge_frames</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HeteroGraph.update_all"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.update_all">[docs]</a>    <span class="k">def</span> <span class="nf">update_all</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

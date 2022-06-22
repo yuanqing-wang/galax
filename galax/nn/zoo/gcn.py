@@ -5,8 +5,9 @@ import jax
 import jax.numpy as jnp
 from flax import linen as nn
 from ... import function as fn
+from ..module import Module
 
-class GCN(nn.Module):
+class GCN(Module):
     r"""Graph convolutional layer from
     `Semi-Supervised Classification with Graph Convolutional
     Networks <https://arxiv.org/abs/1609.02907>`__
@@ -51,7 +52,7 @@ class GCN(nn.Module):
     """
     features: int
     use_bias: bool = False
-    activation: Optional[Callable] = jax.nn.relu
+    activation: Optional[Callable] = None
 
     @nn.compact
     def uno(self, h, norm=1.0):

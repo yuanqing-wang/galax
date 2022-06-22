@@ -8,11 +8,10 @@ class Module(nn.Module):
     def uno(self, *args, **kwargs):
         raise NotImplementedError
 
-    def init(fn, *args, **kwargs):
+    def init(self, *args, **kwargs):
         if "method" not in kwargs:
             kwargs["method"] = self.uno
         return super().init(*args, **kwargs)
-
 
 class Sequential(nn.Sequential):
     def uno(self, graph, field="h"):

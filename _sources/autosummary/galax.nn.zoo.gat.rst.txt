@@ -1,0 +1,31 @@
+galax.nn.zoo.gat
+================
+
+.. automodule:: galax.nn.zoo.gat
+  
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      GAT
+   
+   
+
+   
+   
+   
+
+
+

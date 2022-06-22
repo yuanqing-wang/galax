@@ -1,0 +1,58 @@
+galax.nn.zoo.gat.GAT
+====================
+
+.. currentmodule:: galax.nn.zoo.gat
+
+.. autoclass:: GAT
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GAT.__init__
+      ~GAT.apply
+      ~GAT.bind
+      ~GAT.clone
+      ~GAT.get_variable
+      ~GAT.has_rng
+      ~GAT.has_variable
+      ~GAT.init
+      ~GAT.init_with_output
+      ~GAT.is_mutable_collection
+      ~GAT.make_rng
+      ~GAT.param
+      ~GAT.put_variable
+      ~GAT.setup
+      ~GAT.sow
+      ~GAT.tabulate
+      ~GAT.uno
+      ~GAT.variable
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GAT.activation
+      ~GAT.attn_drop
+      ~GAT.feat_drop
+      ~GAT.name
+      ~GAT.negative_slope
+      ~GAT.parent
+      ~GAT.scope
+      ~GAT.train
+      ~GAT.variables
+      ~GAT.features
+      ~GAT.num_heads
+   
+   

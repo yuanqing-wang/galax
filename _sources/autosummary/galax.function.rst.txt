@@ -31,6 +31,7 @@
       segment_max
       segment_mean
       segment_min
+      segment_softmax
       u_add_e
       u_add_v
       u_div_e

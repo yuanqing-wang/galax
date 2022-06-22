@@ -269,6 +269,48 @@
         <span class="n">denominator</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">denominator</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="p">)</span></div>
 
+<div class="viewcode-block" id="segment_softmax"><a class="viewcode-back" href="../../autosummary/galax.function.segment_softmax.html#galax.function.segment_softmax">[docs]</a><span class="k">def</span> <span class="nf">segment_softmax</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                    <span class="n">segment_ids</span><span class="p">:</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+                    <span class="n">num_segments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">indices_are_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="n">unique_indices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes a segment-wise softmax.</span>
+<span class="sd">    For a given tree of logits that can be divded into segments, computes a</span>
+<span class="sd">    softmax over the segments.</span>
+<span class="sd">    logits = jnp.ndarray([1.0, 2.0, 3.0, 1.0, 2.0])</span>
+<span class="sd">    segment_ids = jnp.ndarray([0, 0, 0, 1, 1])</span>
+<span class="sd">    segment_softmax(logits, segments)</span>
+<span class="sd">    &gt;&gt; DeviceArray([0.09003057, 0.24472848, 0.66524094, 0.26894142, 0.7310586],</span>
+<span class="sd">    &gt;&gt; dtype=float32)</span>
+<span class="sd">    Args:</span>
+<span class="sd">    logits: an array of logits to be segment softmaxed.</span>
+<span class="sd">    segment_ids: an array with integer dtype that indicates the segments of</span>
+<span class="sd">      `data` (along its leading axis) to be maxed over. Values can be repeated</span>
+<span class="sd">      and need not be sorted. Values outside of the range [0, num_segments) are</span>
+<span class="sd">      dropped and do not contribute to the result.</span>
+<span class="sd">    num_segments: optional, an int with positive value indicating the number of</span>
+<span class="sd">      segments. The default is ``jnp.maximum(jnp.max(segment_ids) + 1,</span>
+<span class="sd">      jnp.max(-segment_ids))`` but since ``num_segments`` determines the size of</span>
+<span class="sd">      the output, a static value must be provided to use ``segment_sum`` in a</span>
+<span class="sd">      ``jit``-compiled function.</span>
+<span class="sd">    indices_are_sorted: whether ``segment_ids`` is known to be sorted</span>
+<span class="sd">    unique_indices: whether ``segment_ids`` is known to be free of duplicates</span>
+<span class="sd">    Returns:</span>
+<span class="sd">    The segment softmax-ed ``logits``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># First, subtract the segment max for numerical stability</span>
+    <span class="n">maxs</span> <span class="o">=</span> <span class="n">segment_max</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">segment_ids</span><span class="p">,</span> <span class="n">num_segments</span><span class="p">,</span> <span class="n">indices_are_sorted</span><span class="p">,</span>
+                     <span class="n">unique_indices</span><span class="p">)</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">maxs</span><span class="p">[</span><span class="n">segment_ids</span><span class="p">]</span>
+    <span class="c1"># Then take the exp</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logits</span><span class="p">)</span>
+    <span class="c1"># Then calculate the normalizers</span>
+    <span class="n">normalizers</span> <span class="o">=</span> <span class="n">segment_sum</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">segment_ids</span><span class="p">,</span> <span class="n">num_segments</span><span class="p">,</span>
+                            <span class="n">indices_are_sorted</span><span class="p">,</span> <span class="n">unique_indices</span><span class="p">)</span>
+    <span class="n">normalizers</span> <span class="o">=</span> <span class="n">normalizers</span><span class="p">[</span><span class="n">segment_ids</span><span class="p">]</span>
+    <span class="n">softmax</span> <span class="o">=</span> <span class="n">logits</span> <span class="o">/</span> <span class="n">normalizers</span>
+    <span class="k">return</span> <span class="n">softmax</span></div>
+
 
 <span class="c1"># =============================================================================</span>
 <span class="c1"># APPLY FUNCTIONS</span>

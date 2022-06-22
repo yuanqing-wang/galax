@@ -71,8 +71,9 @@
 <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 <span class="kn">from</span> <span class="nn">flax</span> <span class="kn">import</span> <span class="n">linen</span> <span class="k">as</span> <span class="n">nn</span>
 <span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">function</span> <span class="k">as</span> <span class="n">fn</span>
+<span class="kn">from</span> <span class="nn">..module</span> <span class="kn">import</span> <span class="n">Module</span>
 
-<div class="viewcode-block" id="GCN"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.gcn.GCN.html#galax.nn.zoo.gcn.GCN">[docs]</a><span class="k">class</span> <span class="nc">GCN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="GCN"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.gcn.GCN.html#galax.nn.zoo.gcn.GCN">[docs]</a><span class="k">class</span> <span class="nc">GCN</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Graph convolutional layer from</span>
 <span class="sd">    `Semi-Supervised Classification with Graph Convolutional</span>
 <span class="sd">    Networks &lt;https://arxiv.org/abs/1609.02907&gt;`__</span>
@@ -117,7 +118,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">features</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">use_bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">activation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span>
+    <span class="n">activation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@nn</span><span class="o">.</span><span class="n">compact</span>
     <span class="k">def</span> <span class="nf">uno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>

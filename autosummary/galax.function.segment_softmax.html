@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>galax.function.u_div_e &mdash; galax  documentation</title>
+  <title>galax.function.segment_softmax &mdash; galax  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="galax.function.u_div_v" href="galax.function.u_div_v.html" />
-    <link rel="prev" title="galax.function.u_add_v" href="galax.function.u_add_v.html" /> 
+    <link rel="next" title="galax.function.u_add_e" href="galax.function.u_add_e.html" />
+    <link rel="prev" title="galax.function.segment_min" href="galax.function.segment_min.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,10 +59,10 @@
 <li class="toctree-l3"><a class="reference internal" href="galax.function.segment_max.html">galax.function.segment_max</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.segment_mean.html">galax.function.segment_mean</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.segment_min.html">galax.function.segment_min</a></li>
-<li class="toctree-l3"><a class="reference internal" href="galax.function.segment_softmax.html">galax.function.segment_softmax</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.function.segment_softmax</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_e.html">galax.function.u_add_e</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_add_v.html">galax.function.u_add_v</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.function.u_div_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_e.html">galax.function.u_div_e</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_div_v.html">galax.function.u_div_v</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_e.html">galax.function.u_dot_e</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.u_dot_v.html">galax.function.u_dot_v</a></li>
@@ -106,9 +106,9 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API Documentation</a> &raquo;</li>
           <li><a href="galax.function.html">galax.function</a> &raquo;</li>
-      <li>galax.function.u_div_e</li>
+      <li>galax.function.segment_softmax</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/autosummary/galax.function.u_div_e.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/autosummary/galax.function.segment_softmax.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -116,27 +116,38 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="galax-function-u-div-e">
-<h1>galax.function.u_div_e<a class="headerlink" href="#galax-function-u-div-e" title="Permalink to this headline"></a></h1>
+  <section id="galax-function-segment-softmax">
+<h1>galax.function.segment_softmax<a class="headerlink" href="#galax-function-segment-softmax" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="galax.function.u_div_e">
-<span class="sig-prename descclassname"><span class="pre">galax.function.</span></span><span class="sig-name descname"><span class="pre">u_div_e</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lhs_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.function.u_div_e" title="Permalink to this definition"></a></dt>
-<dd><p>Builtin message function that computes a message on an edge
-by performing element-wise div between features of source and edge
-if the features have the same shape; otherwise, it first broadcasts
-the features to a new shape and performs the element-wise operation.</p>
-<p>Broadcasting follows NumPy semantics. Please see
-<a class="reference external" href="https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html">https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html</a>
-for more details about the NumPy broadcasting semantics.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lhs_field</strong> (<em>str</em>) – The feature field of source.</p></li>
-<li><p><strong>rhs_field</strong> (<em>str</em>) – The feature field of edge.</p></li>
-<li><p><strong>out</strong> (<em>str</em>) – The output message field.</p></li>
-</ul>
+<dt class="sig sig-object py" id="galax.function.segment_softmax">
+<span class="sig-prename descclassname"><span class="pre">galax.function.</span></span><span class="sig-name descname"><span class="pre">segment_softmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">jax._src.numpy.ndarray.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_segments</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_are_sorted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique_indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/function.html#segment_softmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.function.segment_softmax" title="Permalink to this definition"></a></dt>
+<dd><p>Computes a segment-wise softmax.
+For a given tree of logits that can be divded into segments, computes a
+softmax over the segments.
+logits = jnp.ndarray([1.0, 2.0, 3.0, 1.0, 2.0])
+segment_ids = jnp.ndarray([0, 0, 0, 1, 1])
+segment_softmax(logits, segments)
+&gt;&gt; DeviceArray([0.09003057, 0.24472848, 0.66524094, 0.26894142, 0.7310586],
+&gt;&gt; dtype=float32)
+Args:
+logits: an array of logits to be segment softmaxed.
+segment_ids: an array with integer dtype that indicates the segments of</p>
+<blockquote>
+<div><p><cite>data</cite> (along its leading axis) to be maxed over. Values can be repeated
+and need not be sorted. Values outside of the range [0, num_segments) are
+dropped and do not contribute to the result.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>num_segments: optional, an int with positive value indicating the number of</dt><dd><p>segments. The default is <code class="docutils literal notranslate"><span class="pre">jnp.maximum(jnp.max(segment_ids)</span> <span class="pre">+</span> <span class="pre">1,</span>
+<span class="pre">jnp.max(-segment_ids))</span></code> but since <code class="docutils literal notranslate"><span class="pre">num_segments</span></code> determines the size of
+the output, a static value must be provided to use <code class="docutils literal notranslate"><span class="pre">segment_sum</span></code> in a
+<code class="docutils literal notranslate"><span class="pre">jit</span></code>-compiled function.</p>
 </dd>
 </dl>
+<p>indices_are_sorted: whether <code class="docutils literal notranslate"><span class="pre">segment_ids</span></code> is known to be sorted
+unique_indices: whether <code class="docutils literal notranslate"><span class="pre">segment_ids</span></code> is known to be free of duplicates
+Returns:
+The segment softmax-ed <code class="docutils literal notranslate"><span class="pre">logits</span></code>.</p>
 </dd></dl>
 
 </section>
@@ -145,8 +156,8 @@ for more details about the NumPy broadcasting semantics.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="galax.function.u_add_v.html" class="btn btn-neutral float-left" title="galax.function.u_add_v" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="galax.function.u_div_v.html" class="btn btn-neutral float-right" title="galax.function.u_div_v" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="galax.function.segment_min.html" class="btn btn-neutral float-left" title="galax.function.segment_min" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.function.u_add_e.html" class="btn btn-neutral float-right" title="galax.function.u_add_e" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

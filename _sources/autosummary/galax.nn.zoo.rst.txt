@@ -29,5 +29,6 @@ galax.nn.zoo
    :recursive:
 
 
+   galax.nn.zoo.gat
    galax.nn.zoo.gcn
 

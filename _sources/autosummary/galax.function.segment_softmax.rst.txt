@@ -1,0 +1,6 @@
+galax.function.segment\_softmax
+===============================
+
+.. currentmodule:: galax.function
+
+.. autofunction:: segment_softmax

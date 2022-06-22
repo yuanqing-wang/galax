@@ -1193,14 +1193,20 @@ class HeteroGraph(NamedTuple):
         >>> g = g.set_ndata('h', jnp.zeros(3))
         """
         if ntype is None:
-            ntype = self.ntypes[0]
-        node_frame = getattr(self.node_frames, ntype)
+            ntype = 0
+        if isinstance(ntype, str):
+            ntype = self.get_ntype_id(ntype)
+        node_frame = self.node_frames[ntype]
         if node_frame is None:
             node_frame = {}
         node_frame = unfreeze(node_frame)
         node_frame[key] = data
         node_frame = freeze(node_frame)
-        node_frames = self.node_frames._replace(**{ntype: node_frame})
+        node_frames = self.node_frames.__class__(
+                *(self.node_frames[:ntype] + (node_frame,)
+                + self.node_frames[ntype+1:]
+                )
+        )
         return self._replace(node_frames=node_frames)
 
     def set_edata(self, key, data, etype=None):
@@ -1226,14 +1232,22 @@ class HeteroGraph(NamedTuple):
         >>> g = g.set_edata('h', jnp.zeros(3))
         """
         if etype is None:
-            etype = self.etypes[0]
-        edge_frame = getattr(self.edge_frames, etype)
+            etype = 0
+        if isinstance(etype, str):
+            etype = self.get_etype_id(etype)
+        edge_frame = self.edge_frames[etype]
         if edge_frame is None:
             edge_frame = {}
         edge_frame = unfreeze(edge_frame)
         edge_frame[key] = data
         edge_frame = freeze(edge_frame)
-        edge_frames = self.edge_frames._replace(**{etype: edge_frame})
+        edge_frames = self.edge_frames.__class__(
+            *(
+                self.edge_frames[:etype] + (edge_frame,)
+                + self.edge_frames[etype+1:]
+            )
+        )
+
         return self._replace(edge_frames=edge_frames)
 
     @property

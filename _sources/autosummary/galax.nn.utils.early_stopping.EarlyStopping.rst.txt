@@ -27,7 +27,7 @@ galax.nn.utils.early\_stopping.EarlyStopping
    .. autosummary::
    
       ~EarlyStopping.best_losses
-      ~EarlyStopping.best_state
       ~EarlyStopping.counter
+      ~EarlyStopping.params
    
    

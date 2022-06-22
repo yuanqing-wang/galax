@@ -1,0 +1,30 @@
+galax.data.datasets.nodes.ogb
+=============================
+
+.. automodule:: galax.data.datasets.nodes.ogb
+  
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      arxiv
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

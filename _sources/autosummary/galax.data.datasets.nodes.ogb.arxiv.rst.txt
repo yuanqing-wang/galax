@@ -1,0 +1,6 @@
+galax.data.datasets.nodes.ogb.arxiv
+===================================
+
+.. currentmodule:: galax.data.datasets.nodes.ogb
+
+.. autofunction:: arxiv

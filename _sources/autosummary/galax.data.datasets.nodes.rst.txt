@@ -30,5 +30,6 @@ galax.data.datasets.nodes
 
 
    galax.data.datasets.nodes.graphsage
+   galax.data.datasets.nodes.ogb
    galax.data.datasets.nodes.planetoid
 

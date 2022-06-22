@@ -1414,35 +1414,28 @@ class HeteroGraph(NamedTuple):
     def apply_nodes(
             self,
             apply_function: Callable,
-            in_field: Optional[str] = "h",
-            out_field: Optional[str] = None,
             ntype: Optional[str] = None,
     ):
         """Alias to function.apply_nodes."""
-
-        apply_function = apply_nodes(
-            apply_function,
-            in_field=in_field,
-            out_field=out_field,
-            ntype=ntype,
-        )
-        return apply_function(self)
+        if ntype is None:
+            ntype = self.ntypes[0]
+        res = apply_function(self.nodes[ntype])
+        node_frames = unfreeze(self.node_frames)
+        node_frames = node_frames.update(res)
+        return self._update(node_frames=node_frames)
 
     def apply_edges(
             self,
             apply_function: Callable,
-            in_field: Optional[str] = "h",
-            out_field: Optional[str] = None,
             etype: Optional[str] = None,
     ):
         """Alias to function.apply_edges."""
-        apply_function = apply_edges(
-            apply_function,
-            in_field=in_field,
-            out_field=out_field,
-            etype=etype,
-        )
-        return apply_function(self)
+        if etype is None:
+            etype = self.etypes[0]
+        res = apply_function(self.edges[etype])
+        edge_frames = unfreeze(self.edge_frames)
+        edge_frames = edge_frames.update(res)
+        return self._update(edge_frames=edge_frames)
 
     def update_all(
         self,

@@ -13,7 +13,7 @@ class Module(nn.Module):
             kwargs["method"] = self.uno
         return super().init(*args, **kwargs)
 
-class Sequential(nn.Sequential):
+class Sequential(nn.Sequential, Module):
     def uno(self, graph, field="h"):
         h = graph.ndata[field]
         for layer in self.layers:

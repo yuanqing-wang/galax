@@ -89,10 +89,9 @@ class GAT(Module):
         er = (h * self.attn_r).sum(-1, keepdims=True)
         e = el * er
         e = self.dropout_attn(e)
-        return h, e
+        return h
 
-    def __call__(self, graph, field="h"):
-        etype = graph.etypes[0]
+    def __call__(self, graph, field="h", etype="E_"):
         h = graph.ndata[field]
         h = self.dropout_feat(h)
         h = self.fc(h)
@@ -112,5 +111,6 @@ class GAT(Module):
             fn.sum("m", field)
         )
         if self.activation is not None:
-            graph = fn.apply_nodes(self.activation)(graph)
+            _fn = fn.apply_nodes(self.activation)
+            graph = _fn(graph)
         return graph

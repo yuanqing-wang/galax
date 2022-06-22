@@ -44,7 +44,7 @@ class GCN(Module):
     >>> g = g.add_self_loop()
     >>> g = g.set_ndata("h", jnp.ones((6, 10)))
     >>> gcn = GCN(2, use_bias=True)
-    >>> params = gcn.init(jax.random.PRNGKey(2666), g)
+    >>> params = gcn.init(jax.random.PRNGKey(2666), g.ndata['h'])
     >>> g = gcn.apply(params, g)
     >>> x = g.ndata['h']
     >>> x.shape

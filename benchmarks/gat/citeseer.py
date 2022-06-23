@@ -1,4 +1,4 @@
-"""Reference: 83.0; Reproduction: 83.3"""
+"""Reference: 72.5; Reproduction: 71.5"""
 
 from functools import partial
 import jax
@@ -7,10 +7,10 @@ import optax
 import galax
 
 def run():
-    from galax.data.datasets.nodes.planetoid import cora
-    G = cora()
+    from galax.data.datasets.nodes.planetoid import citeseer
+    G = citeseer()
     G = G.add_self_loop()
-    Y_REF = jax.nn.one_hot(G.ndata['label'], 7)
+    Y_REF = jax.nn.one_hot(G.ndata['label'], 6)
 
     from galax.nn.zoo.gat import GAT
     ConcatenationPooling = galax.ApplyNodes(lambda x: x.reshape(*x.shape[:-2], -1))
@@ -20,16 +20,16 @@ def run():
         (
             GAT(8, 8, attn_drop=0.4, feat_drop=0.4, deterministic=False, activation=jax.nn.elu),
             ConcatenationPooling,
-            GAT(7, 1, attn_drop=0.4, feat_drop=0.4, deterministic=False, activation=None),
+            GAT(6, 1, attn_drop=0.4, feat_drop=0.4, deterministic=False, activation=None),
             AveragePooling,
         ),
     )
 
     model_eval = galax.nn.Sequential(
         (
-            GAT(8, 8, attn_drop=0.4, feat_drop=0.4, deterministic=True, activation=jax.nn.elu),
+            GAT(8, 8, attn_drop=0.6, feat_drop=0.6, deterministic=True, activation=jax.nn.elu),
             ConcatenationPooling,
-            GAT(7, 1, attn_drop=0.4, feat_drop=0.4, deterministic=True, activation=None),
+            GAT(6, 1, attn_drop=0.6, feat_drop=0.6, deterministic=True, activation=None),
             AveragePooling,
         ),
     )

@@ -1,4 +1,4 @@
-"""Reference: 83.0; Reproduction: 83.3"""
+"""Reference: 79.0; Reproduction: 78.1"""
 
 from functools import partial
 import jax
@@ -7,10 +7,10 @@ import optax
 import galax
 
 def run():
-    from galax.data.datasets.nodes.planetoid import cora
-    G = cora()
+    from galax.data.datasets.nodes.planetoid import pubmed
+    G = pubmed()
     G = G.add_self_loop()
-    Y_REF = jax.nn.one_hot(G.ndata['label'], 7)
+    Y_REF = jax.nn.one_hot(G.ndata['label'], 3)
 
     from galax.nn.zoo.gat import GAT
     ConcatenationPooling = galax.ApplyNodes(lambda x: x.reshape(*x.shape[:-2], -1))
@@ -20,7 +20,7 @@ def run():
         (
             GAT(8, 8, attn_drop=0.4, feat_drop=0.4, deterministic=False, activation=jax.nn.elu),
             ConcatenationPooling,
-            GAT(7, 1, attn_drop=0.4, feat_drop=0.4, deterministic=False, activation=None),
+            GAT(3, 8, attn_drop=0.4, feat_drop=0.4, deterministic=False, activation=None),
             AveragePooling,
         ),
     )
@@ -29,7 +29,7 @@ def run():
         (
             GAT(8, 8, attn_drop=0.4, feat_drop=0.4, deterministic=True, activation=jax.nn.elu),
             ConcatenationPooling,
-            GAT(7, 1, attn_drop=0.4, feat_drop=0.4, deterministic=True, activation=None),
+            GAT(3, 8, attn_drop=0.4, feat_drop=0.4, deterministic=True, activation=None),
             AveragePooling,
         ),
     )
@@ -43,8 +43,8 @@ def run():
     from flax.core import FrozenDict
 
     optimizer = optax.chain(
-        optax.additive_weight_decay(0.0005, mask=mask),
-        optax.adam(0.005),
+        optax.additive_weight_decay(0.001, mask=mask),
+        optax.adam(0.01),
     )
 
     from flax.training.train_state import TrainState

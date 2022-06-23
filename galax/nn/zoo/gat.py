@@ -58,28 +58,30 @@ class GAT(Module):
     attn_drop: Optional[float] = 0.0
     negative_slope: float = 0.2
     activation: Optional[Callable] = None
-    train: bool = True
+    deterministic: bool = False
     use_bias: bool = True
 
     def setup(self):
         self.fc = nn.Dense(
             self.features * self.num_heads, use_bias=False,
-            kernel_init=nn.initializers.glorot_uniform()
+            kernel_init=nn.initializers.variance_scaling(
+                3.0, "fan_avg", "uniform"
+            ),
         )
 
-        self.attn_l = self.param(
-            "attn_l",
-            nn.initializers.glorot_uniform(),
-            (1, self.num_heads, self.features),
+        self.attn_l = nn.Dense(
+            1,
+            kernel_init=nn.initializers.variance_scaling(
+                3.0, "fan_avg", "uniform"
+            ),
         )
 
-        self.attn_r = self.param(
-            "attn_r",
-            nn.initializers.glorot_uniform(),
-            (1, self.num_heads, self.features)
-
+        self.attn_r = nn.Dense(
+            1,
+            kernel_init=nn.initializers.variance_scaling(
+                3.0, "fan_avg", "uniform"
+            ),
         )
-
 
         if self.use_bias:
             self.bias = self.param(
@@ -88,26 +90,27 @@ class GAT(Module):
                 (self.num_heads, self.features),
             )
 
-        self.dropout_feat = nn.Dropout(self.feat_drop, deterministic=~self.train)
-        self.dropout_attn = nn.Dropout(self.attn_drop, deterministic=~self.train)
+        self.dropout_feat = nn.Dropout(self.feat_drop, deterministic=self.deterministic)
+        self.dropout_attn = nn.Dropout(self.attn_drop, deterministic=self.deterministic)
 
     def uno(self, h):
         h = self.dropout_feat(h)
         h = self.fc(h)
         h = h.reshape(h.shape[:-1] + (self.num_heads, self.features))
-        el = (h * self.attn_l).sum(-1, keepdims=True)
-        er = (h * self.attn_r).sum(-1, keepdims=True)
+        el = self.attn_l(h)
+        er = self.attn_r(h)
         e = el + er
         e = self.dropout_attn(e)
         return h
 
     def __call__(self, graph, field="h", etype="E_"):
         h = graph.ndata[field]
+        h0 = h
         h = self.dropout_feat(h)
         h = self.fc(h)
         h = h.reshape(h.shape[:-1] + (self.num_heads, self.features))
-        el = (h * self.attn_l).sum(-1, keepdims=True)
-        er = (h * self.attn_r).sum(-1, keepdims=True)
+        el = self.attn_l(h)
+        er = self.attn_r(h)
         graph = graph.ndata.set(field, h)
         graph = graph.ndata.set("er", er)
         graph = graph.ndata.set("el", el)

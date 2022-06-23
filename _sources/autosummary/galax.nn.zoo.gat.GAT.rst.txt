@@ -51,6 +51,7 @@ galax.nn.zoo.gat.GAT
       ~GAT.parent
       ~GAT.scope
       ~GAT.train
+      ~GAT.use_bias
       ~GAT.variables
       ~GAT.features
       ~GAT.num_heads

@@ -1268,11 +1268,10 @@
         <span class="n">node_frame</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="n">node_frame</span><span class="p">)</span>
         <span class="n">node_frame</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
         <span class="n">node_frame</span> <span class="o">=</span> <span class="n">freeze</span><span class="p">(</span><span class="n">node_frame</span><span class="p">)</span>
-        <span class="n">node_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
-                <span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[:</span><span class="n">ntype</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">node_frame</span><span class="p">,)</span>
+        <span class="n">node_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[:</span><span class="n">ntype</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">node_frame</span><span class="p">,)</span>\
                 <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">[</span><span class="n">ntype</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
-                <span class="p">)</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="p">,</span> <span class="s2">&quot;_fields&quot;</span><span class="p">):</span>
+            <span class="n">node_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_frames</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="o">*</span><span class="n">node_frames</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">node_frames</span><span class="o">=</span><span class="n">node_frames</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HeteroGraph.set_edata"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.set_edata">[docs]</a>    <span class="k">def</span> <span class="nf">set_edata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1307,13 +1306,10 @@
         <span class="n">edge_frame</span> <span class="o">=</span> <span class="n">unfreeze</span><span class="p">(</span><span class="n">edge_frame</span><span class="p">)</span>
         <span class="n">edge_frame</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span>
         <span class="n">edge_frame</span> <span class="o">=</span> <span class="n">freeze</span><span class="p">(</span><span class="n">edge_frame</span><span class="p">)</span>
-        <span class="n">edge_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
-            <span class="o">*</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[:</span><span class="n">etype</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">edge_frame</span><span class="p">,)</span>
-                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[</span><span class="n">etype</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-
+        <span class="n">edge_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[:</span><span class="n">etype</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">edge_frame</span><span class="p">,)</span>\
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">[</span><span class="n">etype</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="p">,</span> <span class="s2">&quot;_fields&quot;</span><span class="p">):</span>
+            <span class="n">edge_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_frames</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="o">*</span><span class="n">edge_frames</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">edge_frames</span><span class="o">=</span><span class="n">edge_frames</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>

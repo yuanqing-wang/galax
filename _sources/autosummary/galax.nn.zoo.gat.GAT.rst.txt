@@ -45,12 +45,12 @@ galax.nn.zoo.gat.GAT
    
       ~GAT.activation
       ~GAT.attn_drop
+      ~GAT.deterministic
       ~GAT.feat_drop
       ~GAT.name
       ~GAT.negative_slope
       ~GAT.parent
       ~GAT.scope
-      ~GAT.train
       ~GAT.use_bias
       ~GAT.variables
       ~GAT.features

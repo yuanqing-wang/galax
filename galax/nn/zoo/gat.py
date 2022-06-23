@@ -44,7 +44,7 @@ class GAT(Module):
     >>> g = galax.graph(([0,1,2,3,2,5], [1,2,3,4,0,3]))
     >>> g = g.add_self_loop()
     >>> g = g.set_ndata("h", jnp.ones((6, 10)))
-    >>> gat = GAT(2, 4, train=False)
+    >>> gat = GAT(2, 4, deterministic=True)
     >>> params = gat.init(jax.random.PRNGKey(2666), g.ndata['h'])
     >>> g = gat.apply(params, g)
     >>> x = g.ndata['h']

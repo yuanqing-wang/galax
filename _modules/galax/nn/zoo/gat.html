@@ -110,7 +110,7 @@
 <span class="sd">    &gt;&gt;&gt; g = galax.graph(([0,1,2,3,2,5], [1,2,3,4,0,3]))</span>
 <span class="sd">    &gt;&gt;&gt; g = g.add_self_loop()</span>
 <span class="sd">    &gt;&gt;&gt; g = g.set_ndata(&quot;h&quot;, jnp.ones((6, 10)))</span>
-<span class="sd">    &gt;&gt;&gt; gat = GAT(2, 4, train=False)</span>
+<span class="sd">    &gt;&gt;&gt; gat = GAT(2, 4, deterministic=True)</span>
 <span class="sd">    &gt;&gt;&gt; params = gat.init(jax.random.PRNGKey(2666), g.ndata[&#39;h&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; g = gat.apply(params, g)</span>
 <span class="sd">    &gt;&gt;&gt; x = g.ndata[&#39;h&#39;]</span>

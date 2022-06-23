@@ -1202,11 +1202,10 @@ class HeteroGraph(NamedTuple):
         node_frame = unfreeze(node_frame)
         node_frame[key] = data
         node_frame = freeze(node_frame)
-        node_frames = self.node_frames.__class__(
-                *(self.node_frames[:ntype] + (node_frame,)
+        node_frames = self.node_frames[:ntype] + (node_frame,)\
                 + self.node_frames[ntype+1:]
-                )
-        )
+        if hasattr(self.node_frames, "_fields"):
+            node_frames = self.node_frames.__class__(*node_frames)
         return self._replace(node_frames=node_frames)
 
     def set_edata(self, key, data, etype=None):
@@ -1241,13 +1240,10 @@ class HeteroGraph(NamedTuple):
         edge_frame = unfreeze(edge_frame)
         edge_frame[key] = data
         edge_frame = freeze(edge_frame)
-        edge_frames = self.edge_frames.__class__(
-            *(
-                self.edge_frames[:etype] + (edge_frame,)
-                + self.edge_frames[etype+1:]
-            )
-        )
-
+        edge_frames = self.edge_frames[:etype] + (edge_frame,)\
+            + self.edge_frames[etype+1:]
+        if hasattr(self.edge_frames, "_fields"):
+            edge_frames = self.edge_frames.__class__(*edge_frames)
         return self._replace(edge_frames=edge_frames)
 
     @property

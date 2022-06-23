@@ -41,6 +41,15 @@ def run():
 
     from flax.core import FrozenDict
 
+    mask = FrozenDict(
+        {"params":
+            {
+                "layers_0": {"attn_l": True, "attn_r": True, "fc": True, "bias": False},
+                "layers_2": {"attn_l": True, "attn_r": True, "fc": True, "bias": False},
+            },
+        },
+    )
+
     optimizer = optax.chain(
         optax.additive_weight_decay(0.0005),
         optax.adam(0.005),
@@ -50,6 +59,8 @@ def run():
     state = TrainState.create(
         apply_fn=model.apply, params=params, tx=optimizer,
     )
+
+    g = model.apply(params, G, rngs={"dropout": key})
 
     def loss(params, key):
         g = model.apply(params, G, rngs={"dropout": key})
@@ -81,7 +92,7 @@ def run():
         ).mean()
         return accuracy_vl, loss_vl
 
-    @jax.jit
+    # @jax.jit
     def test(state):
         params = state.params
         g = model_eval.apply(params, G)

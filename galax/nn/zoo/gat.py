@@ -58,7 +58,7 @@ class GAT(Module):
     attn_drop: Optional[float] = 0.0
     negative_slope: float = 0.2
     activation: Optional[Callable] = None
-    deterministic: bool = False
+    deterministic: bool = True
     use_bias: bool = True
 
     def setup(self):

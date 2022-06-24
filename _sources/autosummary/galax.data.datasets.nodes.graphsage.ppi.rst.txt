@@ -1,0 +1,6 @@
+galax.data.datasets.nodes.graphsage.ppi
+=======================================
+
+.. currentmodule:: galax.data.datasets.nodes.graphsage
+
+.. autofunction:: ppi

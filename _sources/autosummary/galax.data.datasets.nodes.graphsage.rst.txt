@@ -14,6 +14,7 @@ galax.data.datasets.nodes.graphsage
    .. autosummary::
       :toctree:
    
+      ppi
       reddit
    
    

@@ -1762,23 +1762,28 @@
 <span class="sd">    [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># make sure the metagraphs are exactly the same</span>
     <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">ntypes</span> <span class="o">==</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ntypes</span> <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">graphs</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">etypes</span> <span class="o">==</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">etypes</span> <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">graphs</span><span class="p">)</span>
-    <span class="n">etypes</span> <span class="o">=</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">etypes</span>
-    <span class="n">ntypes</span> <span class="o">=</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ntypes</span>
-
     <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span>
         <span class="n">graph</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">metagraph</span> <span class="o">==</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">metagraph</span>
         <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">graphs</span>
     <span class="p">)</span>
-
     <span class="n">metagraph</span> <span class="o">=</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">metagraph</span>
+
+    <span class="c1"># ntypes and etypes remain the same</span>
+    <span class="n">etypes</span> <span class="o">=</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">etypes</span>
+    <span class="n">ntypes</span> <span class="o">=</span> <span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ntypes</span>
+
+    <span class="c1"># number of nodes on offsets</span>
     <span class="n">n_nodes</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">graph</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">n_nodes</span> <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">graphs</span><span class="p">])</span>
     <span class="n">offsets</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">n_nodes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">offsets</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
         <span class="p">[</span><span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">offsets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">jnp</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">offsets</span><span class="p">]</span>
     <span class="p">)</span>
     <span class="n">n_nodes</span> <span class="o">=</span> <span class="n">n_nodes</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># edge indices with offsets added</span>
     <span class="n">num_edge_types</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">gidx</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
     <span class="n">edges</span> <span class="o">=</span> <span class="p">[[[],</span> <span class="p">[]]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_edge_types</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">idx_etype</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_edge_types</span><span class="p">):</span>
@@ -1794,6 +1799,8 @@
     <span class="n">edges</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
     <span class="n">gidx</span> <span class="o">=</span> <span class="n">HeteroGraphIndex</span><span class="p">(</span><span class="n">n_nodes</span><span class="o">=</span><span class="n">n_nodes</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span> <span class="n">metagraph</span><span class="o">=</span><span class="n">metagraph</span><span class="p">)</span>
 
+
+    <span class="c1"># concatenate frames</span>
     <span class="n">node_frames</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">FrozenDict</span><span class="p">(</span>
             <span class="p">{</span>

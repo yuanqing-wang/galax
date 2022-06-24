@@ -22,7 +22,8 @@ def batch(graphs: Sequence[HeteroGraph]):
 
     Examples
     --------
-    >>> g = graph(([0, 0, 2], [0, 1, 2]))
+    >>> import galax
+    >>> g = galax.graph(([0, 0, 2], [0, 1, 2]))
     >>> _g = batch([g, g])
     >>> _g.gidx.edges[0][0].tolist()
     [0, 0, 2, 3, 3, 5]

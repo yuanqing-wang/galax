@@ -1696,23 +1696,28 @@ def batch(graphs):
     [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
 
     """
+    # make sure the metagraphs are exactly the same
     assert all(graph.ntypes == graphs[0].ntypes for graph in graphs)
     assert all(graph.etypes == graphs[0].etypes for graph in graphs)
-    etypes = graphs[0].etypes
-    ntypes = graphs[0].ntypes
-
     assert all(
         graph.gidx.metagraph == graphs[0].gidx.metagraph
         for graph in graphs
     )
-
     metagraph = graphs[0].gidx.metagraph
+
+    # ntypes and etypes remain the same
+    etypes = graphs[0].etypes
+    ntypes = graphs[0].ntypes
+
+    # number of nodes on offsets
     n_nodes = jnp.stack([graph.gidx.n_nodes for graph in graphs])
     offsets = jnp.cumsum(n_nodes[:-1], axis=0)
     offsets = jnp.concatenate(
         [jnp.zeros((1, offsets.shape[-1]), dtype=jnp.int32), offsets]
     )
     n_nodes = n_nodes.sum(axis=0)
+
+    # edge indices with offsets added
     num_edge_types = len(graphs[0].gidx.edges)
     edges = [[[], []] for _ in range(num_edge_types)]
     for idx_etype in range(num_edge_types):
@@ -1728,6 +1733,8 @@ def batch(graphs):
     edges = tuple(edges)
     gidx = HeteroGraphIndex(n_nodes=n_nodes, edges=edges, metagraph=metagraph)
 
+
+    # concatenate frames
     node_frames = (
         FrozenDict(
             {

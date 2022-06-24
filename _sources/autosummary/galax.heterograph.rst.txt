@@ -14,7 +14,6 @@
    .. autosummary::
       :toctree:
    
-      batch
       from_dgl
       graph
    

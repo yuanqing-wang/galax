@@ -950,6 +950,12 @@ class GraphIndex(NamedTuple):
 
     def __eq__(self, other):
         """Return if two graph index are identical."""
+        if type(self) != type(other):
+            return False
+        if len(self.src) != len(other.src):
+            return False
+        if len(self.dst) != len(other.dst):
+            return False
         return (
             other.n_nodes == self.n_nodes
             and (self.src == other.src).all()

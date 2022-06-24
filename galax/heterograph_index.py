@@ -1073,6 +1073,42 @@ class HeteroGraphIndex(NamedTuple):
             edges=tuple((dst, src) for src, dst in self.edges),
         )
 
+    def __eq__(self, other) -> bool:
+        """Determine if two graph index objects are identical.
+
+        Parameters
+        ----------
+        other : HeteroGraphIndex
+            The object to be compared with self.
+
+        Returns
+        -------
+        bool
+            If the two objects are identical.
+
+        """
+        if type(self) != type(other):
+            return False
+        if self.metagraph != other.metagraph:
+            return False
+        if len(self.n_nodes) != len(other.n_nodes):
+            return False
+        if (self.n_nodes != other.n_nodes).any():
+            return False
+        if len(self.edges) != len(other.edges):
+            return False
+        for self_edge, other_edge in zip(self.edges, other.edges):
+            (self_src, self_dst), (other_src, other_dst) = self_edge, other_edge
+            if len(self_src) != len(other_src):
+                return False
+            if len(self_dst) != len(other_dst):
+                return False
+            if (self_src != other_src).any():
+                return False
+            if (self_dst != other_dst).any():
+                return False
+        return True
+
     @classmethod
     def from_dgl(cls, graph):
         metagraph = GraphIndex.from_dgl(graph.metagraph)

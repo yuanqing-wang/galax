@@ -1,5 +1,5 @@
 """Utilities for batching graphs."""
-from typing import Sequence
+from typing import Sequence, Union
 import jax
 import jax.numpy as jnp
 from flax.core import FrozenDict
@@ -110,3 +110,107 @@ def batch(graphs: Sequence[HeteroGraph]):
         node_frames=node_frames,
         edge_frames=edge_frames
     )
+
+def pad(
+        graphs: Union[Sequence[HeteroGraph], HeteroGraph],
+        n_nodes: Union[int, jnp.ndarray],
+        n_edges: Union[int, jnp.ndarray],
+):
+    """Pad graphs to desired number of nodes and edges and batch them.
+
+    Parameters
+    ----------
+    graphs : Union[Sequence[HeteroGraph], HeteroGraph]
+        A sequence of graphs, could be already batched.
+    n_nodes : Union[int, jnp.ndarray]
+        Number of nodes.
+    n_edges : Union[int, jnp.ndarray]
+        Number of edges.
+
+    Returns
+    -------
+    HeteroGraph
+        Batched graph with desired padding.
+
+    Examples
+    --------
+    >>> import galax
+    >>> g = galax.graph(([0, 0, 2], [0, 1, 2]))
+    >>> _g = pad(g, g.number_of_nodes(), g.number_of_edges())
+    >>> _g == g
+    True
+
+    >>> _g = pad(g, 5, 8)
+    >>> int(_g.number_of_edges())
+    8
+    >>> int(_g.number_of_nodes())
+    5
+
+    >>> g = g.ndata.set("h", jnp.ones(3))
+    >>> g = g.edata.set("h", jnp.ones(3))
+    >>> _g = pad(g, 5, 8)
+    >>> _g.ndata["h"].tolist()
+    [1.0, 1.0, 1.0, 0.0, 0.0]
+    >>> _g.edata["h"].tolist()
+    [1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+    """
+    if not isinstance(graphs, HeteroGraph):
+        graphs = batch(graphs)
+    current_n_nodes = graphs.gidx.n_nodes
+    current_n_edges = jnp.array([len(edge[0]) for edge in graphs.gidx.edges])
+    delta_n_nodes = n_nodes - current_n_nodes
+    delta_n_edges = n_edges - current_n_edges
+    n_nodes = delta_n_nodes
+    edges = tuple(
+        [
+            (jnp.zeros(_n_edge), jnp.zeros(_n_edge))
+            for _n_edge in delta_n_edges
+        ]
+    )
+    gidx = HeteroGraphIndex(
+        metagraph=graphs.gidx.metagraph,
+        n_nodes=n_nodes,
+        edges=edges,
+    )
+
+    node_frames = (
+        FrozenDict(
+            {
+                key:
+                jnp.zeros(
+                    (n_nodes[idx], *graphs.node_frames[idx][key].shape[1:]),
+                )
+                for key in graphs.node_frames[idx].keys()
+            }
+        )
+        if graphs.node_frames[idx] is not None else None
+        for idx in range(len(graphs.node_frames))
+    )
+
+    edge_frames = (
+        FrozenDict(
+            {
+                key:
+                jnp.zeros(
+                    (
+                        delta_n_edges[idx],
+                        *graphs.edge_frames[idx][key].shape[1:],
+                    ),
+                )
+                for key in graphs.edge_frames[idx].keys()
+            }
+        )
+        if graphs.edge_frames[idx] is not None else None
+        for idx in range(len(graphs.edge_frames))
+    )
+
+    dummy = HeteroGraph.init(
+        gidx=gidx,
+        ntypes=graphs.ntypes,
+        etypes=graphs.etypes,
+        node_frames=node_frames,
+        edge_frames=edge_frames,
+    )
+
+    return batch([graphs, dummy])

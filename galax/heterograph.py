@@ -1488,6 +1488,64 @@ class HeteroGraph(NamedTuple):
             graph=self, mfunc=mfunc, rfunc=rfunc, afunc=afunc, etype=etype,
         )
 
+    def __eq__(self, other):
+        """Determine if two graph objects are identical.
+
+        Parameters
+        ----------
+        other : HeteroGraph
+            The object to be compared with self.
+
+        Returns
+        -------
+        bool
+            If the two objects are identical.
+        """
+        if type(self) != type(other):
+            return False
+        if not self.gidx == other.gidx:
+            return False
+        if not self.ntypes == other.ntypes:
+            return False
+        if not self.etypes == other.etypes:
+            return False
+
+        for self_node_frame, other_node_frame in zip(
+            self.node_frames, other.node_frames
+        ):
+            if self_node_frame is None:
+                if not other_node_frame is None:
+                    return False
+            else:
+                if not tuple(
+                    self_node_frame.keys()
+                ) == tuple(other_node_frame.keys()):
+                    return False
+
+                for key in self_node_frame.keys():
+                    if (self_node_frame[key] != other_node_frame[key]).any():
+                        return False
+
+        for self_edge_frame, other_edge_frame in zip(
+            self.edge_frames, other.edge_frames
+        ):
+            if self_edge_frame is None:
+                if not other_node_frame is None:
+                    return False
+            else:
+                if not tuple(
+                    self_edge_frame.keys()
+                ) == tuple(other_node_frame.keys()):
+                    return False
+
+                for key in self_edge_frame.keys():
+                    if (self_edge_frame[key] != other_node_frame[key]).any():
+                        return False
+        return True
+
+
+
+
 def graph(
     data: Any,
     n_nodes: Optional[Union[Mapping, int]] = None,
@@ -1650,6 +1708,8 @@ def graph(
             ntypes=ntypes,
             etypes=etypes,
         )
+
+
 
 def from_dgl(graph):
     """Construct a heterograph from dgl.DGLGraph

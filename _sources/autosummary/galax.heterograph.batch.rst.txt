@@ -1,0 +1,6 @@
+galax.heterograph.batch
+=======================
+
+.. currentmodule:: galax.heterograph
+
+.. autofunction:: batch

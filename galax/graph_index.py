@@ -948,6 +948,12 @@ class GraphIndex(NamedTuple):
         src, dst = jnp.array(src), jnp.array(dst)
         return cls(n_nodes=n_nodes, src=src, dst=dst)
 
+    def __eq__(self, other):
+        """Return if two graph index are identical."""
+        return other.n_nodes == self.n_nodes\
+            && (self.src == other.src).all()\
+            && (self.dst == other.dst).all()
+
 
 def from_coo(
     num_nodes: int, src: jnp.ndarray, dst: jnp.ndarray

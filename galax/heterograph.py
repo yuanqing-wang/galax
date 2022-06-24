@@ -1666,3 +1666,61 @@ def from_dgl(graph):
 
     """
     return HeteroGraph.from_dgl(graph)
+
+def batch(graphs):
+    """Batch a sequence of graphs into one.
+
+    Parameters
+    ----------
+    graphs : Sequence[HeteroGraph]
+        Sequence of graphs.
+
+    Returns
+    -------
+    HeteroGraph
+        The batched graph.
+
+    """
+    assert all(graph.ntypes == graphs[0].ntypes for graph in graphs)
+    assert all(graph.etypes == graphs[0].etypes for graph in graphs)
+    etypes = graphs[0].etypes
+    ntypes = graphs[0].ntypes
+
+    assert all(
+        graph.gidx.metagraph == graphs[0].gidx.metagraph
+        for graph in graphs
+    )
+
+    metagraph = graphs[0].gidx.metagraph
+    n_nodes = jnp.stack([graph.gidx.n_nodes for graph in graphs])
+    offsets = jnp.cumsum(n_nodes, axis=0)
+    n_nodes = n_nodes.sum(axis=0)
+
+    n_edges = (graph.gidx.edges)
+    edges = [[] for _ in range(n_edges)]
+    for idx in range(n_edges):
+        for graph in graphs:
+            src, dst = graphs.gidx.edges[idx]
+            src = src + offsets[idx]
+            dst = dst + offsets[idx]
+            edges[idx] = (src, dst)
+    edges = tuple(edges)
+    gidx = HeteroGraphIndex(n_nodes=n_nodes, edges=edges, metagraph=metagraph)
+
+    node_frames = FrozenDict({
+        key: jnp.concatenate([graph.node_frames[key] for graph in graphs])
+        for key in graphs[0].node_frames.keys()
+    })
+
+    edge_frames = FrozenDict({
+        key: jnp.concatenate([graph.edge_frames[key] for graph in graphs])
+        for key in graphs[0].edge_frames.keys()
+    })
+
+    return HeteroGraph.init(
+        gidx=gidx,
+        ntypes=ntypes,
+        etypes=etypes,
+        node_frames=node_frames,
+        edge_frames=edge_frames
+    )

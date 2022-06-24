@@ -950,9 +950,11 @@ class GraphIndex(NamedTuple):
 
     def __eq__(self, other):
         """Return if two graph index are identical."""
-        return other.n_nodes == self.n_nodes\
-            && (self.src == other.src).all()\
-            && (self.dst == other.dst).all()
+        return (
+            other.n_nodes == self.n_nodes
+            and (self.src == other.src).all()
+            and (self.dst == other.dst).all()
+        )
 
 
 def from_coo(

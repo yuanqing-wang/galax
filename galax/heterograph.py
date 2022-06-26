@@ -14,6 +14,7 @@ from collections import namedtuple
 import jax
 import jax.numpy as jnp
 from flax.core import FrozenDict, freeze, unfreeze
+from . import function
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
 from .view import NodeView, EdgeView, NodeDataView, EdgeDataView, GraphDataView
@@ -1601,6 +1602,101 @@ class HeteroGraph(NamedTuple):
                     if (self_edge_frame[key] != other_node_frame[key]).any():
                         return False
         return True
+
+    def batched_num_nodes(self, ntype: Optional[str] = None) -> jnp.ndarray:
+        """Return the batched number of nodes.
+
+        Parameters
+        ----------
+        ntype : Optional[str]
+
+        Returns
+        -------
+        jnp.ndarray
+            The number of nodes, batched.
+        """
+        if isinstance(ntype, str):
+            ntype = self.get_ntype_id(ntype)
+        res = self.gdata["_batched_num_nodes"]
+        return res[:, ntype]
+
+    def sum_nodes(
+            self,
+            field: str="h",
+            ntype: Optional[str] = None,
+            dummy: Optional[bool] = None,
+    ):
+        """Sum the representations of nodes.
+
+        Parameters
+        ----------
+        field : str = "h"
+            Ndata field.
+        ntype : Optional[str] = None
+            Node type.
+        dummy : Optional[bool] = None
+            Whether dummy graph is present.
+
+        Returns
+        -------
+        jnp.ndarray
+            The resulting summed data.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> g = g.ndata.set("h", jnp.ones(3))
+        >>> float(g.sum_nodes())
+        3.0
+
+        >>> import galax
+        >>> _g = galax.batch([g, g])
+        >>> _g.sum_nodes().tolist()
+        [3.0, 3.0]
+
+        >>> _g = galax.pad(_g, 8, 9)
+        >>> _g.sum_nodes().tolist()
+        [3.0, 3.0]
+
+        >>> _sum_nodes = jax.jit(lambda _g: _g.sum_nodes())
+        >>> _sum_nodes(_g).tolist()
+        [3.0, 3.0]
+
+        """
+        if isinstance(ntype, str):
+            ntype = self.get_ntype_id(ntype)
+
+        if self.graph_frame is None:
+            return self.ndata[field].sum(0)
+
+        if "_batched_num_nodes" not in self.gdata.keys():
+            return self.ndata[field].sum(0)
+
+        batched_num_nodes = self.batched_num_nodes(ntype)
+
+        segment_ids = jnp.repeat(
+            jnp.arange(len(batched_num_nodes)),
+            batched_num_nodes,
+            axis=0,
+            total_repeat_length=self.number_of_nodes(ntype),
+        )
+
+        message = self.ndata[field]
+        result = function.segment_sum(
+            message,
+            segment_ids,
+            len(batched_num_nodes),
+            indices_are_sorted=True,
+        )
+
+        if dummy is None:
+            dummy = "_has_dummy" in self.gdata.keys()
+
+        if dummy:
+            result = result[:-1]
+
+        return result
+
 
 def graph(
     data: Any,

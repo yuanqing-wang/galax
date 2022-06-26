@@ -64,7 +64,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for galax.data.datasets.nodes.ogb</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="arxiv"><a class="viewcode-back" href="../../../../../autosummary/galax.data.datasets.nodes.ogb.arxiv.html#galax.data.datasets.nodes.ogb.arxiv">[docs]</a><span></span><span class="k">def</span> <span class="nf">arxiv</span><span class="p">():</span>
+<span></span><span class="sd">&quot;&quot;&quot;`OGB datasets. &lt;https://ogb.stanford.edu&gt; `__</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="arxiv"><a class="viewcode-back" href="../../../../../autosummary/galax.data.datasets.nodes.ogb.arxiv.html#galax.data.datasets.nodes.ogb.arxiv">[docs]</a><span class="k">def</span> <span class="nf">arxiv</span><span class="p">():</span>
     <span class="kn">from</span> <span class="nn">ogb.nodeproppred</span> <span class="kn">import</span> <span class="n">DglNodePropPredDataset</span>
     <span class="kn">import</span> <span class="nn">galax</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">DglNodePropPredDataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ogbn-arxiv&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>

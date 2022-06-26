@@ -80,6 +80,7 @@
 <span class="kn">import</span> <span class="nn">jax</span>
 <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 <span class="kn">from</span> <span class="nn">flax.core</span> <span class="kn">import</span> <span class="n">FrozenDict</span><span class="p">,</span> <span class="n">freeze</span><span class="p">,</span> <span class="n">unfreeze</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">function</span>
 <span class="kn">from</span> <span class="nn">.graph_index</span> <span class="kn">import</span> <span class="n">GraphIndex</span>
 <span class="kn">from</span> <span class="nn">.heterograph_index</span> <span class="kn">import</span> <span class="n">HeteroGraphIndex</span>
 <span class="kn">from</span> <span class="nn">.view</span> <span class="kn">import</span> <span class="n">NodeView</span><span class="p">,</span> <span class="n">EdgeView</span><span class="p">,</span> <span class="n">NodeDataView</span><span class="p">,</span> <span class="n">EdgeDataView</span><span class="p">,</span> <span class="n">GraphDataView</span>
@@ -1666,7 +1667,102 @@
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">self_edge_frame</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                     <span class="k">if</span> <span class="p">(</span><span class="n">self_edge_frame</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">!=</span> <span class="n">other_node_frame</span><span class="p">[</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                         <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="HeteroGraph.batched_num_nodes"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.batched_num_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">batched_num_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the batched number of nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ntype : Optional[str]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        jnp.ndarray</span>
+<span class="sd">            The number of nodes, batched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ntype</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">ntype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ntype_id</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdata</span><span class="p">[</span><span class="s2">&quot;_batched_num_nodes&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">[:,</span> <span class="n">ntype</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="HeteroGraph.sum_nodes"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.sum_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">sum_nodes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+            <span class="n">ntype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">dummy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sum the representations of nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        field : str = &quot;h&quot;</span>
+<span class="sd">            Ndata field.</span>
+<span class="sd">        ntype : Optional[str] = None</span>
+<span class="sd">            Node type.</span>
+<span class="sd">        dummy : Optional[bool] = None</span>
+<span class="sd">            Whether dummy graph is present.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        jnp.ndarray</span>
+<span class="sd">            The resulting summed data.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; g = graph(((0, 1), (1, 2)))</span>
+<span class="sd">        &gt;&gt;&gt; g = g.ndata.set(&quot;h&quot;, jnp.ones(3))</span>
+<span class="sd">        &gt;&gt;&gt; float(g.sum_nodes())</span>
+<span class="sd">        3.0</span>
+
+<span class="sd">        &gt;&gt;&gt; import galax</span>
+<span class="sd">        &gt;&gt;&gt; _g = galax.batch([g, g])</span>
+<span class="sd">        &gt;&gt;&gt; _g.sum_nodes().tolist()</span>
+<span class="sd">        [3.0, 3.0]</span>
+
+<span class="sd">        &gt;&gt;&gt; _g = galax.pad(_g, 8, 9)</span>
+<span class="sd">        &gt;&gt;&gt; _g.sum_nodes().tolist()</span>
+<span class="sd">        [3.0, 3.0]</span>
+
+<span class="sd">        &gt;&gt;&gt; _sum_nodes = jax.jit(lambda _g: _g.sum_nodes())</span>
+<span class="sd">        &gt;&gt;&gt; _sum_nodes(_g).tolist()</span>
+<span class="sd">        [3.0, 3.0]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ntype</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">ntype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ntype_id</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_frame</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;_batched_num_nodes&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdata</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">batched_num_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batched_num_nodes</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
+
+        <span class="n">segment_ids</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+            <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batched_num_nodes</span><span class="p">)),</span>
+            <span class="n">batched_num_nodes</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">total_repeat_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">ntype</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="n">segment_sum</span><span class="p">(</span>
+            <span class="n">message</span><span class="p">,</span>
+            <span class="n">segment_ids</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">batched_num_nodes</span><span class="p">),</span>
+            <span class="n">indices_are_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dummy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dummy</span> <span class="o">=</span> <span class="s2">&quot;_has_dummy&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdata</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">dummy</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">result</span></div></div>
+
 
 <div class="viewcode-block" id="graph"><a class="viewcode-back" href="../../autosummary/galax.heterograph.graph.html#galax.heterograph.graph">[docs]</a><span class="k">def</span> <span class="nf">graph</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>

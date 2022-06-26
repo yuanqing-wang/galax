@@ -24,6 +24,7 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.adjacency_matrix
       ~HeteroGraph.apply_edges
       ~HeteroGraph.apply_nodes
+      ~HeteroGraph.batched_num_nodes
       ~HeteroGraph.canonical_etypes
       ~HeteroGraph.count
       ~HeteroGraph.find_edges
@@ -49,6 +50,7 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.set_edata
       ~HeteroGraph.set_gdata
       ~HeteroGraph.set_ndata
+      ~HeteroGraph.sum_nodes
       ~HeteroGraph.to_canonincal_etype
       ~HeteroGraph.update_all
    

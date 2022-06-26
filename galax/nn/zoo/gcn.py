@@ -1,4 +1,4 @@
-"""Graph Convolutional network.<https://arxiv.org/abs/1609.02907>`__"""
+"""`Graph Convolutional network.<https://arxiv.org/abs/1609.02907>`__"""
 
 from typing import Callable, Optional
 import jax

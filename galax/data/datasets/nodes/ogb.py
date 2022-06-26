@@ -1,3 +1,6 @@
+"""`OGB datasets. <https://ogb.stanford.edu> `__
+"""
+
 def arxiv():
     from ogb.nodeproppred import DglNodePropPredDataset
     import galax

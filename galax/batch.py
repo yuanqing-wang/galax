@@ -36,6 +36,9 @@ def batch(graphs: Sequence[HeteroGraph]):
     >>> _g.ndata["h"].tolist()
     [0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
 
+    >>> _g.gdata["_batched_num_nodes"].flatten().tolist()
+    [3, 3]
+
     """
     # make sure the metagraphs are exactly the same
     assert all(graph.ntypes == graphs[0].ntypes for graph in graphs)
@@ -52,6 +55,7 @@ def batch(graphs: Sequence[HeteroGraph]):
 
     # number of nodes on offsets
     n_nodes = jnp.stack([graph.gidx.n_nodes for graph in graphs])
+    batched_num_nodes = n_nodes
     offsets = jnp.cumsum(n_nodes[:-1], axis=0)
     offsets = jnp.concatenate(
         [jnp.zeros((1, offsets.shape[-1]), dtype=jnp.int32), offsets]
@@ -103,12 +107,47 @@ def batch(graphs: Sequence[HeteroGraph]):
         for idx in range(len(graphs[0].edge_frames))
     )
 
+    # (n_graphs, n_ntypes)
+    original_batched_num_nodes = [
+        graph.graph_frame.get("_batched_num_nodes", default=None)
+        if graph.graph_frame is not None
+        else None
+        for graph in graphs
+    ]
+
+    batched_num_nodes = [
+        jnp.expand_dims(batched_num_nodes[idx], 0)
+        if original_batched_num_nodes[idx] is None
+        else original_batched_num_nodes[idx]
+        for idx in range(len(original_batched_num_nodes))
+    ]
+
+    batched_num_nodes = jnp.concatenate(batched_num_nodes)
+
+    if graphs[0].graph_frame is not None:
+        if list(graphs[0].graph_frame.keys()) != ["_batched_num_nodes"]:
+            graph_frame = {
+                    key:
+                    jnp.concatenate(
+                        [graph.graph_frame[key] for graph in graphs]
+                    )
+                    for key in graphs[0].graph_frame.keys()
+                    if key != "_batched_num_nodes"
+            }
+        else:
+            graph_frame = {}
+    else:
+        graph_frame = {}
+
+    graph_frame.update({"_batched_num_nodes": batched_num_nodes})
+
     return HeteroGraph.init(
         gidx=gidx,
         ntypes=ntypes,
         etypes=etypes,
         node_frames=node_frames,
-        edge_frames=edge_frames
+        edge_frames=edge_frames,
+        graph_frame=graph_frame,
     )
 
 def pad(
@@ -137,7 +176,7 @@ def pad(
     >>> import galax
     >>> g = galax.graph(([0, 0, 2], [0, 1, 2]))
     >>> _g = pad(g, g.number_of_nodes(), g.number_of_edges())
-    >>> _g == g
+    >>> _g.gidx == g.gidx
     True
 
     >>> _g = pad(g, 5, 8)
@@ -153,6 +192,10 @@ def pad(
     [1.0, 1.0, 1.0, 0.0, 0.0]
     >>> _g.edata["h"].tolist()
     [1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    >>> _g.gdata["_batched_num_nodes"].flatten().tolist()
+    [3, 2]
+    >>> bool(_g.gdata["_has_dummy"])
+    True
 
     """
     if not isinstance(graphs, HeteroGraph):
@@ -213,4 +256,7 @@ def pad(
         edge_frames=edge_frames,
     )
 
-    return batch([graphs, dummy])
+    g = batch([graphs, dummy])
+    g = g.gdata.set("_has_dummy", jnp.array(True))
+
+    return g

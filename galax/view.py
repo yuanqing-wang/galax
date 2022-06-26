@@ -8,7 +8,7 @@ import jax.numpy as jnp
 
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data", "src", "dst"])
-
+GraphSpace = namedtuple("GraphSpace", ["data"])
 
 class NodeView(object):
     def __init__(self, graph):
@@ -85,3 +85,13 @@ class EdgeDataView(object):
     def set(self, key, data):
         assert self.idxs is None, "Cannot partially set. "
         return self.graph.set_edata(key=key, data=data, etype=self.etype_idx)
+
+class GraphDataView(object):
+    def __init__(self, graph):
+        self.graph = graph
+
+    def __getitem__(self, key):
+        return self.graph.graph_frame[key]
+
+    def set(self, key, data):
+        return self.graph.set_gdata(key=key, data=data)

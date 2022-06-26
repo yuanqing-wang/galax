@@ -16,7 +16,7 @@ import jax.numpy as jnp
 from flax.core import FrozenDict, freeze, unfreeze
 from .graph_index import GraphIndex
 from .heterograph_index import HeteroGraphIndex
-from .view import NodeView, EdgeView, NodeDataView, EdgeDataView
+from .view import NodeView, EdgeView, NodeDataView, EdgeDataView, GraphDataView
 from .function import apply_edges, apply_nodes, ReduceFunction
 from .core import message_passing
 
@@ -53,6 +53,7 @@ class HeteroGraph(NamedTuple):
     node_frames: Optional[NamedTuple] = None
     edge_frames: Optional[NamedTuple] = None
     metamap: Optional[FrozenDict] = None
+    graph_frame: Optional[FrozenDict] = None
 
     @classmethod
     def init(
@@ -62,6 +63,7 @@ class HeteroGraph(NamedTuple):
         etypes: Optional[Sequence[str]] = ("E_",),
         node_frames: Optional[NamedTuple] = None,
         edge_frames: Optional[NamedTuple] = None,
+        graph_frame: Optional[Mapping] = None,
     ):
         if gidx is None:
             gidx = HeteroGraphIndex()
@@ -82,11 +84,16 @@ class HeteroGraph(NamedTuple):
             for _src, _dst, _eid in zip(src, dst, eid)
         }
         metamap = FrozenDict(metamap)
+
+        if graph_frame is not None:
+            graph_frame = FrozenDict(graph_frame)
+
         return HeteroGraph(
             gidx=gidx,
             node_frames=node_frames,
             edge_frames=edge_frames,
             metamap=metamap,
+            graph_frame=graph_frame,
         )
 
     def get_meta_edge(self, eid):
@@ -274,6 +281,7 @@ class HeteroGraph(NamedTuple):
             etypes=etypes,
             node_frames=node_frames,
             edge_frames=edge_frames,
+            graph_frame=self.graph_frame,
         )
 
     def add_edges(
@@ -471,6 +479,7 @@ class HeteroGraph(NamedTuple):
             etypes=etypes,
             node_frames=node_frames,
             edge_frames=edge_frames,
+            graph_frame=self.graph_frame,
         )
 
     def remove_edges(
@@ -554,6 +563,7 @@ class HeteroGraph(NamedTuple):
             etypes=etypes,
             node_frames=self.node_frames,
             edge_frames=edge_frames,
+            graph_frame=self.graph_frame,
         )
 
     def remove_nodes(self, nids: jnp.ndarray, ntype: Optional[str] = None):
@@ -713,6 +723,7 @@ class HeteroGraph(NamedTuple):
             etypes=self.etypes,
             node_frames=node_frames,
             edge_frames=edge_frames,
+            graph_frame=self.graph_frame,
         )
 
     @property
@@ -1246,6 +1257,36 @@ class HeteroGraph(NamedTuple):
             edge_frames = self.edge_frames.__class__(*edge_frames)
         return self._replace(edge_frames=edge_frames)
 
+    def set_gdata(self, key, data):
+        """Set global data.
+
+        Parameters
+        ----------
+        key : str
+            Name of the data field.
+        data : jnp.array
+            Node data.
+
+        Returns
+        -------
+        HeteroGraph
+            A new graph with gdata.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> g = g.set_gdata('h', jnp.zeros(3))
+        >>> g.graph_frame['h'].tolist()
+        [0.0, 0.0, 0.0]
+        """
+        if self.graph_frame is None:
+            graph_frame = FrozenDict({key: data})
+        else:
+            graph_frame = unfreeze(self.graph_frame)
+            graph_frame[key] = data
+            graph_frame = freeze(graph_frame)
+        return self._replace(graph_frame=graph_frame)
+
     @property
     def edata(self):
         """Edge data."""
@@ -1255,6 +1296,11 @@ class HeteroGraph(NamedTuple):
     def ndata(self):
         """Node data."""
         return NodeDataView(self, 0)
+
+    @property
+    def gdata(self):
+        """Graph data."""
+        return GraphDataView(self)
 
     @property
     def srcdata(self, etype: Optional[str] = None):
@@ -1510,6 +1556,19 @@ class HeteroGraph(NamedTuple):
         if not self.etypes == other.etypes:
             return False
 
+        if self.graph_frame is None:
+            if other.graph_frame is not None:
+                return False
+        elif other.graph_frame is None:
+            if self.graph_frame is not None:
+                return False
+        elif tuple(self.graph_frame.keys()) != tuple(other.graph_frame.keys()):
+            return False
+        else:
+            for key in self.graph_frame.keys():
+                if not (self.graph_frame[key] == other.graph_frame[key]).all():
+                    return False
+
         for self_node_frame, other_node_frame in zip(
             self.node_frames, other.node_frames
         ):
@@ -1542,9 +1601,6 @@ class HeteroGraph(NamedTuple):
                     if (self_edge_frame[key] != other_node_frame[key]).any():
                         return False
         return True
-
-
-
 
 def graph(
     data: Any,
@@ -1708,8 +1764,6 @@ def graph(
             ntypes=ntypes,
             etypes=etypes,
         )
-
-
 
 def from_dgl(graph):
     """Construct a heterograph from dgl.DGLGraph

@@ -47,6 +47,7 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.remove_nodes
       ~HeteroGraph.remove_self_loop
       ~HeteroGraph.set_edata
+      ~HeteroGraph.set_gdata
       ~HeteroGraph.set_ndata
       ~HeteroGraph.to_canonincal_etype
       ~HeteroGraph.update_all
@@ -64,7 +65,9 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.edge_frames
       ~HeteroGraph.edges
       ~HeteroGraph.etypes
+      ~HeteroGraph.gdata
       ~HeteroGraph.gidx
+      ~HeteroGraph.graph_frame
       ~HeteroGraph.metamap
       ~HeteroGraph.ndata
       ~HeteroGraph.node_frames

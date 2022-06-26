@@ -87,7 +87,7 @@
 <h1>galax.heterograph.HeteroGraph<a class="headerlink" href="#galax-heterograph-heterograph" title="Permalink to this headline"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="galax.heterograph.HeteroGraph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">galax.heterograph.</span></span><span class="sig-name descname"><span class="pre">HeteroGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gidx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">galax.heterograph_index.HeteroGraphIndex</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">NamedTuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">NamedTuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metamap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">flax.core.frozen_dict.FrozenDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">galax.heterograph.</span></span><span class="sig-name descname"><span class="pre">HeteroGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gidx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">galax.heterograph_index.HeteroGraphIndex</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">NamedTuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">NamedTuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metamap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">flax.core.frozen_dict.FrozenDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">flax.core.frozen_dict.FrozenDict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Class for storing graph structure and node/edge feature data.</p>
 <dl class="field-list simple">
@@ -213,13 +213,16 @@ of edge type i. (default: None)</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.set_edata" title="galax.heterograph.HeteroGraph.set_edata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_edata</span></code></a>(key, data[, etype])</p></td>
 <td><p>Set edge data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.set_ndata" title="galax.heterograph.HeteroGraph.set_ndata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_ndata</span></code></a>(key, data[, ntype])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.set_gdata" title="galax.heterograph.HeteroGraph.set_gdata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_gdata</span></code></a>(key, data)</p></td>
+<td><p>Set global data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.set_ndata" title="galax.heterograph.HeteroGraph.set_ndata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_ndata</span></code></a>(key, data[, ntype])</p></td>
 <td><p>Set node data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.to_canonincal_etype" title="galax.heterograph.HeteroGraph.to_canonincal_etype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_canonincal_etype</span></code></a>(etype)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.to_canonincal_etype" title="galax.heterograph.HeteroGraph.to_canonincal_etype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_canonincal_etype</span></code></a>(etype)</p></td>
 <td><p>Convert an edge type to the corresponding canonical edge type in the graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.update_all" title="galax.heterograph.HeteroGraph.update_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_all</span></code></a>(mfunc, rfunc[, afunc, etype])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.update_all" title="galax.heterograph.HeteroGraph.update_all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_all</span></code></a>(mfunc, rfunc[, afunc, etype])</p></td>
 <td><p>Alias to core.message_passing.</p></td>
 </tr>
 </tbody>
@@ -246,8 +249,14 @@ of edge type i. (default: None)</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">etypes</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.gidx" title="galax.heterograph.HeteroGraph.gidx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gidx</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.gdata" title="galax.heterograph.HeteroGraph.gdata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdata</span></code></a></p></td>
+<td><p>Graph data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.gidx" title="galax.heterograph.HeteroGraph.gidx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gidx</span></code></a></p></td>
 <td><p>Alias for field number 0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.graph_frame" title="galax.heterograph.HeteroGraph.graph_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_frame</span></code></a></p></td>
+<td><p>Alias for field number 4</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#galax.heterograph.HeteroGraph.metamap" title="galax.heterograph.HeteroGraph.metamap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metamap</span></code></a></p></td>
 <td><p>Alias for field number 3</p></td>
@@ -623,6 +632,12 @@ The i-th element is the destination node ID of the i-th edge.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.gdata">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gdata</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.gdata" title="Permalink to this definition"></a></dt>
+<dd><p>Graph data.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.get_etype_id">
 <span class="sig-name descname"><span class="pre">get_etype_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">etype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.get_etype_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.get_etype_id" title="Permalink to this definition"></a></dt>
@@ -665,6 +680,12 @@ graph.</p>
 <dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.gidx">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gidx</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.gidx" title="Permalink to this definition"></a></dt>
 <dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.graph_frame">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">graph_frame</span></span><a class="headerlink" href="#galax.heterograph.HeteroGraph.graph_frame" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1180,6 +1201,33 @@ False</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">graph</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">set_edata</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="galax.heterograph.HeteroGraph.set_gdata">
+<span class="sig-name descname"><span class="pre">set_gdata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/galax/heterograph.html#HeteroGraph.set_gdata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#galax.heterograph.HeteroGraph.set_gdata" title="Permalink to this definition"></a></dt>
+<dd><p>Set global data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Name of the data field.</p></li>
+<li><p><strong>data</strong> (<em>jnp.array</em>) – Node data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A new graph with gdata.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#galax.heterograph.HeteroGraph" title="galax.heterograph.HeteroGraph">HeteroGraph</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">graph</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">set_gdata</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">graph_frame</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="go">[0.0, 0.0, 0.0]</span>
 </pre></div>
 </div>
 </dd></dl>

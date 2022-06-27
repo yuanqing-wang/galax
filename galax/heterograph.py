@@ -1690,10 +1690,53 @@ class HeteroGraph(NamedTuple):
         )
 
         if dummy is None:
-            dummy = "_has_dummy" in self.gdata.keys()
+            dummy = self.graph_frame is not None\
+                and "_has_dummy" in self.gdata.keys()
 
         if dummy:
             result = result[:-1]
+
+        return result
+
+    def is_not_dummy(self, ntype: Optional[str] = None):
+        """Return the mask where the nodes are not dummy.
+
+        Parameters
+        ----------
+        ntype : Optional[str]
+            Node type.
+
+        Returns
+        -------
+        jnp.ndarray
+            A boolean ask indicating whether a node is dummy.
+
+        Examples
+        --------
+        >>> g = graph(((0, 1), (1, 2)))
+        >>> import galax
+        >>> g = galax.pad(g, 5, 8)
+        >>> g.is_not_dummy().tolist()
+        [False, False, False, True, True]
+
+        """
+        # get the indices of ntype
+        ntype_idx = self.get_ntype_id(ntype)
+
+        # get placeholder
+        result = jnp.ones(self.number_of_nodes(ntype), dtype=bool)
+
+        # check if dummy atoms are invovled
+        dummy = self.graph_frame is not None\
+            and "_has_dummy" in self.gdata.keys()
+
+        # if no dummy atoms, just return the whole damn thing
+        if not dummy:
+            return result
+
+        # grab the number of dummy nodes
+        num_dummy = self.batched_num_nodes(ntype_idx)[-1]
+        result = result.at[:-num_dummy].set(False)
 
         return result
 

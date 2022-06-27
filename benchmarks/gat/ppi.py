@@ -8,11 +8,16 @@ import galax
 
 
 def run():
-    from galax.data.datasets.nodes.planetoid import ppi
+    from galax.data.datasets.nodes.graphsage import ppi
     GS_TR, GS_VL, GS_TE = ppi()
-    GS_TR = map(lambda g: g.add_self_loop(), GS_TR)
-    GS_VL = map(lambda g: g.add_self_loop(), GS_VL)
-    GS_TE = map(lambda g: g.add_self_loop(), GS_TE)
+    GS_TR = tuple(map(lambda g: g.add_self_loop(), GS_TR))
+    GS_VL = tuple(map(lambda g: g.add_self_loop(), GS_VL))
+    GS_TE = tuple(map(lambda g: g.add_self_loop(), GS_TE))
+
+    from galax.data.dataloader import PrixFixeDataLoader
+    ds_tr = PrixFixeDataLoader(GS_TR, 2)
+    ds_vl = PrixFixeDataLoader(GS_VL, 2)
+    ds_te = PrixFixeDataLoader(GS_TE, 2)
 
     from galax.nn.zoo.gat import GAT
     ConcatenationPooling = galax.ApplyNodes(lambda x: x.reshape(*x.shape[:-2], -1))
@@ -32,22 +37,9 @@ def run():
     key = jax.random.PRNGKey(2666)
     key, key_dropout = jax.random.split(key)
 
-    params = model.init({"params": key, "dropout": key_dropout}, G)
+    params = model.init({"params": key, "dropout": key_dropout}, next(iter(ds_tr)))
 
-    from flax.core import FrozenDict
-    mask = FrozenDict(
-        {"params":
-            {
-                "layers_1": True,
-                "layers_3": False,
-            },
-        },
-    )
-
-    optimizer = optax.chain(
-        optax.additive_weight_decay(5e-4, mask=mask),
-        optax.adam(1e-2),
-    )
+    optimizer = optax.adam(0.005)
 
     from flax.training.train_state import TrainState
     state = TrainState.create(
@@ -56,9 +48,8 @@ def run():
 
     def loss(params, key):
         g = model.apply(params, G, rngs={"dropout": key})
-        y = g.ndata['h']
-        return optax.softmax_cross_entropy(
-            y[g.ndata['train_mask']],
+        return optax.sigmoid_binary_cross_entropy(
+            [g.ndata['train_mask']],
             Y_REF[g.ndata['train_mask']],
         ).mean()
 

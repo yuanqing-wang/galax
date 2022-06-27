@@ -1,0 +1,31 @@
+galax.data.dataloader
+=====================
+
+.. automodule:: galax.data.dataloader
+  
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      PrixFixeDataLoader
+   
+   
+
+   
+   
+   
+
+
+

@@ -29,5 +29,6 @@
    :recursive:
 
 
+   galax.data.dataloader
    galax.data.datasets
 

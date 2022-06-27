@@ -1756,10 +1756,53 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dummy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dummy</span> <span class="o">=</span> <span class="s2">&quot;_has_dummy&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdata</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>\
+                <span class="ow">and</span> <span class="s2">&quot;_has_dummy&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdata</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">dummy</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="HeteroGraph.is_not_dummy"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph.is_not_dummy">[docs]</a>    <span class="k">def</span> <span class="nf">is_not_dummy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the mask where the nodes are not dummy.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ntype : Optional[str]</span>
+<span class="sd">            Node type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        jnp.ndarray</span>
+<span class="sd">            A boolean ask indicating whether a node is dummy.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; g = graph(((0, 1), (1, 2)))</span>
+<span class="sd">        &gt;&gt;&gt; import galax</span>
+<span class="sd">        &gt;&gt;&gt; g = galax.pad(g, 5, 8)</span>
+<span class="sd">        &gt;&gt;&gt; g.is_not_dummy().tolist()</span>
+<span class="sd">        [False, False, False, True, True]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get the indices of ntype</span>
+        <span class="n">ntype_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ntype_id</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
+
+        <span class="c1"># get placeholder</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">ntype</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+        <span class="c1"># check if dummy atoms are invovled</span>
+        <span class="n">dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>\
+            <span class="ow">and</span> <span class="s2">&quot;_has_dummy&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdata</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="c1"># if no dummy atoms, just return the whole damn thing</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dummy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="c1"># grab the number of dummy nodes</span>
+        <span class="n">num_dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batched_num_nodes</span><span class="p">(</span><span class="n">ntype_idx</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">at</span><span class="p">[:</span><span class="o">-</span><span class="n">num_dummy</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span></div></div>
 

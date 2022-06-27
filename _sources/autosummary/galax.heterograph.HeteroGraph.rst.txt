@@ -41,6 +41,7 @@ galax.heterograph.HeteroGraph
       ~HeteroGraph.init
       ~HeteroGraph.is_homogeneous
       ~HeteroGraph.is_multigraph
+      ~HeteroGraph.is_not_dummy
       ~HeteroGraph.number_of_edges
       ~HeteroGraph.number_of_nodes
       ~HeteroGraph.out_degrees

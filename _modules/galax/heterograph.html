@@ -1601,7 +1601,7 @@
             <span class="n">graph</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mfunc</span><span class="o">=</span><span class="n">mfunc</span><span class="p">,</span> <span class="n">rfunc</span><span class="o">=</span><span class="n">rfunc</span><span class="p">,</span> <span class="n">afunc</span><span class="o">=</span><span class="n">afunc</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="n">etype</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">___eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Determine if two graph objects are identical.</span>
 
 <span class="sd">        Parameters</span>
@@ -1790,7 +1790,8 @@
         <span class="n">ntype_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ntype_id</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
 
         <span class="c1"># get placeholder</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">ntype</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">n_nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">(</span><span class="n">ntype</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_nodes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
 
         <span class="c1"># check if dummy atoms are invovled</span>
         <span class="n">dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>\
@@ -1802,7 +1803,7 @@
 
         <span class="c1"># grab the number of dummy nodes</span>
         <span class="n">num_dummy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batched_num_nodes</span><span class="p">(</span><span class="n">ntype_idx</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">at</span><span class="p">[:</span><span class="o">-</span><span class="n">num_dummy</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">n_nodes</span> <span class="o">-</span> <span class="n">num_dummy</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span></div></div>
 

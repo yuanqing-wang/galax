@@ -1535,7 +1535,7 @@ class HeteroGraph(NamedTuple):
             graph=self, mfunc=mfunc, rfunc=rfunc, afunc=afunc, etype=etype,
         )
 
-    def __eq__(self, other):
+    def ___eq__(self, other):
         """Determine if two graph objects are identical.
 
         Parameters
@@ -1724,7 +1724,8 @@ class HeteroGraph(NamedTuple):
         ntype_idx = self.get_ntype_id(ntype)
 
         # get placeholder
-        result = jnp.ones(self.number_of_nodes(ntype), dtype=bool)
+        n_nodes = self.number_of_nodes(ntype)
+        result = jnp.ones(n_nodes, dtype=bool)
 
         # check if dummy atoms are invovled
         dummy = self.graph_frame is not None\
@@ -1736,7 +1737,7 @@ class HeteroGraph(NamedTuple):
 
         # grab the number of dummy nodes
         num_dummy = self.batched_num_nodes(ntype_idx)[-1]
-        result = result.at[:-num_dummy].set(False)
+        result = jnp.arange(n_nodes) < (n_nodes - num_dummy)
 
         return result
 

@@ -1545,7 +1545,7 @@ class HeteroGraph(NamedTuple):
             graph=self, mfunc=mfunc, rfunc=rfunc, afunc=afunc, etype=etype,
         )
 
-    def ___eq__(self, other):
+    def __eq__(self, other):
         """Determine if two graph objects are identical.
 
         Parameters

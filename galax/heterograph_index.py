@@ -1073,7 +1073,7 @@ class HeteroGraphIndex(NamedTuple):
             edges=tuple((dst, src) for src, dst in self.edges),
         )
 
-    def __eq__(self, other) -> bool:
+    def ___eq__(self, other) -> bool:
         """Determine if two graph index objects are identical.
 
         Parameters

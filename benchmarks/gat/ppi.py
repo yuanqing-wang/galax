@@ -2,6 +2,7 @@
 
 from functools import partial
 import jax
+import jax.numpy as jnp
 from flax import linen as nn
 import optax
 import galax
@@ -16,8 +17,8 @@ def run():
 
     from galax.data.dataloader import PrixFixeDataLoader
     ds_tr = PrixFixeDataLoader(GS_TR, 2)
-    ds_vl = PrixFixeDataLoader(GS_VL, 2)
-    ds_te = PrixFixeDataLoader(GS_TE, 2)
+    g_vl = galax.batch(GS_VL)
+    g_te = galax.batch(GS_TE)
 
     from galax.nn.zoo.gat import GAT
     ConcatenationPooling = galax.ApplyNodes(lambda x: x.reshape(*x.shape[:-2], -1))
@@ -46,62 +47,40 @@ def run():
         apply_fn=model.apply, params=params, tx=optimizer,
     )
 
-    def loss(params, key):
-        g = model.apply(params, G, rngs={"dropout": key})
-        return optax.sigmoid_binary_cross_entropy(
-            [g.ndata['train_mask']],
-            Y_REF[g.ndata['train_mask']],
+    @jax.jit
+    def loss(params, g):
+        g = model.apply(params, g)
+        _loss = optax.sigmoid_binary_cross_entropy(
+            g.ndata['h'], g.ndata['label'],
         ).mean()
+        # _loss = jnp.where(jnp.expand_dims(g.is_not_dummy(), -1), _loss, 0.0)
+        # _loss = _loss.sum() / len(_loss)
+        return _loss
 
     @jax.jit
-    def step(state, key):
-        key, new_key = jax.random.split(key)
-        grad_fn = jax.grad(partial(loss, key=new_key))
+    def step(state, g):
+        grad_fn = jax.grad(partial(loss, g=g))
         grads = grad_fn(state.params)
         state = state.apply_gradients(grads=grads)
-        return state, key
+        return state
 
-    @jax.jit
-    def eval(state):
-        params = state.params
-        g = model_eval.apply(params, G)
-        y = g.ndata['h']
-        accuracy_vl = (Y_REF[g.ndata['val_mask']].argmax(-1) ==
-                y[g.ndata['val_mask']].argmax(-1)).sum() /\
-                g.ndata['val_mask'].sum()
-        loss_vl = optax.softmax_cross_entropy(
-            y[g.ndata['val_mask']],
-            Y_REF[g.ndata['val_mask']],
-        ).mean()
-        return accuracy_vl, loss_vl
-
-    @jax.jit
-    def test(state):
-        params = state.params
-        g = model_eval.apply(params, G)
-        y = g.ndata['h']
-        accuracy_te = (Y_REF[g.ndata['test_mask']].argmax(-1) ==
-            y[g.ndata['test_mask']].argmax(-1)).sum() /\
-            g.ndata['test_mask'].sum()
-        loss_te = optax.softmax_cross_entropy(
-            y[g.ndata['test_mask']],
-            Y_REF[g.ndata['test_mask']],
-        ).mean()
-        return accuracy_te, loss_te
+    def eval(state, g):
+        g = model.apply(params, g)
+        y_hat = g.ndata['h'][g.is_not_dummy()]
+        y_hat = 1 * (jax.nn.sigmoid(y_hat) > 0.5)
+        y = g.ndata['h'][g.is_not_dummy()]
+        accuracy = (y_hat == y) / y.size
+        return accuracy
 
     from galax.nn.utils import EarlyStopping
     early_stopping = EarlyStopping(10)
 
     import tqdm
     for _ in tqdm.tqdm(range(1000)):
-        state, key = step(state, key)
-        accuracy_vl, loss_vl = eval(state)
-        if early_stopping((-accuracy_vl, loss_vl), state.params):
-            state = state.replace(params=early_stopping.params)
-            break
+        for idx, g in enumerate(ds_tr):
+            _loss = loss(state.params, g)
 
-    accuracy_te, _ = test(state)
-    print(accuracy_te)
+
 
 if __name__ == "__main__":
     import argparse

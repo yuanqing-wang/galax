@@ -90,6 +90,8 @@
 <span class="n">NodeSpace</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;NodeSpace&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
 <span class="n">EdgeSpace</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;EdgeSpace&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
 
+<span class="n">NODE_FRAME_FACTORIES</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">EDGE_FRAME_FACTORIES</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="HeteroGraph"><a class="viewcode-back" href="../../autosummary/galax.heterograph.HeteroGraph.html#galax.heterograph.HeteroGraph">[docs]</a><span class="k">class</span> <span class="nc">HeteroGraph</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Class for storing graph structure and node/edge feature data.</span>
@@ -140,8 +142,16 @@
         <span class="k">if</span> <span class="n">edge_frames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">edge_frames</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">etypes</span><span class="p">))]</span>
 
-        <span class="n">node_frames</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;node_frames&quot;</span><span class="p">,</span> <span class="n">ntypes</span><span class="p">)(</span><span class="o">*</span><span class="n">node_frames</span><span class="p">)</span>
-        <span class="n">edge_frames</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;edge_frames&quot;</span><span class="p">,</span> <span class="n">etypes</span><span class="p">)(</span><span class="o">*</span><span class="n">edge_frames</span><span class="p">)</span>
+        <span class="n">ntypes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ntypes</span><span class="p">)</span>
+        <span class="n">etypes</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">etypes</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ntypes</span> <span class="ow">in</span> <span class="n">NODE_FRAME_FACTORIES</span><span class="p">:</span>
+            <span class="n">NODE_FRAME_FACTORIES</span><span class="p">[</span><span class="n">ntypes</span><span class="p">]</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;node_frames&quot;</span><span class="p">,</span> <span class="n">ntypes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">etypes</span> <span class="ow">in</span> <span class="n">EDGE_FRAME_FACTORIES</span><span class="p">:</span>
+            <span class="n">EDGE_FRAME_FACTORIES</span><span class="p">[</span><span class="n">etypes</span><span class="p">]</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;edge_frames&quot;</span><span class="p">,</span> <span class="n">etypes</span><span class="p">)</span>
+
+        <span class="n">node_frames</span> <span class="o">=</span> <span class="n">NODE_FRAME_FACTORIES</span><span class="p">[</span><span class="n">ntypes</span><span class="p">](</span><span class="o">*</span><span class="n">node_frames</span><span class="p">)</span>
+        <span class="n">edge_frames</span> <span class="o">=</span> <span class="n">EDGE_FRAME_FACTORIES</span><span class="p">[</span><span class="n">etypes</span><span class="p">](</span><span class="o">*</span><span class="n">edge_frames</span><span class="p">)</span>
 
         <span class="c1"># flattened version of metagraph</span>
         <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">eid</span> <span class="o">=</span> <span class="n">gidx</span><span class="o">.</span><span class="n">metagraph</span><span class="o">.</span><span class="n">all_edges</span><span class="p">()</span>

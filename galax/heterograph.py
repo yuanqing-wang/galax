@@ -24,6 +24,8 @@ from .core import message_passing
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data"])
 
+NODE_FRAME_FACTORIES = {}
+EDGE_FRAME_FACTORIES = {}
 
 class HeteroGraph(NamedTuple):
     """Class for storing graph structure and node/edge feature data.
@@ -74,8 +76,16 @@ class HeteroGraph(NamedTuple):
         if edge_frames is None:
             edge_frames = [None for _ in range(len(etypes))]
 
-        node_frames = namedtuple("node_frames", ntypes)(*node_frames)
-        edge_frames = namedtuple("edge_frames", etypes)(*edge_frames)
+        ntypes = tuple(ntypes)
+        etypes = tuple(etypes)
+
+        if not ntypes in NODE_FRAME_FACTORIES:
+            NODE_FRAME_FACTORIES[ntypes] = namedtuple("node_frames", ntypes)
+        if not etypes in EDGE_FRAME_FACTORIES:
+            EDGE_FRAME_FACTORIES[etypes] = namedtuple("edge_frames", etypes)
+
+        node_frames = NODE_FRAME_FACTORIES[ntypes](*node_frames)
+        edge_frames = EDGE_FRAME_FACTORIES[etypes](*edge_frames)
 
         # flattened version of metagraph
         src, dst, eid = gidx.metagraph.all_edges()
@@ -1535,7 +1545,7 @@ class HeteroGraph(NamedTuple):
             graph=self, mfunc=mfunc, rfunc=rfunc, afunc=afunc, etype=etype,
         )
 
-    def __eq__(self, other):
+    def ___eq__(self, other):
         """Determine if two graph objects are identical.
 
         Parameters
@@ -1724,7 +1734,8 @@ class HeteroGraph(NamedTuple):
         ntype_idx = self.get_ntype_id(ntype)
 
         # get placeholder
-        result = jnp.ones(self.number_of_nodes(ntype), dtype=bool)
+        n_nodes = self.number_of_nodes(ntype)
+        result = jnp.ones(n_nodes, dtype=bool)
 
         # check if dummy atoms are invovled
         dummy = self.graph_frame is not None\
@@ -1736,7 +1747,7 @@ class HeteroGraph(NamedTuple):
 
         # grab the number of dummy nodes
         num_dummy = self.batched_num_nodes(ntype_idx)[-1]
-        result = result.at[-num_dummy:].set(False)
+        result = jnp.arange(n_nodes) < (n_nodes - num_dummy)
 
         return result
 

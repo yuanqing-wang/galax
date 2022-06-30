@@ -207,7 +207,7 @@ def pad(
     n_nodes = delta_n_nodes
     edges = tuple(
         [
-            (jnp.zeros(_n_edge), jnp.zeros(_n_edge))
+            (jnp.zeros(_n_edge, jnp.int32), jnp.zeros(_n_edge, jnp.int32))
             for _n_edge in delta_n_edges
         ]
     )

@@ -1717,7 +1717,7 @@ class HeteroGraph(NamedTuple):
         >>> import galax
         >>> g = galax.pad(g, 5, 8)
         >>> g.is_not_dummy().tolist()
-        [False, False, False, True, True]
+        [True, True, True, False, False]
 
         """
         # get the indices of ntype
@@ -1736,7 +1736,7 @@ class HeteroGraph(NamedTuple):
 
         # grab the number of dummy nodes
         num_dummy = self.batched_num_nodes(ntype_idx)[-1]
-        result = result.at[:-num_dummy].set(False)
+        result = result.at[-num_dummy:].set(False)
 
         return result
 

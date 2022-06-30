@@ -24,6 +24,8 @@ from .core import message_passing
 NodeSpace = namedtuple("NodeSpace", ["data"])
 EdgeSpace = namedtuple("EdgeSpace", ["data"])
 
+NODE_FRAME_FACTORIES = {}
+EDGE_FRAME_FACTORIES = {}
 
 class HeteroGraph(NamedTuple):
     """Class for storing graph structure and node/edge feature data.
@@ -74,8 +76,16 @@ class HeteroGraph(NamedTuple):
         if edge_frames is None:
             edge_frames = [None for _ in range(len(etypes))]
 
-        node_frames = namedtuple("node_frames", ntypes)(*node_frames)
-        edge_frames = namedtuple("edge_frames", etypes)(*edge_frames)
+        ntypes = tuple(ntypes)
+        etypes = tuple(etypes)
+
+        if not ntypes in NODE_FRAME_FACTORIES:
+            NODE_FRAME_FACTORIES[ntypes] = namedtuple("node_frames", ntypes)
+        if not etypes in EDGE_FRAME_FACTORIES:
+            EDGE_FRAME_FACTORIES[etypes] = namedtuple("edge_frames", etypes)
+
+        node_frames = NODE_FRAME_FACTORIES[ntypes](*node_frames)
+        edge_frames = EDGE_FRAME_FACTORIES[etypes](*edge_frames)
 
         # flattened version of metagraph
         src, dst, eid = gidx.metagraph.all_edges()

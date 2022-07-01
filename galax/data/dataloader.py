@@ -85,6 +85,7 @@ class PrixFixeDataLoader:
             raise StopIteration
         else:
             graphs_to_serve = self._graphs[:self.batch_size]
+            self._graphs = self._graphs[self.batch_size:]
             graphs_to_serve = pad(
                 graphs_to_serve,
                 self.max_num_nodes,

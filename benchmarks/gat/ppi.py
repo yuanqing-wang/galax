@@ -21,19 +21,34 @@ def run():
     g_te = galax.batch(GS_TE)
 
     from galax.nn.zoo.gat import GAT
-    ConcatenationPooling = galax.ApplyNodes(lambda x: x.reshape(*x.shape[:-2], -1))
-    AveragePooling = galax.ApplyNodes(lambda x: x.mean(-2))
+    _ConcatenationPooling = lambda x: x.reshape(*x.shape[:-2], -1)
+    ConcatenationPooling = galax.ApplyNodes(_ConcatenationPooling)
+    _AveragePooling = lambda x: x.mean(-2)
+    AveragePooling = galax.ApplyNodes(_AveragePooling)
 
-    model = galax.nn.Sequential(
-        (
-            GAT(256, 4, activation=jax.nn.elu),
-            ConcatenationPooling,
-            GAT(256, 4, activation=jax.nn.elu),
-            ConcatenationPooling,
-            GAT(121, 6, activation=None),
-            AveragePooling,
-        ),
-    )
+    from galax.nn import Module
+
+    class Model(Module):
+        def setup(self):
+            self.l0 = GAT(256, 4, activation=jax.nn.elu)
+            self.l1 = GAT(256, 4, activation=jax.nn.elu)
+            self.l2 = GAT(121, 6, activation=None)
+
+        def __call__(self, g):
+            g0 = ConcatenationPooling(self.l0(g))
+            g1 = ConcatenationPooling(self.l1(g0))
+            g1 = g1.ndata.set("h", g1.ndata['h'] + g0.ndata['h'])
+            g2 = AveragePooling(self.l2(g1))
+            return g2
+
+        def uno(self, g, field="h"):
+            h = g.ndata[field]
+            h = _ConcatenationPooling(self.l0.uno(h))
+            h = _ConcatenationPooling(self.l1.uno(h))
+            h = _AveragePooling(self.l2.uno(h))
+            return h
+
+    model = Model()
 
     key = jax.random.PRNGKey(2666)
     key, key_dropout = jax.random.split(key)
@@ -47,14 +62,14 @@ def run():
         apply_fn=model.apply, params=params, tx=optimizer,
     )
 
-    @jax.jit
+    # @jax.jit
     def loss(params, g):
         g = model.apply(params, g)
         _loss = optax.sigmoid_binary_cross_entropy(
             g.ndata['h'], g.ndata['label'],
         ).mean()
-        # _loss = jnp.where(jnp.expand_dims(g.is_not_dummy(), -1), _loss, 0.0)
-        # _loss = _loss.sum() / len(_loss)
+        _loss = jnp.where(jnp.expand_dims(g.is_not_dummy(), -1), _loss, 0.0)
+        _loss = _loss.sum() / len(_loss)
         return _loss
 
     @jax.jit
@@ -65,11 +80,11 @@ def run():
         return state
 
     def eval(state, g):
-        g = model.apply(params, g)
+        g = model.apply(state.params, g)
         y_hat = g.ndata['h'][g.is_not_dummy()]
         y_hat = 1 * (jax.nn.sigmoid(y_hat) > 0.5)
-        y = g.ndata['h'][g.is_not_dummy()]
-        accuracy = (y_hat == y) / y.size
+        y = g.ndata['label'][g.is_not_dummy()]
+        accuracy = (y_hat == y).sum() / y.size
         return accuracy
 
     from galax.nn.utils import EarlyStopping
@@ -78,8 +93,9 @@ def run():
     import tqdm
     for _ in tqdm.tqdm(range(1000)):
         for idx, g in enumerate(ds_tr):
-            _loss = loss(state.params, g)
-
+            state = step(state, g)
+        accuracy = eval(state, g_vl)
+        print(accuracy)
 
 
 if __name__ == "__main__":

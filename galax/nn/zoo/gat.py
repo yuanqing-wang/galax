@@ -5,9 +5,8 @@ import jax
 import jax.numpy as jnp
 from flax import linen as nn
 from ... import function as fn
-from ..module import Module
 
-class GAT(Module):
+class GAT(nn.Module):
     r"""
     Apply `Graph Attention Network <https://arxiv.org/pdf/1710.10903.pdf>`__
     over an input signal.
@@ -45,7 +44,7 @@ class GAT(Module):
     >>> g = g.add_self_loop()
     >>> g = g.set_ndata("h", jnp.ones((6, 10)))
     >>> gat = GAT(2, 4, deterministic=True)
-    >>> params = gat.init(jax.random.PRNGKey(2666), g.ndata['h'])
+    >>> params = gat.init(jax.random.PRNGKey(2666), g)
     >>> g = gat.apply(params, g)
     >>> x = g.ndata['h']
     >>> x.shape
@@ -92,16 +91,6 @@ class GAT(Module):
 
         self.dropout_feat = nn.Dropout(self.feat_drop, deterministic=self.deterministic)
         self.dropout_attn = nn.Dropout(self.attn_drop, deterministic=self.deterministic)
-
-    def uno(self, h):
-        h = self.dropout_feat(h)
-        h = self.fc(h)
-        h = h.reshape(h.shape[:-1] + (self.num_heads, self.features))
-        el = self.attn_l(h)
-        er = self.attn_r(h)
-        e = el + er
-        e = self.dropout_attn(e)
-        return h
 
     def __call__(self, graph, field="h", etype="E_"):
         h = graph.ndata[field]

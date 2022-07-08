@@ -5,9 +5,8 @@ import jax
 import jax.numpy as jnp
 from flax import linen as nn
 from ... import function as fn
-from ..module import Module
 
-class GraphSAGE(Module):
+class GraphSAGE(nn.Module):
     r"""GraphSAGE layer from `Inductive Representation Learning on
     Large Graphs <https://arxiv.org/pdf/1706.02216.pdf>`__
     .. math::

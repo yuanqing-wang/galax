@@ -20,8 +20,6 @@ galax.nn.module
       :template: custom-class-template.rst
    
       ApplyNodes
-      Module
-      Sequential
    
    
 

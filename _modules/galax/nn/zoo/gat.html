@@ -71,9 +71,8 @@
 <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 <span class="kn">from</span> <span class="nn">flax</span> <span class="kn">import</span> <span class="n">linen</span> <span class="k">as</span> <span class="n">nn</span>
 <span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">function</span> <span class="k">as</span> <span class="n">fn</span>
-<span class="kn">from</span> <span class="nn">..module</span> <span class="kn">import</span> <span class="n">Module</span>
 
-<div class="viewcode-block" id="GAT"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.gat.GAT.html#galax.nn.zoo.gat.GAT">[docs]</a><span class="k">class</span> <span class="nc">GAT</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="GAT"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.gat.GAT.html#galax.nn.zoo.gat.GAT">[docs]</a><span class="k">class</span> <span class="nc">GAT</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply `Graph Attention Network &lt;https://arxiv.org/pdf/1710.10903.pdf&gt;`__</span>
 <span class="sd">    over an input signal.</span>
@@ -111,7 +110,7 @@
 <span class="sd">    &gt;&gt;&gt; g = g.add_self_loop()</span>
 <span class="sd">    &gt;&gt;&gt; g = g.set_ndata(&quot;h&quot;, jnp.ones((6, 10)))</span>
 <span class="sd">    &gt;&gt;&gt; gat = GAT(2, 4, deterministic=True)</span>
-<span class="sd">    &gt;&gt;&gt; params = gat.init(jax.random.PRNGKey(2666), g.ndata[&#39;h&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; params = gat.init(jax.random.PRNGKey(2666), g)</span>
 <span class="sd">    &gt;&gt;&gt; g = gat.apply(params, g)</span>
 <span class="sd">    &gt;&gt;&gt; x = g.ndata[&#39;h&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; x.shape</span>
@@ -158,16 +157,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dropout_feat</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feat_drop</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deterministic</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dropout_attn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attn_drop</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deterministic</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">uno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_feat</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_heads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">))</span>
-        <span class="n">el</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_l</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-        <span class="n">er</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_r</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-        <span class="n">e</span> <span class="o">=</span> <span class="n">el</span> <span class="o">+</span> <span class="n">er</span>
-        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout_attn</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">h</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="n">etype</span><span class="o">=</span><span class="s2">&quot;E_&quot;</span><span class="p">):</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>

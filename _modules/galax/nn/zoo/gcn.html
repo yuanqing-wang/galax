@@ -71,9 +71,8 @@
 <span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
 <span class="kn">from</span> <span class="nn">flax</span> <span class="kn">import</span> <span class="n">linen</span> <span class="k">as</span> <span class="n">nn</span>
 <span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">function</span> <span class="k">as</span> <span class="n">fn</span>
-<span class="kn">from</span> <span class="nn">..module</span> <span class="kn">import</span> <span class="n">Module</span>
 
-<div class="viewcode-block" id="GCN"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.gcn.GCN.html#galax.nn.zoo.gcn.GCN">[docs]</a><span class="k">class</span> <span class="nc">GCN</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="GCN"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.gcn.GCN.html#galax.nn.zoo.gcn.GCN">[docs]</a><span class="k">class</span> <span class="nc">GCN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Graph convolutional layer from</span>
 <span class="sd">    `Semi-Supervised Classification with Graph Convolutional</span>
 <span class="sd">    Networks &lt;https://arxiv.org/abs/1609.02907&gt;`__</span>
@@ -110,7 +109,7 @@
 <span class="sd">    &gt;&gt;&gt; g = g.add_self_loop()</span>
 <span class="sd">    &gt;&gt;&gt; g = g.set_ndata(&quot;h&quot;, jnp.ones((6, 10)))</span>
 <span class="sd">    &gt;&gt;&gt; gcn = GCN(2, use_bias=True)</span>
-<span class="sd">    &gt;&gt;&gt; params = gcn.init(jax.random.PRNGKey(2666), g.ndata[&#39;h&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; params = gcn.init(jax.random.PRNGKey(2666), g)</span>
 <span class="sd">    &gt;&gt;&gt; g = gcn.apply(params, g)</span>
 <span class="sd">    &gt;&gt;&gt; x = g.ndata[&#39;h&#39;]</span>
 <span class="sd">    &gt;&gt;&gt; x.shape</span>
@@ -121,12 +120,12 @@
     <span class="n">activation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@nn</span><span class="o">.</span><span class="n">compact</span>
-    <span class="k">def</span> <span class="nf">uno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
         <span class="c1"># initialize parameters</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span>
             <span class="s1">&#39;kernel&#39;</span><span class="p">,</span>
             <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">glorot_uniform</span><span class="p">(),</span>
-            <span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
@@ -141,9 +140,7 @@
         <span class="n">activation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span>
         <span class="k">if</span> <span class="n">activation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">activation</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
-        <span class="k">return</span> <span class="n">activation</span><span class="p">((</span><span class="n">norm</span> <span class="o">*</span> <span class="n">h</span> <span class="o">@</span> <span class="n">kernel</span><span class="p">)</span> <span class="o">*</span> <span class="n">norm</span> <span class="o">+</span> <span class="n">bias</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
         <span class="c1"># propergate</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">copy_u</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">),</span> <span class="n">fn</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
 
@@ -154,7 +151,7 @@
         <span class="n">norm</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="n">norm_shape</span><span class="p">)</span>
 
         <span class="c1"># transform</span>
-        <span class="n">function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">h</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uno</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">h</span><span class="p">:</span> <span class="n">activation</span><span class="p">((</span><span class="n">norm</span> <span class="o">*</span> <span class="n">h</span> <span class="o">@</span> <span class="n">kernel</span><span class="p">)</span> <span class="o">*</span> <span class="n">norm</span> <span class="o">+</span> <span class="n">bias</span><span class="p">)</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">apply_nodes</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">field</span><span class="p">)(</span><span class="n">graph</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">graph</span></div>
 </pre></div>

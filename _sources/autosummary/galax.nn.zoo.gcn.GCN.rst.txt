@@ -32,7 +32,6 @@ galax.nn.zoo.gcn.GCN
       ~GCN.setup
       ~GCN.sow
       ~GCN.tabulate
-      ~GCN.uno
       ~GCN.variable
    
    

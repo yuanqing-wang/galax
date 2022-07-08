@@ -32,7 +32,6 @@ galax.nn.zoo.graphsage.GraphSAGE
       ~GraphSAGE.setup
       ~GraphSAGE.sow
       ~GraphSAGE.tabulate
-      ~GraphSAGE.uno
       ~GraphSAGE.variable
    
    

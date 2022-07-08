@@ -32,7 +32,6 @@ galax.nn.zoo.gat.GAT
       ~GAT.setup
       ~GAT.sow
       ~GAT.tabulate
-      ~GAT.uno
       ~GAT.variable
    
    

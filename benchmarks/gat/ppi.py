@@ -6,7 +6,8 @@ import jax.numpy as jnp
 from flax import linen as nn
 import optax
 import galax
-
+import numpy as onp
+from sklearn.metrics import f1_score
 
 def run():
     from galax.data.datasets.nodes.graphsage import ppi
@@ -79,15 +80,16 @@ def run():
         _loss = jnp.where(jnp.expand_dims(g.is_not_dummy(), -1), _loss, 0.0)
         _loss = _loss.sum() / len(_loss)
 
-        y_hat = g.ndata['h']
-        y_hat = 1 * (jax.nn.sigmoid(y_hat) > 0.5)
+        y_hat = jax.nn.sigmoid(g.ndata['h'])
         y = g.ndata['label']
 
         y_hat = y_hat[g.is_not_dummy()]
+        y_hat = 1 * (jax.nn.sigmoid(y_hat) > 0.5)
         y = y[g.is_not_dummy()]
-        accuracy = (y_hat == y).sum() / y.size
 
-        return _loss, accuracy
+        f1 = f1_score(y, y_hat, average="micro")
+
+        return _loss, f1
 
     from galax.nn.utils import EarlyStopping
     early_stopping = EarlyStopping(100)
@@ -96,13 +98,13 @@ def run():
     for _ in tqdm.tqdm(range(1000)):
         for idx, g in enumerate(ds_tr):
             state = step(state, g)
-        loss_vl, accuracy_vl = eval(state, g_vl)
-        if early_stopping((-accuracy_vl, loss_vl), state.params):
+        loss_vl, f1_vl = eval(state, g_vl)
+        if early_stopping((-f1_vl, loss_vl), state.params):
             state = state.replace(params=early_stopping.params)
             break
 
-    _, accuracy = eval(state, g_te)
-    print(accuracy)
+    _, f1 = eval(state, g_te)
+    print(f1)
 
 if __name__ == "__main__":
     import argparse

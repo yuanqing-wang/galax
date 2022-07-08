@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>galax.nn.zoo.graphsage &mdash; galax  documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/underscore.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../index.html" class="icon icon-home"> galax
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">galax</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+      <li>galax.nn.zoo.graphsage</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for galax.nn.zoo.graphsage</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;`GraphSAGE &lt;https://cs.stanford.edu/~jure/pubs/graphsage-nips17.pdf&gt;`__&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">jax</span>
+<span class="kn">import</span> <span class="nn">jax.numpy</span> <span class="k">as</span> <span class="nn">jnp</span>
+<span class="kn">from</span> <span class="nn">flax</span> <span class="kn">import</span> <span class="n">linen</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">function</span> <span class="k">as</span> <span class="n">fn</span>
+<span class="kn">from</span> <span class="nn">..module</span> <span class="kn">import</span> <span class="n">Module</span>
+
+<div class="viewcode-block" id="GraphSAGE"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.graphsage.GraphSAGE.html#galax.nn.zoo.graphsage.GraphSAGE">[docs]</a><span class="k">class</span> <span class="nc">GraphSAGE</span><span class="p">(</span><span class="n">Module</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;GraphSAGE layer from `Inductive Representation Learning on</span>
+<span class="sd">    Large Graphs &lt;https://arxiv.org/pdf/1706.02216.pdf&gt;`__</span>
+<span class="sd">    .. math::</span>
+<span class="sd">        h_{\mathcal{N}(i)}^{(l+1)} &amp;= \mathrm{aggregate}</span>
+<span class="sd">        \left(\{h_{j}^{l}, \forall j \in \mathcal{N}(i) \}\right)</span>
+<span class="sd">        h_{i}^{(l+1)} &amp;= \sigma \left(W \cdot \mathrm{concat}</span>
+<span class="sd">        (h_{i}^{l}, h_{\mathcal{N}(i)}^{l+1}) \right)</span>
+<span class="sd">        h_{i}^{(l+1)} &amp;= \mathrm{norm}(h_{i}^{(l+1)})</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    in_feats : int, or pair of ints</span>
+<span class="sd">        Input feature size; i.e, the number of dimensions of :math:`h_i^{(l)}`.</span>
+<span class="sd">        If aggregator type is ``gcn``, the feature size of source and destination</span>
+<span class="sd">        nodes are required to be the same.</span>
+<span class="sd">    out_feats : int</span>
+<span class="sd">        Output feature size; i.e, the number of dimensions of :math:`h_i^{(l+1)}`.</span>
+<span class="sd">    aggregator_type : str</span>
+<span class="sd">        Aggregator type to use (``mean``, ``gcn``, ``pool``, ``lstm``).</span>
+<span class="sd">    feat_drop : float</span>
+<span class="sd">        Dropout rate on features, default: ``0``.</span>
+<span class="sd">    use_bias : bool</span>
+<span class="sd">        If True, adds a learnable bias to the output. Default: ``True``.</span>
+<span class="sd">    norm : callable activation function/layer or None, optional</span>
+<span class="sd">        If not None, applies normalization to the updated node features.</span>
+<span class="sd">    activation : callable activation function/layer or None, optional</span>
+<span class="sd">        If not None, applies an activation function to the updated node features.</span>
+<span class="sd">        Default: ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">aggregator_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span>
+    <span class="n">use_bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">activation</span> <span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Yuanqing Wang.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

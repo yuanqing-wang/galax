@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>galax.nn.zoo.gcn &mdash; galax  documentation</title>
+  <title>galax.nn.zoo.graphsage &mdash; galax  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="galax.nn.zoo.gcn.GCN" href="galax.nn.zoo.gcn.GCN.html" />
-    <link rel="prev" title="galax.nn.zoo.gat.GAT" href="galax.nn.zoo.gat.GAT.html" /> 
+    <link rel="next" title="galax.nn.zoo.graphsage.GraphSAGE" href="galax.nn.zoo.graphsage.GraphSAGE.html" />
+    <link rel="prev" title="galax.nn.zoo.gcn.GCN" href="galax.nn.zoo.gcn.GCN.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,8 +49,8 @@
 <li class="toctree-l3"><a class="reference internal" href="galax.nn.utils.html">galax.nn.utils</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="galax.nn.zoo.html">galax.nn.zoo</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="galax.nn.zoo.gat.html">galax.nn.zoo.gat</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">galax.nn.zoo.gcn</a></li>
-<li class="toctree-l4"><a class="reference internal" href="galax.nn.zoo.graphsage.html">galax.nn.zoo.graphsage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="galax.nn.zoo.gcn.html">galax.nn.zoo.gcn</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">galax.nn.zoo.graphsage</a></li>
 </ul>
 </li>
 </ul>
@@ -76,9 +76,9 @@
           <li><a href="../api.html">API Documentation</a> &raquo;</li>
           <li><a href="galax.nn.html">galax.nn</a> &raquo;</li>
           <li><a href="galax.nn.zoo.html">galax.nn.zoo</a> &raquo;</li>
-      <li>galax.nn.zoo.gcn</li>
+      <li>galax.nn.zoo.graphsage</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/autosummary/galax.nn.zoo.gcn.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/autosummary/galax.nn.zoo.graphsage.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -86,9 +86,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-galax.nn.zoo.gcn">
-<span id="galax-nn-zoo-gcn"></span><h1>galax.nn.zoo.gcn<a class="headerlink" href="#module-galax.nn.zoo.gcn" title="Permalink to this headline"></a></h1>
-<p><a class="reference external" href="https://arxiv.org/abs/1609.02907">Graph Convolutional network.</a></p>
+  <section id="module-galax.nn.zoo.graphsage">
+<span id="galax-nn-zoo-graphsage"></span><h1>galax.nn.zoo.graphsage<a class="headerlink" href="#module-galax.nn.zoo.graphsage" title="Permalink to this headline"></a></h1>
+<p><a class="reference external" href="https://cs.stanford.edu/~jure/pubs/graphsage-nips17.pdf">GraphSAGE</a></p>
 <p class="rubric">Classes</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -96,8 +96,8 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="galax.nn.zoo.gcn.GCN.html#galax.nn.zoo.gcn.GCN" title="galax.nn.zoo.gcn.GCN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GCN</span></code></a>(features, use_bias, activation, parent, ...)</p></td>
-<td><p>Graph convolutional layer from <a class="reference external" href="https://arxiv.org/abs/1609.02907">Semi-Supervised Classification with Graph Convolutional Networks</a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="galax.nn.zoo.graphsage.GraphSAGE.html#galax.nn.zoo.graphsage.GraphSAGE" title="galax.nn.zoo.graphsage.GraphSAGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GraphSAGE</span></code></a>(features, aggregator_type, ...)</p></td>
+<td><p>GraphSAGE layer from <a class="reference external" href="https://arxiv.org/pdf/1706.02216.pdf">Inductive Representation Learning on Large Graphs</a> .. math::     h_{mathcal{N}(i)}^{(l+1)} &amp;= mathrm{aggregate}     left({h_{j}^{l}, forall j in mathcal{N}(i) }right)     h_{i}^{(l+1)} &amp;= sigma left(W cdot mathrm{concat}     (h_{i}^{l}, h_{mathcal{N}(i)}^{l+1}) right)     h_{i}^{(l+1)} &amp;= mathrm{norm}(h_{i}^{(l+1)}).</p></td>
 </tr>
 </tbody>
 </table>
@@ -107,8 +107,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="galax.nn.zoo.gat.GAT.html" class="btn btn-neutral float-left" title="galax.nn.zoo.gat.GAT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="galax.nn.zoo.gcn.GCN.html" class="btn btn-neutral float-right" title="galax.nn.zoo.gcn.GCN" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="galax.nn.zoo.gcn.GCN.html" class="btn btn-neutral float-left" title="galax.nn.zoo.gcn.GCN" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.nn.zoo.graphsage.GraphSAGE.html" class="btn btn-neutral float-right" title="galax.nn.zoo.graphsage.GraphSAGE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

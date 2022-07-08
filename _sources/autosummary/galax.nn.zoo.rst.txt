@@ -31,4 +31,5 @@ galax.nn.zoo
 
    galax.nn.zoo.gat
    galax.nn.zoo.gcn
+   galax.nn.zoo.graphsage
 

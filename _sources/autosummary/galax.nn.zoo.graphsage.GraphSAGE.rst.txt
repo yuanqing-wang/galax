@@ -1,0 +1,55 @@
+galax.nn.zoo.graphsage.GraphSAGE
+================================
+
+.. currentmodule:: galax.nn.zoo.graphsage
+
+.. autoclass:: GraphSAGE
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GraphSAGE.__init__
+      ~GraphSAGE.apply
+      ~GraphSAGE.bind
+      ~GraphSAGE.clone
+      ~GraphSAGE.get_variable
+      ~GraphSAGE.has_rng
+      ~GraphSAGE.has_variable
+      ~GraphSAGE.init
+      ~GraphSAGE.init_with_output
+      ~GraphSAGE.is_mutable_collection
+      ~GraphSAGE.make_rng
+      ~GraphSAGE.param
+      ~GraphSAGE.put_variable
+      ~GraphSAGE.setup
+      ~GraphSAGE.sow
+      ~GraphSAGE.tabulate
+      ~GraphSAGE.uno
+      ~GraphSAGE.variable
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GraphSAGE.activation
+      ~GraphSAGE.aggregator_type
+      ~GraphSAGE.name
+      ~GraphSAGE.parent
+      ~GraphSAGE.scope
+      ~GraphSAGE.use_bias
+      ~GraphSAGE.variables
+      ~GraphSAGE.features
+   
+   

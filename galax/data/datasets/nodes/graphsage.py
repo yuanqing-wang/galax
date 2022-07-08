@@ -3,9 +3,8 @@
 Reference: http://snap.stanford.edu/graphsage/
 """
 
-import galax
-
 def reddit():
+    import galax
     from dgl.data import RedditDataset
     g = RedditDataset()[0]
     g.ndata['h'] = g.ndata['feat']
@@ -14,6 +13,7 @@ def reddit():
     return g
 
 def ppi():
+    import galax 
     from dgl.data import PPIDataset
     gs_tr = PPIDataset("train")
     gs_vl = PPIDataset("valid")

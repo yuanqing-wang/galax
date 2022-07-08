@@ -1,0 +1,6 @@
+galax.function.copy\_edge
+=========================
+
+.. currentmodule:: galax.function
+
+.. autofunction:: copy_edge

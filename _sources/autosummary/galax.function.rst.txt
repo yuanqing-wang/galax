@@ -17,6 +17,8 @@
       apply_edges
       apply_nodes
       copy_e
+      copy_edge
+      copy_src
       copy_u
       e_add_u
       e_add_v

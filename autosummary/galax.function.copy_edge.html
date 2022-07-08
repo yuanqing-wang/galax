@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>galax.function.v_sub_e &mdash; galax  documentation</title>
+  <title>galax.function.copy_edge &mdash; galax  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="galax.function.v_sub_u" href="galax.function.v_sub_u.html" />
-    <link rel="prev" title="galax.function.v_mul_u" href="galax.function.v_mul_u.html" /> 
+    <link rel="next" title="galax.function.copy_src" href="galax.function.copy_src.html" />
+    <link rel="prev" title="galax.function.copy_e" href="galax.function.copy_e.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -45,7 +45,7 @@
 <li class="toctree-l3"><a class="reference internal" href="galax.function.apply_edges.html">galax.function.apply_edges</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.apply_nodes.html">galax.function.apply_nodes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.copy_e.html">galax.function.copy_e</a></li>
-<li class="toctree-l3"><a class="reference internal" href="galax.function.copy_edge.html">galax.function.copy_edge</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.function.copy_edge</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.copy_src.html">galax.function.copy_src</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.copy_u.html">galax.function.copy_u</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.e_add_u.html">galax.function.e_add_u</a></li>
@@ -80,7 +80,7 @@
 <li class="toctree-l3"><a class="reference internal" href="galax.function.v_dot_u.html">galax.function.v_dot_u</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_e.html">galax.function.v_mul_e</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.v_mul_u.html">galax.function.v_mul_u</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">galax.function.v_sub_e</a></li>
+<li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_e.html">galax.function.v_sub_e</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.v_sub_u.html">galax.function.v_sub_u</a></li>
 <li class="toctree-l3"><a class="reference internal" href="galax.function.ReduceFunction.html">galax.function.ReduceFunction</a></li>
 </ul>
@@ -108,9 +108,9 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API Documentation</a> &raquo;</li>
           <li><a href="galax.function.html">galax.function</a> &raquo;</li>
-      <li>galax.function.v_sub_e</li>
+      <li>galax.function.copy_edge</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/autosummary/galax.function.v_sub_e.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/autosummary/galax.function.copy_edge.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -118,23 +118,16 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="galax-function-v-sub-e">
-<h1>galax.function.v_sub_e<a class="headerlink" href="#galax-function-v-sub-e" title="Permalink to this headline"></a></h1>
+  <section id="galax-function-copy-edge">
+<h1>galax.function.copy_edge<a class="headerlink" href="#galax-function-copy-edge" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="galax.function.v_sub_e">
-<span class="sig-prename descclassname"><span class="pre">galax.function.</span></span><span class="sig-name descname"><span class="pre">v_sub_e</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lhs_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rhs_field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.function.v_sub_e" title="Permalink to this definition"></a></dt>
-<dd><p>Builtin message function that computes a message on an edge
-by performing element-wise sub between features of destination and edge
-if the features have the same shape; otherwise, it first broadcasts
-the features to a new shape and performs the element-wise operation.</p>
-<p>Broadcasting follows NumPy semantics. Please see
-<a class="reference external" href="https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html">https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html</a>
-for more details about the NumPy broadcasting semantics.</p>
+<dt class="sig sig-object py" id="galax.function.copy_edge">
+<span class="sig-prename descclassname"><span class="pre">galax.function.</span></span><span class="sig-name descname"><span class="pre">copy_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">e</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#galax.function.copy_edge" title="Permalink to this definition"></a></dt>
+<dd><p>Builtin message function that computes message using edge feature.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lhs_field</strong> (<em>str</em>) – The feature field of destination.</p></li>
-<li><p><strong>rhs_field</strong> (<em>str</em>) – The feature field of edge.</p></li>
+<li><p><strong>e</strong> (<em>str</em>) – The edge feature field.</p></li>
 <li><p><strong>out</strong> (<em>str</em>) – The output message field.</p></li>
 </ul>
 </dd>
@@ -147,8 +140,8 @@ for more details about the NumPy broadcasting semantics.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="galax.function.v_mul_u.html" class="btn btn-neutral float-left" title="galax.function.v_mul_u" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="galax.function.v_sub_u.html" class="btn btn-neutral float-right" title="galax.function.v_sub_u" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="galax.function.copy_e.html" class="btn btn-neutral float-left" title="galax.function.copy_e" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="galax.function.copy_src.html" class="btn btn-neutral float-right" title="galax.function.copy_src" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

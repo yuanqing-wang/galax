@@ -112,6 +112,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">edge</span><span class="p">:</span> <span class="p">{</span><span class="n">out</span><span class="p">:</span> <span class="n">edge</span><span class="o">.</span><span class="n">src</span><span class="p">[</span><span class="n">u</span><span class="p">]}</span></div>
 
+<span class="c1"># create alias</span>
+<span class="n">copy_src</span> <span class="o">=</span> <span class="n">copy_u</span>
 
 <div class="viewcode-block" id="copy_e"><a class="viewcode-back" href="../../autosummary/galax.function.copy_e.html#galax.function.copy_e">[docs]</a><span class="k">def</span> <span class="nf">copy_e</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">out</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Builtin message function that computes message using edge feature.</span>
@@ -125,6 +127,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">edge</span><span class="p">:</span> <span class="p">{</span><span class="n">out</span><span class="p">:</span> <span class="n">edge</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">e</span><span class="p">]}</span></div>
 
+<span class="c1"># create alias</span>
+<span class="n">copy_edge</span> <span class="o">=</span> <span class="n">copy_e</span>
 
 <span class="k">def</span> <span class="nf">_gen_message_builtin</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">,</span> <span class="n">binary_op</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">binary_op</span><span class="p">,</span> <span class="n">rhs</span><span class="p">)</span>

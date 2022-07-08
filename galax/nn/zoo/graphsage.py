@@ -20,10 +20,11 @@ class GraphSAGE(nn.Module):
     ----------
     in_feats : int, or pair of ints
         Input feature size; i.e, the number of dimensions of :math:`h_i^{(l)}`.
-        If aggregator type is ``gcn``, the feature size of source and destination
-        nodes are required to be the same.
+        If aggregator type is ``gcn``, the feature size of source and
+        destination nodes are required to be the same.
     out_feats : int
-        Output feature size; i.e, the number of dimensions of :math:`h_i^{(l+1)}`.
+        Output feature size; i.e, the number of dimensions
+        of :math:`h_i^{(l+1)}`.
     aggregator_type : str
         Aggregator type to use (``mean``, ``gcn``, ``pool``, ``lstm``).
     feat_drop : float
@@ -39,4 +40,44 @@ class GraphSAGE(nn.Module):
     features: int
     aggregator_type: str = "mean"
     use_bias: bool = True
-    activation : Optional[Callable] = None
+    activation: Optional[Callable] = None
+
+    @nn.compact
+    def __call__(self, graph, field="h"):
+        h_self = graph.ndata[field]
+
+        if self.aggregator_type == "mean":
+            graph = graph.update_all(
+                fn.copy_src(field, "m"), fn.mean("m", "neigh"),
+            )
+            h_neigh = graph.ndata["neigh"]
+
+        elif self.aggregator_type == "gcn":
+            graph = graph.update_all(
+                fn.copy_src(field, "m"), fn.sum("m", "neigh"),
+            )
+            degrees = graph.in_degrees()
+            h_neigh = (graph.ndata["neigh"] + graph.ndata[field])\
+                / (jnp.expand_dims(degrees, -1) + 1)
+
+        elif self.aggregator_type == "pool":
+            h_pool = jax.nn.relu(
+                nn.Dense(graph.ndata[field].shape[-1])(graph.ndata[field]),
+            )
+            graph = graph.ndata.set(field, h_pool)
+            graph = graph.update_all(
+                fn.copy_src(field, "m"), fn.max("m", "neigh"),
+            )
+            h_neigh = graph.ndata["neigh"]
+
+        h_neigh = nn.Dense(self.features, use_bias=False)(h_neigh)
+
+        if self.aggregator_type == "gcn":
+            rst = h_neigh
+        else:
+            rst = h_neigh + nn.Dense(self.features, use_bias=False)(h_self)
+
+        if self.activation is not None:
+            rst = self.activation(rst)
+
+        return rst

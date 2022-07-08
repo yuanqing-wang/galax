@@ -5,9 +5,8 @@ import jax
 import jax.numpy as jnp
 from flax import linen as nn
 from ... import function as fn
-from ..module import Module
 
-class GCN(Module):
+class GCN(nn.Module):
     r"""Graph convolutional layer from
     `Semi-Supervised Classification with Graph Convolutional
     Networks <https://arxiv.org/abs/1609.02907>`__
@@ -44,7 +43,7 @@ class GCN(Module):
     >>> g = g.add_self_loop()
     >>> g = g.set_ndata("h", jnp.ones((6, 10)))
     >>> gcn = GCN(2, use_bias=True)
-    >>> params = gcn.init(jax.random.PRNGKey(2666), g.ndata['h'])
+    >>> params = gcn.init(jax.random.PRNGKey(2666), g)
     >>> g = gcn.apply(params, g)
     >>> x = g.ndata['h']
     >>> x.shape
@@ -55,12 +54,12 @@ class GCN(Module):
     activation: Optional[Callable] = None
 
     @nn.compact
-    def uno(self, h, norm=1.0):
+    def __call__(self, graph, field="h"):
         # initialize parameters
         kernel = self.param(
             'kernel',
             jax.nn.initializers.glorot_uniform(),
-            (h.shape[-1], self.features),
+            (graph.ndata[field].shape[-1], self.features),
         )
 
         if self.use_bias:
@@ -75,9 +74,7 @@ class GCN(Module):
         activation = self.activation
         if activation is None:
             activation = lambda x: x
-        return activation((norm * h @ kernel) * norm + bias)
 
-    def __call__(self, graph, field="h"):
         # propergate
         graph = graph.update_all(fn.copy_u(field, "m"), fn.sum("m", field))
 
@@ -88,6 +85,6 @@ class GCN(Module):
         norm = jnp.reshape(norm, norm_shape)
 
         # transform
-        function = lambda h: self.uno(h, norm=norm)
+        function = lambda h: activation((norm * h @ kernel) * norm + bias)
         graph = fn.apply_nodes(function, field)(graph)
         return graph

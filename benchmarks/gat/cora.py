@@ -16,7 +16,7 @@ def run():
     ConcatenationPooling = galax.ApplyNodes(lambda x: x.reshape(*x.shape[:-2], -1))
     AveragePooling = galax.ApplyNodes(lambda x: x.mean(-2))
 
-    model = galax.nn.Sequential(
+    model = nn.Sequential(
         (
             GAT(8, 8, attn_drop=0.4, feat_drop=0.4, deterministic=False, activation=jax.nn.elu),
             ConcatenationPooling,
@@ -25,7 +25,7 @@ def run():
         ),
     )
 
-    model_eval = galax.nn.Sequential(
+    model_eval = nn.Sequential(
         (
             GAT(8, 8, attn_drop=0.4, feat_drop=0.4, deterministic=True, activation=jax.nn.elu),
             ConcatenationPooling,

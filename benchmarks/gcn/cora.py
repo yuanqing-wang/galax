@@ -14,7 +14,7 @@ def run():
     Y_REF = jax.nn.one_hot(G.ndata['label'], 7)
 
     from galax.nn.zoo.gcn import GCN
-    model = galax.nn.Sequential(
+    model = nn.Sequential(
         (
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=False)),
             GCN(16, activation=jax.nn.relu),
@@ -23,7 +23,7 @@ def run():
         ),
     )
 
-    model_eval = galax.nn.Sequential(
+    model_eval = nn.Sequential(
         (
             galax.ApplyNodes(nn.Dropout(0.5, deterministic=True)),
             GCN(16, activation=jax.nn.relu),

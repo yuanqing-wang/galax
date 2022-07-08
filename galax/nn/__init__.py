@@ -1,3 +1,3 @@
 """Neural networks functionalities."""
 
-from .module import Sequential, ApplyNodes, Module
+from .module import ApplyNodes

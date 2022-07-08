@@ -26,9 +26,7 @@ def run():
     _AveragePooling = lambda x: x.mean(-2)
     AveragePooling = galax.ApplyNodes(_AveragePooling)
 
-    from galax.nn import Module
-
-    class Model(Module):
+    class Model(nn.Module):
         def setup(self):
             self.l0 = GAT(256, 4, activation=jax.nn.elu)
             self.l1 = GAT(256, 4, activation=jax.nn.elu)
@@ -40,13 +38,6 @@ def run():
             g1 = g1.ndata.set("h", g1.ndata['h'] + g0.ndata['h'])
             g2 = AveragePooling(self.l2(g1))
             return g2
-
-        def uno(self, g, field="h"):
-            h = g.ndata[field]
-            h = _ConcatenationPooling(self.l0.uno(h))
-            h = _ConcatenationPooling(self.l1.uno(h))
-            h = _AveragePooling(self.l2.uno(h))
-            return h
 
     model = Model()
 

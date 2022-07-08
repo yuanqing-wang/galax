@@ -86,10 +86,11 @@
 <span class="sd">    ----------</span>
 <span class="sd">    in_feats : int, or pair of ints</span>
 <span class="sd">        Input feature size; i.e, the number of dimensions of :math:`h_i^{(l)}`.</span>
-<span class="sd">        If aggregator type is ``gcn``, the feature size of source and destination</span>
-<span class="sd">        nodes are required to be the same.</span>
+<span class="sd">        If aggregator type is ``gcn``, the feature size of source and</span>
+<span class="sd">        destination nodes are required to be the same.</span>
 <span class="sd">    out_feats : int</span>
-<span class="sd">        Output feature size; i.e, the number of dimensions of :math:`h_i^{(l+1)}`.</span>
+<span class="sd">        Output feature size; i.e, the number of dimensions</span>
+<span class="sd">        of :math:`h_i^{(l+1)}`.</span>
 <span class="sd">    aggregator_type : str</span>
 <span class="sd">        Aggregator type to use (``mean``, ``gcn``, ``pool``, ``lstm``).</span>
 <span class="sd">    feat_drop : float</span>
@@ -105,7 +106,47 @@
     <span class="n">features</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">aggregator_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span>
     <span class="n">use_bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">activation</span> <span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">activation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@nn</span><span class="o">.</span><span class="n">compact</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
+        <span class="n">h_self</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregator_type</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">copy_src</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">),</span> <span class="n">fn</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;neigh&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">h_neigh</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="s2">&quot;neigh&quot;</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregator_type</span> <span class="o">==</span> <span class="s2">&quot;gcn&quot;</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">copy_src</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">),</span> <span class="n">fn</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;neigh&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">degrees</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">in_degrees</span><span class="p">()</span>
+            <span class="n">h_neigh</span> <span class="o">=</span> <span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="s2">&quot;neigh&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">])</span>\
+                <span class="o">/</span> <span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">degrees</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregator_type</span> <span class="o">==</span> <span class="s2">&quot;pool&quot;</span><span class="p">:</span>
+            <span class="n">h_pool</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span>
+                <span class="n">nn</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])(</span><span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]),</span>
+            <span class="p">)</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">h_pool</span><span class="p">)</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span>
+                <span class="n">fn</span><span class="o">.</span><span class="n">copy_src</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">),</span> <span class="n">fn</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;neigh&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">h_neigh</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="s2">&quot;neigh&quot;</span><span class="p">]</span>
+
+        <span class="n">h_neigh</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">h_neigh</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregator_type</span> <span class="o">==</span> <span class="s2">&quot;gcn&quot;</span><span class="p">:</span>
+            <span class="n">rst</span> <span class="o">=</span> <span class="n">h_neigh</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rst</span> <span class="o">=</span> <span class="n">h_neigh</span> <span class="o">+</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">h_self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">rst</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rst</span></div>
 </pre></div>
 
            </div>

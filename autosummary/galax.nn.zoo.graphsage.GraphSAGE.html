@@ -107,9 +107,10 @@ Large Graphs</a>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in_feats</strong> (<em>int, or pair of ints</em>) – Input feature size; i.e, the number of dimensions of <span class="math notranslate nohighlight">\(h_i^{(l)}\)</span>.
-If aggregator type is <code class="docutils literal notranslate"><span class="pre">gcn</span></code>, the feature size of source and destination
-nodes are required to be the same.</p></li>
-<li><p><strong>out_feats</strong> (<em>int</em>) – Output feature size; i.e, the number of dimensions of <span class="math notranslate nohighlight">\(h_i^{(l+1)}\)</span>.</p></li>
+If aggregator type is <code class="docutils literal notranslate"><span class="pre">gcn</span></code>, the feature size of source and
+destination nodes are required to be the same.</p></li>
+<li><p><strong>out_feats</strong> (<em>int</em>) – Output feature size; i.e, the number of dimensions
+of <span class="math notranslate nohighlight">\(h_i^{(l+1)}\)</span>.</p></li>
 <li><p><strong>aggregator_type</strong> (<em>str</em>) – Aggregator type to use (<code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">gcn</span></code>, <code class="docutils literal notranslate"><span class="pre">pool</span></code>, <code class="docutils literal notranslate"><span class="pre">lstm</span></code>).</p></li>
 <li><p><strong>feat_drop</strong> (<em>float</em>) – Dropout rate on features, default: <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
 <li><p><strong>use_bias</strong> (<em>bool</em>) – If True, adds a learnable bias to the output. Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>

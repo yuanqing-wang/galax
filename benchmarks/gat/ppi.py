@@ -1,4 +1,4 @@
-"""Reference: 81.5; Reproduction: 81.8"""
+"""Reference: 97.3; Reproduction: 97.4"""
 
 from functools import partial
 import jax
@@ -79,21 +79,27 @@ def run():
         state = state.apply_gradients(grads=grads)
         return state
 
+    # @jax.jit
     def eval(state, g):
         g = model.apply(state.params, g)
-        y_hat = g.ndata['h'][g.is_not_dummy()]
         _loss = optax.sigmoid_binary_cross_entropy(
             g.ndata['h'], g.ndata['label'],
         ).mean()
         _loss = jnp.where(jnp.expand_dims(g.is_not_dummy(), -1), _loss, 0.0)
         _loss = _loss.sum() / len(_loss)
+
+        y_hat = g.ndata['h']
         y_hat = 1 * (jax.nn.sigmoid(y_hat) > 0.5)
-        y = g.ndata['label'][g.is_not_dummy()]
+        y = g.ndata['label']
+
+        y_hat = y_hat[g.is_not_dummy()]
+        y = y[g.is_not_dummy()]
         accuracy = (y_hat == y).sum() / y.size
+
         return _loss, accuracy
 
     from galax.nn.utils import EarlyStopping
-    early_stopping = EarlyStopping(10)
+    early_stopping = EarlyStopping(100)
 
     import tqdm
     for _ in tqdm.tqdm(range(1000)):

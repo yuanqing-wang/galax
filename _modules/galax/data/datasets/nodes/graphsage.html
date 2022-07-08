@@ -69,9 +69,8 @@
 <span class="sd">Reference: http://snap.stanford.edu/graphsage/</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">galax</span>
-
 <div class="viewcode-block" id="reddit"><a class="viewcode-back" href="../../../../../autosummary/galax.data.datasets.nodes.graphsage.reddit.html#galax.data.datasets.nodes.graphsage.reddit">[docs]</a><span class="k">def</span> <span class="nf">reddit</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">galax</span>
     <span class="kn">from</span> <span class="nn">dgl.data</span> <span class="kn">import</span> <span class="n">RedditDataset</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">RedditDataset</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">g</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="s1">&#39;h&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="s1">&#39;feat&#39;</span><span class="p">]</span>
@@ -80,6 +79,7 @@
     <span class="k">return</span> <span class="n">g</span></div>
 
 <div class="viewcode-block" id="ppi"><a class="viewcode-back" href="../../../../../autosummary/galax.data.datasets.nodes.graphsage.ppi.html#galax.data.datasets.nodes.graphsage.ppi">[docs]</a><span class="k">def</span> <span class="nf">ppi</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">galax</span> 
     <span class="kn">from</span> <span class="nn">dgl.data</span> <span class="kn">import</span> <span class="n">PPIDataset</span>
     <span class="n">gs_tr</span> <span class="o">=</span> <span class="n">PPIDataset</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
     <span class="n">gs_vl</span> <span class="o">=</span> <span class="n">PPIDataset</span><span class="p">(</span><span class="s2">&quot;valid&quot;</span><span class="p">)</span>

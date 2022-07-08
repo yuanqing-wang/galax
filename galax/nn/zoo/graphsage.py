@@ -36,6 +36,21 @@ class GraphSAGE(nn.Module):
     activation : callable activation function/layer or None, optional
         If not None, applies an activation function to the updated node features.
         Default: ``None``.
+
+    Examples
+    --------
+    >>> import jax
+    >>> import jax.numpy as jnp
+    >>> import galax
+    >>> g = galax.graph(([0,1,2,3,2,5], [1,2,3,4,0,3]))
+    >>> g = g.add_self_loop()
+    >>> g = g.set_ndata("h", jnp.ones((6, 10)))
+    >>> graphsage = GraphSAGE(2, "pool")
+    >>> params = graphsage.init(jax.random.PRNGKey(2666), g)
+    >>> x = graphsage.apply(params, g).ndata["h"]
+    >>> x.shape
+    (6, 2)
+
     """
     features: int
     aggregator_type: str = "mean"
@@ -80,4 +95,5 @@ class GraphSAGE(nn.Module):
         if self.activation is not None:
             rst = self.activation(rst)
 
-        return rst
+        graph = graph.ndata.set(field, rst)
+        return graph

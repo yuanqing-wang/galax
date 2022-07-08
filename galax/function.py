@@ -46,6 +46,8 @@ def copy_u(u, out):
     """
     return lambda edge: {out: edge.src[u]}
 
+# create alias
+copy_src = copy_u
 
 def copy_e(e, out):
     """Builtin message function that computes message using edge feature.
@@ -59,6 +61,8 @@ def copy_e(e, out):
     """
     return lambda edge: {out: edge.data[e]}
 
+# create alias
+copy_edge = copy_e
 
 def _gen_message_builtin(lhs, rhs, binary_op):
     name = "{}_{}_{}".format(lhs, binary_op, rhs)

@@ -52,6 +52,8 @@ class GCN(nn.Module):
     features: int
     use_bias: bool = False
     activation: Optional[Callable] = None
+    dropout: float = 0.0
+    deterministic: bool = False
 
     @nn.compact
     def __call__(self, graph, field="h"):
@@ -76,7 +78,10 @@ class GCN(nn.Module):
             activation = lambda x: x
 
         # propergate
+        h = graph.ndata[field]
+        h = nn.Dropout(self.dropout)(h)
         graph = graph.update_all(fn.copy_u(field, "m"), fn.sum("m", field))
+        h = graph.ndata[field]
 
         # normalize
         degrees = graph.out_degrees()
@@ -85,6 +90,6 @@ class GCN(nn.Module):
         norm = jnp.reshape(norm, norm_shape)
 
         # transform
-        function = lambda h: activation((norm * h @ kernel) * norm + bias)
-        graph = fn.apply_nodes(function, field)(graph)
+        h = activation((norm * h @ kernel) * norm + bias)
+        graph = graph.ndata.set(field, h)
         return graph

@@ -289,6 +289,7 @@ def apply_nodes(
     [2.0, 2.0, 2.0]
 
     """
+
     if out_field is None:
         out_field = in_field
 

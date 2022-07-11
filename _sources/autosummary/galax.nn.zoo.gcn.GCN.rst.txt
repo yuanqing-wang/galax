@@ -43,8 +43,6 @@ galax.nn.zoo.gcn.GCN
    .. autosummary::
    
       ~GCN.activation
-      ~GCN.deterministic
-      ~GCN.dropout
       ~GCN.name
       ~GCN.parent
       ~GCN.scope

@@ -118,40 +118,31 @@
     <span class="n">features</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">use_bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">activation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">deterministic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="GCN.setup"><a class="viewcode-back" href="../../../../autosummary/galax.nn.zoo.gcn.GCN.html#galax.nn.zoo.gcn.GCN.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="nd">@nn</span><span class="o">.</span><span class="n">compact</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
         <span class="c1"># initialize parameters</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span>
-            <span class="n">kernel_init</span><span class="o">=</span><span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">glorot_uniform</span><span class="p">(),</span>
-            <span class="n">use_bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span>
+            <span class="s1">&#39;kernel&#39;</span><span class="p">,</span>
+            <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">glorot_uniform</span><span class="p">(),</span>
+            <span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_bias</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span>
+            <span class="n">bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">(</span>
                 <span class="s2">&quot;bias&quot;</span><span class="p">,</span>
                 <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">zeros</span><span class="p">,</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="p">),</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bias</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">bias</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deterministic</span><span class="p">)</span></div>
-
-    <span class="nd">@nn</span><span class="o">.</span><span class="n">compact</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
         <span class="n">activation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activation</span>
         <span class="k">if</span> <span class="n">activation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">activation</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
 
         <span class="c1"># propergate</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dropout</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-        <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">update_all</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">copy_u</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">),</span> <span class="n">fn</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]</span>
 
         <span class="c1"># normalize</span>
         <span class="n">degrees</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">out_degrees</span><span class="p">()</span>
@@ -160,8 +151,8 @@
         <span class="n">norm</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="n">norm_shape</span><span class="p">)</span>
 
         <span class="c1"># transform</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">activation</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">(</span><span class="n">norm</span> <span class="o">*</span> <span class="n">h</span><span class="p">))</span> <span class="o">*</span> <span class="n">norm</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias</span><span class="p">)</span>
-        <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">h</span><span class="p">:</span> <span class="n">activation</span><span class="p">((</span><span class="n">norm</span> <span class="o">*</span> <span class="n">h</span> <span class="o">@</span> <span class="n">kernel</span><span class="p">)</span> <span class="o">*</span> <span class="n">norm</span> <span class="o">+</span> <span class="n">bias</span><span class="p">)</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">fn</span><span class="o">.</span><span class="n">apply_nodes</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">field</span><span class="p">)(</span><span class="n">graph</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">graph</span></div>
 </pre></div>
 

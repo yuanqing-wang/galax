@@ -6,8 +6,6 @@ from ..function import apply_nodes, apply_edges
 class ApplyNodes(nn.Module):
     layer: Callable
 
-    def uno(self, h):
-        return self.layer(h)
-
-    def __call__(self, graph):
-        return apply_nodes(self.uno)(graph)
+    def __call__(self, graph, field="h"):
+        graph = graph.ndata.set(field, self.layer(graph.ndata[field]))
+        return graph

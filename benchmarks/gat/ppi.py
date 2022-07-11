@@ -7,7 +7,7 @@ from flax import linen as nn
 import optax
 import galax
 import numpy as onp
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, accuracy_score
 
 def run():
     from galax.data.datasets.nodes.graphsage import ppi
@@ -84,10 +84,13 @@ def run():
         y = g.ndata['label']
 
         y_hat = y_hat[g.is_not_dummy()]
-        y_hat = 1 * (jax.nn.sigmoid(y_hat) > 0.5)
+        y_hat = 1.0 * (y_hat > 0.5)
         y = y[g.is_not_dummy()]
 
         f1 = f1_score(y, y_hat, average="micro")
+        
+        print(y)
+        print(y_hat)
 
         return _loss, f1
 

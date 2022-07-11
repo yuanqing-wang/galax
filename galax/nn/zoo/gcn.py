@@ -55,31 +55,35 @@ class GCN(nn.Module):
     dropout: float = 0.0
     deterministic: bool = False
 
-    @nn.compact
-    def __call__(self, graph, field="h"):
+    def setup(self):
         # initialize parameters
-        kernel = self.param(
-            'kernel',
-            jax.nn.initializers.glorot_uniform(),
-            (graph.ndata[field].shape[-1], self.features),
+        self.kernel = nn.Dense(
+            self.features,
+            kernel_init=jax.nn.initializers.glorot_uniform(),
+            use_bias=False,
         )
 
         if self.use_bias:
-            bias = self.param(
+            self.bias = self.param(
                 "bias",
                 jax.nn.initializers.zeros,
                 (self.features, ),
             )
         else:
-            bias = 0.0
+            self.bias = 0.0
 
+        self._dropout = nn.Dropout(self.dropout, deterministic=self.deterministic)
+
+    @nn.compact
+    def __call__(self, graph, field="h"):
         activation = self.activation
         if activation is None:
             activation = lambda x: x
 
         # propergate
         h = graph.ndata[field]
-        h = nn.Dropout(self.dropout, deterministic=self.deterministic)(h)
+        h = self._dropout(h)
+        graph = graph.ndata.set(field, h)
         graph = graph.update_all(fn.copy_u(field, "m"), fn.sum("m", field))
         h = graph.ndata[field]
 
@@ -90,6 +94,6 @@ class GCN(nn.Module):
         norm = jnp.reshape(norm, norm_shape)
 
         # transform
-        h = activation(((norm * h) @ kernel) * norm + bias)
+        h = activation((self.kernel(norm * h)) * norm + self.bias)
         graph = graph.ndata.set(field, h)
         return graph

@@ -301,7 +301,14 @@ def apply_nodes(
             + graph.node_frames[ntype_idx+1:]
         return graph._replace(node_frames=node_frames)
 
-    return _fn
+    def __fn(graph, in_field=in_field, out_field=out_field):
+        graph = graph.ndata.set(out_field, function(graph.ndata[in_field]))
+        return graph
+
+    if ntype is None:
+        return __fn
+    else:
+        return _fn
 
 def apply_edges(
     function: Callable,

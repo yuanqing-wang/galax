@@ -72,11 +72,9 @@
 <div class="viewcode-block" id="ApplyNodes"><a class="viewcode-back" href="../../../autosummary/galax.nn.module.ApplyNodes.html#galax.nn.module.ApplyNodes">[docs]</a><span class="k">class</span> <span class="nc">ApplyNodes</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="n">layer</span><span class="p">:</span> <span class="n">Callable</span>
 
-    <span class="k">def</span> <span class="nf">uno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">apply_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uno</span><span class="p">)(</span><span class="n">graph</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">ndata</span><span class="p">[</span><span class="n">field</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">graph</span></div>
 </pre></div>
 
            </div>

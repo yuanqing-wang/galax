@@ -32,7 +32,6 @@ galax.nn.module.ApplyNodes
       ~ApplyNodes.setup
       ~ApplyNodes.sow
       ~ApplyNodes.tabulate
-      ~ApplyNodes.uno
       ~ApplyNodes.variable
    
    

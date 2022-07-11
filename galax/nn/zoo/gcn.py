@@ -79,7 +79,7 @@ class GCN(nn.Module):
 
         # propergate
         h = graph.ndata[field]
-        h = nn.Dropout(self.dropout)(h)
+        h = nn.Dropout(self.dropout, deterministic=self.deterministic)(h)
         graph = graph.update_all(fn.copy_u(field, "m"), fn.sum("m", field))
         h = graph.ndata[field]
 
@@ -90,6 +90,6 @@ class GCN(nn.Module):
         norm = jnp.reshape(norm, norm_shape)
 
         # transform
-        h = activation((norm * h @ kernel) * norm + bias)
+        h = activation(((norm * h) @ kernel) * norm + bias)
         graph = graph.ndata.set(field, h)
         return graph

@@ -16,19 +16,15 @@ def run():
     from galax.nn.zoo.gcn import GCN
     model = nn.Sequential(
         (
-            galax.ApplyNodes(nn.Dropout(0.5, deterministic=False)),
-            GCN(16, activation=jax.nn.relu),
-            galax.ApplyNodes(nn.Dropout(0.5, deterministic=False)),
-            GCN(7, activation=None),
+            GCN(16, activation=jax.nn.relu, dropout=0.5, deterministic=False),
+            GCN(7, activation=None, dropout=0.5, deterministic=False),
         ),
     )
 
     model_eval = nn.Sequential(
         (
-            galax.ApplyNodes(nn.Dropout(0.5, deterministic=True)),
-            GCN(16, activation=jax.nn.relu),
-            galax.ApplyNodes(nn.Dropout(0.5, deterministic=True)),
-            GCN(7, activation=None),
+            GCN(16, activation=jax.nn.relu, dropout=0.5, deterministic=True),
+            GCN(7, activation=None, dropout=0.5, deterministic=True),
         ),
     )
 
@@ -41,8 +37,8 @@ def run():
     mask = FrozenDict(
         {"params":
             {
-                "layers_1": True,
-                "layers_3": False,
+                "layers_0": True,
+                "layers_1": False,
             },
         },
     )
